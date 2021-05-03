@@ -14,6 +14,7 @@ lines = [l for l in lines if "->" in l] #trims data
 #this is stored as a list
 #TODO might need to rework this into different data structure
 edges = list()
+nodes = set()
 for line in lines:
     [a, k] = line.split("->")
     [b, l] = k.split("[label=\"")
@@ -27,9 +28,23 @@ for line in lines:
         l = "["
     else:
         l = "]"
+
+    a = int(a) #maybe not necessary
+    b = int(b)
+    
     edges.append((a,b,l))
+    nodes.add(a)
+    nodes.add(b)
 
 
 #actual algorithm
 
-#n is the number of nodes in the graph (i'm pretty sure at least)
+#n is the number of nodes in the graph (I'm pretty sure at least)
+n = len(nodes)
+
+#compute CO summary for parentheses (pp. 59:16)
+
+
+#compute CO summary for square brackets (pp. 59:16)
+
+#implementation of "precise D1 dot D1 algorithm"
