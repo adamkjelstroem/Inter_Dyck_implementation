@@ -1,0 +1,13 @@
+This file contains the list of DaCapo-2006-10-MR2 benchmarks. The names mentioned below can be used as arguments to ./run.sh and ant run.benchmark. The proper commands are mentioned in the README.md files.  
+
+1.  antlr
+2.  bloat
+3.  chart
+4.  eclipse
+5.  fop
+6.  hsqldb
+7.  jython
+8.  luindex
+9.  lusearch
+10. pmd
+11. xalan
