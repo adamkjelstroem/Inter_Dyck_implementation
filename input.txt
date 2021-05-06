@@ -1,2 +1,4 @@
 0->1[label="ob--1"]
-1->2[label="cb--1"]
+1->2[label="op--2"]
+2->3[label="cb--1"]
+3->4[label="cp--2"]
