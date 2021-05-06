@@ -1,6 +1,18 @@
 
 import sys
 
+#inverse of "[" is "]" etc
+def inv(p):
+    if p == "[":
+        return "]"
+    if p == "]":
+        return "["
+    if p == "(":
+        return ")"
+    if p == ")":
+        return "("
+    return ""
+
 #Note: maybe not the best idea for a large file
 with open(sys.argv[1], 'r') as f:
     contents = f.read()
@@ -33,6 +45,7 @@ for line in lines:
     b = int(b)
 
     edges.append((a,b,l))
+    edges.append((b,a,inv(l))) # handles bidirectedness
     nodes.add(a)
     nodes.add(b)
 
@@ -40,7 +53,7 @@ for line in lines:
 #actual algorithm
 
 
-#n is the number of nodes in the graph (I'm pretty sure at least)
+#n is the number of nodes in the graph
 n = len(nodes)
 
 print("n is " + str(n))
