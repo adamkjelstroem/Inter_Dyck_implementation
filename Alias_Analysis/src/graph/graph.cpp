@@ -10,7 +10,8 @@ void graph::construct2(string infile_name){
 	ifstream infile(infile_name);
 	string line;
 	while(std::getline(infile, line)){
-		if(line.length() > 0){
+		// if this is a non-comment line
+		if(line.find("->") != string::npos){
 			std::vector<string> tokens;
 			split(line, "->", tokens);
 			string a = tokens[0];

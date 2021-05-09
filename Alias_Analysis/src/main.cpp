@@ -14,7 +14,7 @@ int main(int argc, const char * argv[]){
 	graph g;
 	clock_t time;
 	struct timeval tv1,tv2;
-	g.construct(argv[1]);
+	g.construct2(argv[1]); //TODO we're using construct2() instead of construct()
 	g.initWorklist();
 	
 	gettimeofday(&tv1,NULL);
@@ -29,6 +29,10 @@ int main(int argc, const char * argv[]){
 	cout<<"\nBidirected Reach Algorithm"<<endl;
 	cout<<"\tTime recorded in seconds : "<<(double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec)<<"\n\n";
 
+	//TODO same here!
+	//this code has been disabled
+	/*
+
 	// previous dyck Reachability Algorithm
 	cout<<"previous existing Algorithm"<<endl;
 	Ngraph ng;   // 
@@ -42,8 +46,10 @@ int main(int argc, const char * argv[]){
 	ng.dyck_reach();
 	ntime = clock()-ntime;
 	gettimeofday(&ntv2,NULL);
-	
+
 
 	// time required for dyckReach
 	cout<<"\tTime recorded in seconds : "<<(double) (ntv2.tv_usec - ntv1.tv_usec) / 1000000 +(double) (ntv2.tv_sec - ntv1.tv_sec)<<endl;
+	*/
+
 }
