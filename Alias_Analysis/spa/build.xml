@@ -5,7 +5,7 @@
 	Windows : C:/Program Files/Java/jre<version>/lib
 	linux : /usr/lib/jvm/java<version>/jre/lib
 	Mac OS : /System/Library/Frameworks/JavaVM.framework/Classes -->
-	<property name="LIB" value="/usr/lib/jvm/java-7-openjdk-amd64/jre/lib"/>
+	<property name="LIB" value="/usr/lib/java"/>
 
 
 	<property name="SOOT_PATHS" value="${LIB}/rt.jar:${LIB}/jce.jar:${LIB}/jsse.jar:${LIB}/core.jar:${LIB}/classes.jar"/>
