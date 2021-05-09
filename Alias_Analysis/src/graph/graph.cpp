@@ -15,21 +15,26 @@ void graph::construct2(string infile_name){
 			std::vector<string> tokens;
 			split(line, "->", tokens);
 			string a = tokens[0];
-			split(tokens[1], "[label=\"", tokens);
-			string b = tokens[0];
-			string label = tokens[1];
+			std::vector<string> tokens2;
+			split(tokens[1], "[label=\"", tokens2);
+			string b = tokens2[0];
+			string label = tokens2[1];
 			
-			//parse to make data look nicer
-			if (label == "op"){
+			//parse 
+			if (label.find("op") != string::npos){
 				label = "(";
-			}else if (label == "cp"){
+				addedge(getVertex(a), getVertex(b), getfield(label));
+			}else if (label.find("cp") != string::npos){
 				label = ")";
-			}else if (label == "ob"){
+				addedge(getVertex(b), getVertex(a), getfield("("));
+			}else if (label.find("ob") != string::npos){
 				label = "[";
-			}else if (label == "cb"){
+				addedge(getVertex(a), getVertex(b), getfield(label));
+			}else if (label.find("cb") != string::npos){
 				label = "]";
-			}
-			addedge(getVertex(a), getVertex(b), getfield(label));
+				addedge(getVertex(b), getVertex(a), getfield("["));
+			} //TODO still not completely sure what kind of format the graph class uses
+			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 		}
 	}
 	dsu.init(vertices.size());
