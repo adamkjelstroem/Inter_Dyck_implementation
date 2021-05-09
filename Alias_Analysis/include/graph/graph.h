@@ -47,6 +47,7 @@ public:
 	void initWorklist();
 	void bidirectedReach();
 	void construct(string infile_name);
+	void construct2(string infile_name);
 	void addedge(Vertex *u,Vertex *v, field &f);
 	void printReach();
 	void printDetailReach();

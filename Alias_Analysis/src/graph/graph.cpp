@@ -5,6 +5,35 @@
 #include <algorithm>
 
 
+//same as below, but uses a different file input format.
+void graph::construct2(string infile_name){
+	ifstream infile(infile_name);
+	string line;
+	while(std::getline(infile, line)){
+		if(line.length() > 0){
+			std::vector<string> tokens;
+			split(line, "->", tokens);
+			string a = tokens[0];
+			split(tokens[1], "[label=\"", tokens);
+			string b = tokens[0];
+			string label = tokens[1];
+			
+			//parse to make data look nicer
+			if (label == "op"){
+				label = "(";
+			}else if (label == "cp"){
+				label = ")";
+			}else if (label == "ob"){
+				label = "[";
+			}else if (label == "cb"){
+				label = "]";
+			}
+			addedge(getVertex(a), getVertex(b), getfield(label));
+		}
+	}
+	dsu.init(vertices.size());
+}
+
 // takes the file name containing the edge information of the spg as arguement 
 // and construct a Ngraph from it
 void graph::construct(string infile_name){
