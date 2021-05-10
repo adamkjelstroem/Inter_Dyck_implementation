@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]){
 	time = clock()-time;
 	gettimeofday(&tv2,NULL);	
 
-	g.printReach();
+	g.printDetailReach();
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;

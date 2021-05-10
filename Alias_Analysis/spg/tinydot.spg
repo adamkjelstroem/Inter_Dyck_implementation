@@ -1,7 +1,14 @@
 "tiny" is in the 'new' format.
 
 0->1[label="ob--1"]
-1->2[label="cb--1"]
+1->0[label="--2"]
 
-2->3[label="op--2"]
-3->4[label="cp--2"]
+
+3->4[label="ob--1"]
+4->3[label="--2"]
+
+
+//1->2[label="cb--1"]
+
+//2->3[label="op--2"]
+//3->4[label="cp--2"]
