@@ -47,7 +47,7 @@ public:
 	void initWorklist();
 	void bidirectedReach();
 	void construct(string infile_name);
-	void construct2(string infile_name);
+
 	void addedge(Vertex *u,Vertex *v, field &f);
 	void printReach();
 	void printDetailReach();
@@ -58,6 +58,10 @@ public:
 	field& getfield(const string &s);
 	// gets the vertex with name s, if not present creates it
 	Vertex* getVertex(const string &s);
+
+	void construct2(string infile_name);
+	void construct2flattenbracket(string infile_name){
+	
 };
 
 #endif

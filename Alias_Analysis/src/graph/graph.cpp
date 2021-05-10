@@ -24,16 +24,17 @@ void graph::construct2(string infile_name){
 			string label = tokens2[1];
 			
 			//parse 
+			//note the 'flipping' s.t. we "add an edge" from a to b by calling in order (b, a, label)
 			if (label.find("op") != string::npos){
-				addedge(getVertex(a), getVertex(b), getfield("("));
-			}else if (label.find("cp") != string::npos){
 				addedge(getVertex(b), getVertex(a), getfield("("));
+			}else if (label.find("cp") != string::npos){
+				addedge(getVertex(a), getVertex(b), getfield("("));
 			}else if (label.find("ob") != string::npos){
-				addedge(getVertex(a), getVertex(b), getfield("["));
-			}else if (label.find("cb") != string::npos){
 				addedge(getVertex(b), getVertex(a), getfield("["));
+			}else if (label.find("cb") != string::npos){
+				addedge(getVertex(a), getVertex(b), getfield("["));
 			}else{
-				addedge(getVertex(a), getVertex(b), EPS);
+				addedge(getVertex(b), getVertex(a), EPS);
 				//addedge(getVertex(b), getVertex(a), EPS);
 			} 
 			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
@@ -89,8 +90,10 @@ void graph::initWorklist(){
 	cout<<"Number of vertices : "<<vertices.size()<<endl;
 	cout<<"Number of edges : "<<numedges<<endl;
 	cout<<"Number of field types : "<<fields.size()<<endl;
+
 	for(int i=0;i<vertices.size();i++){//change this
 		Vertex* vtx = vertices[i];
+		cout<<"treating "<<vtx->name<<endl;
 		if(i!=dsu.root(i)){
 			vtx->clear();
 			continue;
@@ -99,7 +102,7 @@ void graph::initWorklist(){
 		auto it = vtx->edgesbegin(); //pointer to pair<field,list<int>>
 		while(it!=vtx->edgesend()){
 			removeRepeatedges(it->second);
-			if(it->second.size()>=2)
+			if(it->second.size()>=2) 
 				worklist.push(pair<int,field>(vtx->id,it->first));
 			it++;
 		}
@@ -109,23 +112,30 @@ void graph::initWorklist(){
 // algorithm described in this paper 
 void graph::bidirectedReach(){
 	//precondition graph::initWorklist() has been called
+	cout<<worklist.size()<<" is size of worklist"<<endl;
 	while(!worklist.empty()){
 		pair<int,field> p = worklist.front();
 		worklist.pop();
 		Vertex* vtx =  vertices[p.first];
-		// cout<<vtx->name<<endl;
+		 cout<<vtx->name<<endl;
+		 cout<<p.first<<" compares with "<<dsu.root(p.first)<<endl;
 		if(p.first == dsu.root(p.first) ){
-			// cout<<vertices[p.first]->name<<endl;
+			cout<<"analyzing "<<vertices[p.first]->name<<endl;
 			std::set<int> roots;
 			int rootS = -1;
 			int rootA = getRoot(vtx,p.second,roots,rootS);
+			cout<<"roots: ";
+			for(int r : roots){
+				cout<<r<<",";
+			}
+			cout<<endl;
 			if(roots.size()<2){
 				// can roots have zero size??
 				// assert(roots.size()!=0);
 				vtx->set(p.second,*(roots.begin()));
 				continue;
 			}
-			// cout<<"doing union "<<vertices[rootA]->name<<endl;
+			 cout<<"doing union "<<vertices[rootA]->name<<endl;
 			dsuUnion(rootA,roots);
 			if(rootA==vtx->id){
 				// assert(rootS!=-1);
@@ -255,6 +265,7 @@ field& graph::getfield(const string &s){
 
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
+	cout<<u->name<<" -> "<<v->name<<" with label "<<f.field_name<<endl;
 	// if(f==EPS)
 	// 	numedges+=0.5;
 	// else 
