@@ -60,7 +60,8 @@ public:
 	Vertex* getVertex(const string &s);
 
 	void construct2(string infile_name);
-	void construct2flattenbracket(string infile_name){
+	void construct2flattenbracket(string infile_name);
+	void printDetaiLReachInterDyck();
 	
 };
 

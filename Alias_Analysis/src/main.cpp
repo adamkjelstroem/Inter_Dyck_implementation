@@ -14,7 +14,19 @@ int main(int argc, const char * argv[]){
 	graph g;
 	clock_t time;
 	struct timeval tv1,tv2;
-	g.construct2(argv[1]); //TODO we're using construct2() instead of construct()
+	
+	
+	//g.construct2(argv[1]); //NOTE using construct2 uses the new format
+	
+	struct timeval buildt1, buildt2;
+	gettimeofday(&buildt1, NULL);
+	time = clock();
+	g.construct2flattenbracket(argv[1]); //NOTE construct2flattenbracket flattens on brackets when building the graph
+	time = clock() - time;
+	gettimeofday(&buildt2, NULL);
+	cout<<"\nFlattening Algorithm"<<endl;
+	cout<<"\tTime recorded in seconds : "<<(double) (buildt2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (buildt2.tv_sec - buildt1.tv_sec)<<"\n\n";
+
 	g.initWorklist();
 	
 	gettimeofday(&tv1,NULL);
@@ -23,11 +35,14 @@ int main(int argc, const char * argv[]){
 	time = clock()-time;
 	gettimeofday(&tv2,NULL);	
 
-	g.printDetailReach();
+	g.printDetaiLReachInterDyck(); //NOTE uses "InterDyckReach"
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;
 	cout<<"\tTime recorded in seconds : "<<(double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec)<<"\n\n";
+
+	cout<<"\nTotal running time"<<endl;
+	cout<<"\tTime recorded in seconds : "<<(double) (tv2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (tv2.tv_sec - buildt1.tv_sec)<<"\n\n";
 
 	//TODO same here!
 	//this code has been disabled
