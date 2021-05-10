@@ -6,9 +6,15 @@
 
 
 //same as below, but uses a different file input format.
+//this also does flattening on one dyck language
 void graph::construct2(string infile_name){
 	ifstream infile(infile_name);
 	string line;
+
+	int n = 5; //TODO hardcoded for now
+	int c = n*n*12+n*6; //expansion factor.
+
+
 	while(std::getline(infile, line)){
 		// if this is a non-comment line
 		if(line.find("//") != string::npos){
@@ -25,16 +31,24 @@ void graph::construct2(string infile_name){
 			
 			//parse 
 			if (label.find("op") != string::npos){
-				addedge(getVertex(a), getVertex(b), getfield("("));
+				//we're flattening on brackets, so parentesis edges are mostly left as-is
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					addedge(getVertex(a + std::to_string(i)), getVertex(b + std::to_string(i)), getfield("("));
+				}
 			}else if (label.find("cp") != string::npos){
-				addedge(getVertex(b), getVertex(a), getfield("("));
-			}else if (label.find("ob") != string::npos){
-				addedge(getVertex(a), getVertex(b), getfield("["));
-			}else if (label.find("cb") != string::npos){
-				addedge(getVertex(b), getVertex(a), getfield("["));
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					//reverse order of a and b because of closing parentheses
+					addedge(getVertex(b + std::to_string(i)), getVertex(a + std::to_string(i)), getfield("("));
+				}
+			}else if (label.find("ob") != string::npos || label.find("cb") != string::npos){
+				//because of bidirectedness, processing "[" and "]"  edges means doing the same thing.
+				for(int i = 0; i < c; i++){ //note the < operator
+					addedge(getVertex(a + std::to_string(i)), getVertex(b + std::to_string(i+1)), EPS);
+				}
 			}else{
-				addedge(getVertex(a), getVertex(b), EPS);
-				//addedge(getVertex(b), getVertex(a), EPS);
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					addedge(getVertex(a + std::to_string(i)), getVertex(b + std::to_string(i)),EPS);
+				}
 			} 
 			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 		}
