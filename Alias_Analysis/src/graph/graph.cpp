@@ -43,6 +43,61 @@ void graph::construct2(string infile_name){
 	dsu.init(vertices.size());
 }
 
+//this also does flattening on one dyck language
+void graph::construct2flattenbracket(string infile_name){
+	ifstream infile(infile_name);
+	string line;
+
+	int n = 5; //TODO hardcoded for now
+	int c = n*n*12+n*6; //expansion factor.
+	c = 1;
+
+	while(std::getline(infile, line)){
+		// if this is a non-comment line
+		if(line.find("//") != string::npos){
+			continue; //skip commented lines
+		}
+		if(line.find("->") != string::npos){
+			std::vector<string> tokens;
+			split(line, "->", tokens);
+			string a = tokens[0];
+			std::vector<string> tokens2;
+			split(tokens[1], "[label=\"", tokens2);
+			string b = tokens2[0];
+			string label = tokens2[1];
+			
+			//parse 
+			cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
+			//note that a and b are flipped. this makes the graph compatible with the rest of the code base
+			//quite bizarre.
+			if (label.find("op") != string::npos){
+				//we're flattening on brackets, so parentesis edges are mostly left as-is
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					addedge(getVertex(b + ": " + std::to_string(i)), getVertex(a + ": " + std::to_string(i)), getfield("("));
+				}
+			}else if (label.find("cp") != string::npos){
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					//reverse order of a and b because of closing parentheses
+					addedge(getVertex(a + ": " + std::to_string(i)), getVertex(b + ": " + std::to_string(i)), getfield("("));
+				}
+			}else if (label.find("ob") != string::npos){
+				for(int i = 0; i < c; i++){ //note the < operator
+					addedge(getVertex(b + ": " + std::to_string(i)), getVertex(a + ": " + std::to_string(i+1)), EPS);
+				}
+			}else if(label.find("cb") != string::npos){
+				for(int i = 0; i < c; i++){ //note the < operator
+					addedge(getVertex(b + ": " + std::to_string(i+1)), getVertex(a+ ": " + std::to_string(i)), EPS);
+				}
+			}else{
+				for(int i = 0; i <= c; i++){ //note the <= operator
+					addedge(getVertex(b + ": " + std::to_string(i)), getVertex(a + ": " + std::to_string(i)),EPS);
+				}
+			} 
+		}
+	}
+	dsu.init(vertices.size());
+}
+
 // takes the file name containing the edge information of the spg as arguement 
 // and construct a Ngraph from it
 void graph::construct(string infile_name){
