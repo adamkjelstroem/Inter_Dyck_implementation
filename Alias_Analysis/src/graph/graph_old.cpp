@@ -6,15 +6,9 @@
 
 
 //same as below, but uses a different file input format.
-//this also does flattening on one dyck language
 void graph::construct2(string infile_name){
 	ifstream infile(infile_name);
 	string line;
-
-	int n = 5; //TODO hardcoded for now
-	int c = n*n*12+n*6; //expansion factor.
-	c = 1;
-
 	while(std::getline(infile, line)){
 		// if this is a non-comment line
 		if(line.find("//") != string::npos){
@@ -30,31 +24,19 @@ void graph::construct2(string infile_name){
 			string label = tokens2[1];
 			
 			//parse 
-			cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 			if (label.find("op") != string::npos){
-				//we're flattening on brackets, so parentesis edges are mostly left as-is
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					addedge(getVertex(a + ": " + std::to_string(i)), getVertex(b + ": " + std::to_string(i)), getfield("("));
-				}
+				addedge(getVertex(a), getVertex(b), getfield("("));
 			}else if (label.find("cp") != string::npos){
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					//reverse order of a and b because of closing parentheses
-					addedge(getVertex(b + ": " + std::to_string(i)), getVertex(a + ": " + std::to_string(i)), getfield("("));
-					//addedge(getVertex(a + ": " + std::to_string(i)), getVertex(b + ": " + std::to_string(i)), getfield("("));
-				}
+				addedge(getVertex(b), getVertex(a), getfield("("));
 			}else if (label.find("ob") != string::npos){
-				for(int i = 0; i < c; i++){ //note the < operator
-					addedge(getVertex(a + ": " + std::to_string(i)), getVertex(b + ": " + std::to_string(i+1)), EPS);
-				}
-			}else if(label.find("cb") != string::npos){
-				for(int i = 0; i < c; i++){ //note the < operator
-					addedge(getVertex(a + ": " + std::to_string(i+1)), getVertex(b + ": " + std::to_string(i)), EPS);
-				}
+				addedge(getVertex(a), getVertex(b), getfield("["));
+			}else if (label.find("cb") != string::npos){
+				addedge(getVertex(b), getVertex(a), getfield("["));
 			}else{
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					addedge(getVertex(a + ": " + std::to_string(i)), getVertex(b + ": " + std::to_string(i)),EPS);
-				}
+				addedge(getVertex(a), getVertex(b), EPS);
+				//addedge(getVertex(b), getVertex(a), EPS);
 			} 
+			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 		}
 	}
 	dsu.init(vertices.size());
@@ -273,7 +255,6 @@ field& graph::getfield(const string &s){
 
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
-	cout<<"\t"<<u->name<<" -> "<<v->name<<" with label "<<f.field_name<<endl;
 	// if(f==EPS)
 	// 	numedges+=0.5;
 	// else 
@@ -292,24 +273,12 @@ void graph::printDetailReach(){
 	}
 	auto it = scc.begin();
 	while(it!=scc.end()){
-		bool can_print = true;
-		for(int elem : it-> second){
-			std::vector<string> tokens;
-			split(vertices[elem]->name, ":", tokens);
-			if(tokens[1] != "0"){
-				can_print = false;
-				break;
-			}
+		cout<<"printing elements belonging to scc "<<it->first<<endl;
+		for(int elem : it->second){
+			cout<<vertices[elem]->name<<"\n";
+			// cout<<vertices[elem]->id<<" ";
 		}
-		if(can_print || true){
-			cout<<"printing elements belonging to scc "<<it->first<<endl;
-
-			for(int elem : it->second){
-				cout<<vertices[elem]->name<<", ";
-				// cout<<vertices[elem]->id<<" ";
-			}
-			cout<<endl;
-		}
+		cout<<endl;
 		it++;
 	}
 }
