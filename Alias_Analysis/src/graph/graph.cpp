@@ -25,16 +25,12 @@ void graph::construct2(string infile_name){
 			
 			//parse 
 			if (label.find("op") != string::npos){
-				label = "(";
-				addedge(getVertex(a), getVertex(b), getfield(label));
+				addedge(getVertex(a), getVertex(b), getfield("("));
 			}else if (label.find("cp") != string::npos){
-				label = ")";
 				addedge(getVertex(b), getVertex(a), getfield("("));
 			}else if (label.find("ob") != string::npos){
-				label = "[";
-				addedge(getVertex(a), getVertex(b), getfield(label));
+				addedge(getVertex(a), getVertex(b), getfield("["));
 			}else if (label.find("cb") != string::npos){
-				label = "]";
 				addedge(getVertex(b), getVertex(a), getfield("["));
 			}else{
 				addedge(getVertex(a), getVertex(b), EPS);
