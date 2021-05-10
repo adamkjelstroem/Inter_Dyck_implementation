@@ -30,7 +30,6 @@ def parse(filename):
 
 
     lines = contents.split("\n")
-    lines = [l for l in lines if "->" in l] #trims data
 
     #load edges into data structure
     #structure is (start, end, label)
@@ -39,6 +38,8 @@ def parse(filename):
     edges = list()
     nodes = set()
     for line in lines:
+        if "//" in line or not "->" in line:
+            continue # skips commented lines
         [a, k] = line.split("->")
         [b, l] = k.split("[label=\"")
         l = l[:2]
@@ -49,14 +50,19 @@ def parse(filename):
             l = ")"
         elif l == "ob":
             l = "["
-        else:
+        elif l == "cb":
             l = "]"
+        else:
+            l = ""
 
         a = int(a)
         b = int(b)
 
         edges.append((a,b,l))
-        edges.append((b,a,inv(l))) # handles bidirectedness
+        
+        #we apparently don't need to add reverse edges as fwd ed
+        #edges.append((b,a,inv(l))) # handles bidirectedness
+        
         nodes.add(a)
         nodes.add(b)
     return nodes, edges
@@ -117,15 +123,14 @@ while queue:
     if len(queue) % 100 == 0:
         print("queue size: " + str(len(queue)))
     el = queue.pop()
-    (u, v, l) = el;
+    (u, v, l) = el
     sum2 = set()
+    def a(u, v, l):
+        new_edge = (u, v, l)
+        if not new_edge in sum2 and not new_edge in summary:
+            queue.add(new_edge)
+            sum2.add(new_edge)
     for edge in summary:
-        def a(u, v, l):
-            new_edge = (u, v, l)
-            if not new_edge in sum2 and not new_edge in summary:
-                queue.add(new_edge)
-                sum2.add(new_edge)
-
         (u1, v1, l1) = edge
         if u == v1:
             #"edge" is in-edge of el
@@ -162,3 +167,46 @@ for s in summary:
             print("path from " + str(u) + " to " + str(v))
 
 timer("Done printing solutions!")
+
+timer("Printing solutions as strongly connected components")
+
+sccs = [] #strongly connected components
+for s in summary:
+    (u1, v1, l) = s
+    if l == "":
+        (u, i) = u1
+        (v, j) = v1
+        if i == 0 and j == 0:
+            added_u = False
+            scc_u = 0
+            scc_v = 0
+            for scc in sccs:
+                if u in scc:
+                    scc_u = scc
+                    for scc2 in sccs:
+                         if v in scc2:
+                             scc_v = scc2
+                             break
+                    break
+            if scc_u == 0:
+                if scc_v == 0:
+                    # neither is already added; add them to their own
+                    sccs.append({u, v})
+                else:
+                    # v is added, but u isn't. add u to the set of v
+                    scc_v.add(u)
+            else:
+                if scc_v == 0:
+                    # u is added, but v isn't.
+                    scc_u.add(v)
+                else:
+                    # both are already added to different sets; take scc_v out and add its contents to scc_u
+                    sccs.remove(scc_v)
+                    for x in scc_v:
+                        scc_u.add(x)
+                
+            
+timer("Found " + str(len(sccs)) + " strongly connected components: ")
+for scc in sccs:
+    print(" - " + str(scc))
+
