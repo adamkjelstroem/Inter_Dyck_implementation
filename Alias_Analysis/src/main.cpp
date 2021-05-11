@@ -11,21 +11,23 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 	// Bidirected Reach Algorithm
-	graph g;
+	graph g2, g;
 	clock_t time;
 	struct timeval tv1,tv2;
 	
 	
-	//g.construct2(argv[1]); //NOTE using construct2 uses the new format
+	g2.construct2(argv[1]); //NOTE using construct2 uses the new format
+	
 	
 	struct timeval buildt1, buildt2;
 	gettimeofday(&buildt1, NULL);
 	time = clock();
-	g.construct2flattenbracket(argv[1]); //NOTE construct2flattenbracket flattens on brackets when building the graph
+	g = g2.flattenbracket();
 	time = clock() - time;
 	gettimeofday(&buildt2, NULL);
 	cout<<"\nFlattening Algorithm"<<endl;
-	cout<<"\tTime recorded in seconds : "<<(double) (buildt2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (buildt2.tv_sec - buildt1.tv_sec)<<"\n\n";
+	double flatten_time_s = (double) (buildt2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (buildt2.tv_sec - buildt1.tv_sec);
+	cout<<"\tTime recorded in seconds : "<<flatten_time_s<<"\n\n";
 
 	g.initWorklist();
 	
@@ -39,10 +41,11 @@ int main(int argc, const char * argv[]){
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;
-	cout<<"\tTime recorded in seconds : "<<(double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec)<<"\n\n";
+	double bidir_reach_time_s = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec);
+	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s<<"\n\n";
 
 	cout<<"\nTotal running time"<<endl;
-	cout<<"\tTime recorded in seconds : "<<(double) (tv2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (tv2.tv_sec - buildt1.tv_sec)<<"\n\n";
+	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s + flatten_time_s<<"\n\n";
 
 	//TODO same here!
 	//this code has been disabled

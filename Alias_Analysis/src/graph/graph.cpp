@@ -42,8 +42,54 @@ void graph::construct2(string infile_name){
 	dsu.init(vertices.size());
 }
 
+graph graph::flattenbracket(){
+	graph g;
+
+	int n = vertices.size();
+	int c = n*n*12+n*6; //expansion factor.
+	c = 2;
+	for (int i = 0; i < c; i++){ //TODO <= c??
+		//TODO build graph
+		for (auto vertex : vertices){
+			auto fit = vertex->edgesbegin();   
+			while(fit!=vertex->edgesend()){   // iterating over field
+				field f = fit->first; 
+				//f.field_name is edge label name
+				auto fedgeit = vertex->edgesbegin(f);
+				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+					//"vertices[*fedgeit]" is end vertex
+					//"vertex" is start vertex
+
+					if(f.field_name == "["){
+						//flatten on brackets
+						g.addedge(
+							g.getVertex(vertex->name + ": " + to_string(i+1)),
+							g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+							EPS
+						);
+					}else{
+						g.addedge(
+							g.getVertex(vertex->name + ": " + to_string(i)),
+							g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+							g.getfield(f.field_name)
+						);
+					}
+
+					fedgeit++;
+				}
+				fit++;
+			}
+		}
+	}
+	g.dsu.init(g.vertices.size());
+
+	return g;
+}
+
+
 //this also does flattening on one dyck language
 void graph::construct2flattenbracket(string infile_name){
+	//TODO old code; should be removed.
 	ifstream infile(infile_name);
 	string line;
 
@@ -308,7 +354,8 @@ field& graph::getfield(const string &s){
 
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
-	//cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
+	if(u != v) 
+		cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
 	// if(f==EPS)
 	// 	numedges+=0.5;
 	// else 
