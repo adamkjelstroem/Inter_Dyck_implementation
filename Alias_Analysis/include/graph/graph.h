@@ -63,6 +63,7 @@ public:
 	void construct2flattenbracket(string infile_name);
 	void printDetaiLReachInterDyck();
 	graph flattenbracket();
+	void printFlattenedGraphAsTikz();
 	
 };
 

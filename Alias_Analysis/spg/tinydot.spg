@@ -2,24 +2,24 @@
 
 
 //simplest possible InterDyck 1x1 example: "[(])"
-//0->1[label="ob]
-//1->2[label="op]
-//2->3[label="cb]
-//3->4[label="cp]
+0->1[label="ob]
+1->2[label="op]
+2->3[label="cb]
+3->4[label="cp]
 
 
 //example from A. Pavlogiannis 1:8
 //blue is bracket
 //yellow is parenthesis
 
-0->1[label="cp
-1->2[label="cb]
-0->0p[label="ob]
-0p->0[label="op]
-1->1p[label="ob]
-1p->1[label="cp]
-2->2p[label="ob]
-2p->2[label="op]
+//0->1[label="cp
+//1->2[label="cb]
+//0->3[label="ob]
+//3->0[label="op]
+//1->4[label="ob]
+//4->1[label="cp]
+//2->5[label="ob]
+//5->2[label="op]
 
 
 

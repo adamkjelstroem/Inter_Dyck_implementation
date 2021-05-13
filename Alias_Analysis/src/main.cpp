@@ -30,6 +30,9 @@ int main(int argc, const char * argv[]){
 	cout<<"\tTime recorded in seconds : "<<flatten_time_s<<"\n\n";
 
 	g.initWorklist();
+
+
+	g.printFlattenedGraphAsTikz();
 	
 	gettimeofday(&tv1,NULL);
 	time = clock();
@@ -46,6 +49,9 @@ int main(int argc, const char * argv[]){
 
 	cout<<"\nTotal running time"<<endl;
 	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s + flatten_time_s<<"\n\n";
+
+	cout<<endl<<endl;
+
 
 	//TODO same here!
 	//this code has been disabled

@@ -49,7 +49,7 @@ graph graph::flattenbracket(){
 
 	int n = vertices.size();
 	int c = n*n*12+n*6; //expansion factor.
-	c = 2; //TODO shrink graph for testing purposes
+	c = 7; //TODO shrink graph for testing purposes
 	for (int i = 0; i < c; i++){ 
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
@@ -85,6 +85,45 @@ graph graph::flattenbracket(){
 	g.dsu.init(g.vertices.size());
 
 	return g;
+}
+
+void graph::printFlattenedGraphAsTikz(){
+	cout<<"PRINTING AS TIKZ"<<endl<<endl;
+
+	cout<<"\\begin{tikzpicture}"<<endl;
+
+	for (Vertex* v : vertices){
+		std::vector<string> tokens;
+		split((*v).name ,":",tokens);
+		
+		cout<<"\\node ("<<(*v).id<<") at ("<<std::stoi(tokens[0]) * 2<<","<<std::stoi(tokens[1])*2<<") {"<<(*v).name<<"};"<<endl;
+
+	}
+
+	cout<<endl;
+
+	for (Vertex* vtx : vertices){
+		auto fit = vtx->edgesbegin();
+		while(fit!=vtx->edgesend()){   // iterating over field
+			field f = fit->first;
+			auto fedgeit = vtx->edgesbegin(f);
+			while(fedgeit != vtx->edgesend(f)){   // iterating over edges
+				std::string name = f.field_name;
+				if (name == "eps") name = " ";
+				if(vtx->id != vertices[*fedgeit]->id)
+					cout<< "\\path [->] ("<<vtx->id<<") edge [bend right=20] node {$"<<name<<"$} ("<<vertices[*fedgeit]->id<<");"<<endl;
+				fedgeit++;
+			}
+			fit++;
+		}
+	}
+
+	//for (nodev)
+
+	cout<<"\\end{tikzpicture}"<<endl;
+
+	cout<<endl<<"DONE PRINTING"<<endl;
+
 }
 
 
@@ -355,12 +394,8 @@ field& graph::getfield(const string &s){
 
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
-	if(u != v)
-		cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
-	// if(f==EPS)
-	// 	numedges+=0.5;
-	// else
-		numedges++;
+	//if(u != v) cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
+	numedges++;
 }
 
 void graph::printReach(){
