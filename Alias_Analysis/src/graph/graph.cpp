@@ -108,10 +108,13 @@ void graph::printFlattenedGraphAsTikz(){
 			field f = fit->first;
 			auto fedgeit = vtx->edgesbegin(f);
 			while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-				std::string name = f.field_name;
-				if (name == "eps") name = " ";
-				if(vtx->id != vertices[*fedgeit]->id)
-					cout<< "\\path [->] ("<<vtx->id<<") edge [bend right=20] node {$"<<name<<"$} ("<<vertices[*fedgeit]->id<<");"<<endl;
+				if(vtx->id != vertices[*fedgeit]->id){
+					if (f.field_name == "eps"){
+						cout<< "\\path ("<<vtx->id<<") edge node {$ $} ("<<vertices[*fedgeit]->id<<");"<<endl;
+					}else{
+						cout<< "\\path [->, red] ("<<vtx->id<<") edge [bend right=20] node {$ $} ("<<vertices[*fedgeit]->id<<");"<<endl;
+					}
+				}
 				fedgeit++;
 			}
 			fit++;
@@ -441,8 +444,9 @@ void graph::printDetaiLReachInterDyck(){
 			for(int elem : it->second){
 				std::vector<string> tokens;
 				split(vertices[elem]->name,":",tokens);
-				if(tokens[1] == "0"){
-					cout<<tokens[0]<<"\n";
+				if(tokens[1] == "0" || true){ //TODO disabled for test
+					cout<<vertices[elem]->id<<"\n";
+					//cout<<tokens[0]<<"\n";
 				}
 			}
 			cout<<endl;
