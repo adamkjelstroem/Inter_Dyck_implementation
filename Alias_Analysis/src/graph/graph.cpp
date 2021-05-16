@@ -49,7 +49,7 @@ graph graph::flattenbracket(){
 
 	int n = vertices.size();
 	int c = n*n*12+n*6; //expansion factor.
-	c = 7; //TODO shrink graph for testing purposes
+	c = 10; //TODO shrink graph for testing purposes
 	for (int i = 0; i < c; i++){ 
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
@@ -61,13 +61,14 @@ graph graph::flattenbracket(){
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
 
-					if(f.field_name == "["){
+					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
-						g.addedge(
-							g.getVertex(vertex->name + ": " + to_string(i+1)),
-							g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
-							EPS
-						);
+						if(i+1!=c)
+							g.addedge(
+								g.getVertex(vertex->name + ": " + to_string(i+1)),
+								g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+								g.EPS
+							);
 					}else{
 						g.addedge(
 							g.getVertex(vertex->name + ": " + to_string(i)),
@@ -110,9 +111,9 @@ void graph::printFlattenedGraphAsTikz(){
 			while(fedgeit != vtx->edgesend(f)){   // iterating over edges
 				if(vtx->id != vertices[*fedgeit]->id){
 					if (f.field_name == "eps"){
-						cout<< "\\path ("<<vtx->id<<") edge node {$ $} ("<<vertices[*fedgeit]->id<<");"<<endl;
+						cout<< "\\path ("<<vertices[*fedgeit]->id<<") edge node {$ $} ("<<vtx->id<<");"<<endl;
 					}else{
-						cout<< "\\path [->, red] ("<<vtx->id<<") edge [bend right=20] node {$ $} ("<<vertices[*fedgeit]->id<<");"<<endl;
+						cout<< "\\path [->, red] ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
 					}
 				}
 				fedgeit++;
@@ -445,7 +446,7 @@ void graph::printDetaiLReachInterDyck(){
 				std::vector<string> tokens;
 				split(vertices[elem]->name,":",tokens);
 				if(tokens[1] == "0" || true){ //TODO disabled for test
-					cout<<vertices[elem]->id<<"\n";
+					cout<<"id:"<<vertices[elem]->id<<" with name: "<<vertices[elem]->name<<"\n";
 					//cout<<tokens[0]<<"\n";
 				}
 			}
