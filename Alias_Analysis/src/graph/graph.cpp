@@ -42,15 +42,11 @@ void graph::construct2(string infile_name){
 	dsu.init(vertices.size());
 }
 
-//performs graph flattening on brackets.
-//causes Theta(n^2) expansion of graph size
-graph graph::flattenbracket(){
+//performs graph flattening on brackets to depth 'depth'
+graph graph::flattenbracket(int depth){
 	graph g;
 
-	int n = vertices.size();
-	int c = n*n*12+n*6; //expansion factor.
-	c = 10; //TODO shrink graph for testing purposes
-	for (int i = 0; i < c; i++){ 
+	for (int i = 0; i < depth; i++){ 
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
 			while(fit!=vertex->edgesend()){   // iterating over field
@@ -86,6 +82,16 @@ graph graph::flattenbracket(){
 	g.dsu.init(g.vertices.size());
 
 	return g;
+}
+
+	g.printFlattenedGraphAsTikz();
+	int n = vertices.size();
+	int c = 18*n*n + 6*n;
+	while(<<something>>){
+
+	}
+
+	//compute SCCs
 }
 
 void graph::printFlattenedGraphAsTikz(){
