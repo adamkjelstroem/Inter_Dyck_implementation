@@ -59,7 +59,7 @@ graph graph::flattenbracket(int depth){
 
 					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
-						if(i+1!=c)
+						if(i+1!=depth)
 							g.addedge(
 								g.getVertex(vertex->name + ": " + to_string(i+1)),
 								g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
@@ -84,14 +84,107 @@ graph graph::flattenbracket(int depth){
 	return g;
 }
 
-	g.printFlattenedGraphAsTikz();
+
+void graph::flattenReach() {
+	//construct 2 layer graph
+	graph g = flattenbracket(2);
+
+	
+
 	int n = vertices.size();
 	int c = 18*n*n + 6*n;
-	while(<<something>>){
+	c = 6;
+	for(int i = 2; i < c; i++){
+		//demo
+		g.initWorklist();
+		
+		cout<<"layer "<<i<<"\\\\"<<endl;
+		g.printFlattenedGraphAsTikz();
 
+
+		//compute SCCs
+		g.bidirectedReach();
+
+		g.printDetaiLReachInterDyck();
+
+		//build new graph
+		graph g2;
+		for(int j=0;j<g.N;j++){
+			auto vertex = g.vertices[j];
+			auto fit = vertex->edgesbegin();
+
+			auto start_root = g.vertices[g.dsu.root(j)]->name;
+			while(fit!=vertex->edgesend()){   // iterating over field
+				field f = fit->first;
+				//f.field_name is edge label name
+				auto fedgeit = vertex->edgesbegin(f);
+				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+					auto end_root = g.vertices[g.dsu.root(*fedgeit)]->name;
+			
+					
+					//"vertices[*fedgeit]" is end vertex
+					//"vertex" is start vertex
+					
+					//cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<endl;
+
+					g2.addedge(
+						g2.getVertex(start_root),
+						g2.getVertex(end_root), //end node
+						g2.getfield(f.field_name)
+					);
+					
+					fedgeit++;
+				}
+				fit++;
+			}
+		}
+		
+
+		//add new layer
+		for (auto vertex : vertices){
+			auto fit = vertex->edgesbegin();
+			while(fit!=vertex->edgesend()){   // iterating over field
+				field f = fit->first;
+				//f.field_name is edge label name
+				auto fedgeit = vertex->edgesbegin(f);
+				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+					//"vertices[*fedgeit]" is end vertex
+					//"vertex" is start vertex
+					auto end_root = g.vertices[g.dsu.root(*fedgeit)]->name;
+			
+					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
+						//flatten on brackets
+						if(i+1!=c)
+							g2.addedge(
+								g2.getVertex(vertex->name + ": " + to_string(i+1)),
+								g2.getVertex(end_root), //end node
+								g2.EPS
+							);
+					}else{
+						g2.addedge(
+							g2.getVertex(vertex->name + ": " + to_string(i)),
+							g2.getVertex(end_root), //end node
+							g2.getfield(f.field_name)
+						);
+					}
+
+					fedgeit++;
+				}
+				fit++;
+			}
+		}
+
+		//before using new graph:
+		g2.dsu.init(g2.vertices.size());
+
+
+		//overwrite old graph with new
+		g = g2;
+		//TODO remove DSU.posOfVtx ? 
 	}
 
-	//compute SCCs
+
+	g.printFlattenedGraphAsTikz();
 }
 
 void graph::printFlattenedGraphAsTikz(){
@@ -103,7 +196,7 @@ void graph::printFlattenedGraphAsTikz(){
 		std::vector<string> tokens;
 		split((*v).name ,":",tokens);
 		
-		cout<<"\\node ("<<(*v).id<<") at ("<<std::stoi(tokens[0]) * 2<<","<<std::stoi(tokens[1])*2<<") {"<<(*v).name<<"};"<<endl;
+		cout<<"\\node ("<<(*v).id<<") at ("<<std::stoi(tokens[0]) * 2<<","<<std::stoi(tokens[tokens.size() - 1])*2<<") {"<<(*v).name<<"};"<<endl;
 
 	}
 
@@ -446,17 +539,17 @@ void graph::printDetaiLReachInterDyck(){
 				if(zero_elems>=2) break;
 			}
 		}
-		if(zero_elems>=2){
-			cout<<"printing elements belonging to the same Strongly Connected Component:"<<endl;
+		if(zero_elems>=1){
+			cout<<"scc: \\{";
 			for(int elem : it->second){
 				std::vector<string> tokens;
 				split(vertices[elem]->name,":",tokens);
-				if(tokens[1] == "0" || true){ //TODO disabled for test
-					cout<<"id:"<<vertices[elem]->id<<" with name: "<<vertices[elem]->name<<"\n";
+				if(tokens[1] == "0"){ //TODO disabled for test
+					cout<<vertices[elem]->name<<", ";
 					//cout<<tokens[0]<<"\n";
 				}
 			}
-			cout<<endl;
+			cout<<"\\}\\\\"<<endl;
 		}
 		it++;
 	}

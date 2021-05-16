@@ -18,11 +18,15 @@ int main(int argc, const char * argv[]){
 	
 	g2.construct2(argv[1]); //NOTE using construct2 uses the new format
 	
+
+	g2.flattenReach();
+	
+	if(true)return 0;
 	
 	struct timeval buildt1, buildt2;
 	gettimeofday(&buildt1, NULL);
 	time = clock();
-	g = g2.flattenbracket();
+	g = g2.flattenbracket(6); //TODO hardcoded
 	time = clock() - time;
 	gettimeofday(&buildt2, NULL);
 	cout<<"\nFlattening Algorithm"<<endl;
@@ -33,6 +37,7 @@ int main(int argc, const char * argv[]){
 
 
 	g.printFlattenedGraphAsTikz();
+
 	
 	gettimeofday(&tv1,NULL);
 	time = clock();
@@ -51,7 +56,7 @@ int main(int argc, const char * argv[]){
 	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s + flatten_time_s<<"\n\n";
 
 	cout<<endl<<endl;
-
+	
 
 	//TODO same here!
 	//this code has been disabled
