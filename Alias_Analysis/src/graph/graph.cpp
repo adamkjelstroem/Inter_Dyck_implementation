@@ -87,9 +87,11 @@ graph graph::flattenbracket(int depth){
 
 void graph::flattenReach() {
 	//construct 2 layer graph
-	initWorklist();
+	initWorklist(); //TODO is this necessary?
 	graph g = flattenbracket(2);
 
+	
+	
 	int n = vertices.size();
 	int c = 18*n*n + 6*n;
 	c = 6;
@@ -97,35 +99,47 @@ void graph::flattenReach() {
 		//demo
 		g.initWorklist();
 		
-		cout<<"\\\\"<<endl;
-		cout<<"\\\\"<<endl;
-		cout<<"layer "<<i<<"\\\\"<<endl;
-		g.printFlattenedGraphAsTikz();
+		//cout<<"\\\\"<<endl;
+		//cout<<"\\\\"<<endl;
+		//cout<<""<<i<<" layers\\\\"<<endl;
+
+		//g.printFlattenedGraphAsTikz();
 
 
 		//compute SCCs
 		g.bidirectedReach();
 
-		g.printDetaiLReachInterDyck();
+		//g.printDetaiLReachInterDyck();
 
 		//find layer zero items that have been joined, and merge them
+		
+		
 		map<int,set<int>> scc;
-		for(int i=0;i<this->N;i++){
+		for(int i=0;i<g.N;i++){
 			scc[g.dsu.root(i)].insert(i);
 		}
 		auto it = scc.begin();
 		while(it!=scc.end()){
-			int first = -1;
+			int zero_elems = 0;
+			int first_zero = -1;
 			for(int elem : it->second){
 				std::vector<string> tokens;
 				split(g.vertices[elem]->name,":",tokens);
-
 				if(tokens[1] == "0"){
-					if(first == -1){
-						first = str2vtx[tokens[0]]->id;
-					}else{
-						cout<<"merging "<<vertices[first]->name<<" and "<<str2vtx[tokens[0]]->name<<endl;
-						dsu.merge(first, str2vtx[tokens[0]]->id);
+					zero_elems++;
+					first_zero = std::stoi(tokens[0]);
+					if(zero_elems>=2) break;
+				}
+			}
+			if(zero_elems>=2){
+				for(int elem : it->second){
+					std::vector<string> tokens;
+					split(g.vertices[elem]->name,":",tokens);
+					if(tokens[1] == "0"){ //TODO disabled for test
+						dsu.merge(
+							dsu.root(std::stoi(tokens[0])),
+							dsu.root(first_zero)
+							);
 					}
 				}
 			}
@@ -164,9 +178,9 @@ void graph::flattenReach() {
 			}
 		}
 		
-
 		//add new layer
-		for (auto vertex : vertices){
+		for (int k = 0; k < vertices.size(); k++){
+			auto vertex = vertices[k];
 			auto fit = vertex->edgesbegin();
 			while(fit!=vertex->edgesend()){   // iterating over field
 				field f = fit->first;
@@ -175,20 +189,34 @@ void graph::flattenReach() {
 				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
-					auto end_root = g.vertices[g.dsu.root(*fedgeit)]->name;
-			
 					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
-						if(i+1!=c)
-							g2.addedge(
-								g2.getVertex(vertex->name + ": " + to_string(i+1)),
-								g2.getVertex(end_root), //end node
-								g2.EPS
-							);
-					}else{
+						//if(i+1!=c)
+						
+						auto start_name = vertices[*fedgeit]->name + ": " + to_string(i-1);
+
+						auto start_root = g.vertices[g.dsu.root(g.getVertex(start_name)->id)]->name;
+						
+						//auto end_root = g.vertices[g.dsu.root(*fedgeit)]->name;
+						//auto start_root = g.vertices[g.dsu.root(k)]->name;
+						
+						//if(*fedgeit == k) break;
+						
+						//cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
+						//cout<<"\\\\"<<endl;
+
+					
+						//flattened edges connect between layers
 						g2.addedge(
 							g2.getVertex(vertex->name + ": " + to_string(i)),
-							g2.getVertex(end_root), //end node
+							g2.getVertex(start_root), //end node
+							g2.EPS
+						);
+					}else{
+						//non-flattened edges connect 'inside' layers
+						g2.addedge(
+							g2.getVertex(vertex->name + ": " + to_string(i)),
+							g2.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
 							g2.getfield(f.field_name)
 						);
 					}
@@ -205,22 +233,47 @@ void graph::flattenReach() {
 
 		//overwrite old graph with new
 		g = g2;
-		//TODO remove DSU.posOfVtx ? 
 	}
 
 
-	g.printFlattenedGraphAsTikz();
+	//g.printFlattenedGraphAsTikz();
 
-	cout<<"FINAL PRINT"<<endl;
+	//Print results
+	/*
+	map<int,set<int>> scc;
+	for(int i=0;i<this->N;i++){
+		scc[dsu.root(i)].insert(i);
+	}	
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		cout<<"scc: \\{";
+		for(int elem : it->second){
+			cout<<vertices[elem]->id<<", "; //NOTE using id, not name!
+		}
+		cout<<"\\}\\\\"<<endl;
+		
+		it++;
+	}
+	*/
+}
 
-	printDetailReach();
-
-
-	
+void graph::printNumReachablePairs(){
+	int n = 0;
+	//Print results
+	map<int,int> scc;
+	for(int i=0;i<this->N;i++){
+		scc[dsu.root(i)]++;
+	}	
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		n += (it->second - 1) * it->second / 2;	
+		it++;
+	}
+	cout<<"Number of reachable pairs:"<<endl;
+	cout<<n<<endl;
 }
 
 void graph::printFlattenedGraphAsTikz(){
-	cout<<"PRINTING AS TIKZ"<<endl<<endl;
 
 	cout<<"\\begin{tikzpicture}"<<endl;
 
@@ -255,9 +308,7 @@ void graph::printFlattenedGraphAsTikz(){
 
 	//for (nodev)
 
-	cout<<"\\end{tikzpicture}"<<endl;
-
-	cout<<endl<<"DONE PRINTING"<<endl;
+	cout<<"\\end{tikzpicture}\\"<<endl;
 
 }
 
@@ -362,9 +413,9 @@ void graph::construct(string infile_name){
 
 
 void graph::initWorklist(){
-	cout<<"Number of vertices : "<<vertices.size()<<endl;
-	cout<<"Number of edges : "<<numedges<<endl;
-	cout<<"Number of field types : "<<fields.size()<<endl;
+	//cout<<"Number of vertices : "<<vertices.size()<<endl;
+	//cout<<"Number of edges : "<<numedges<<endl;
+	//cout<<"Number of field types : "<<fields.size()<<endl;
 
 	for(int i=0;i<vertices.size();i++){//change this
 		Vertex* vtx = vertices[i];
@@ -545,12 +596,12 @@ void graph::printDetailReach(){
 	}
 	auto it = scc.begin();
 	while(it!=scc.end()){
-		cout<<"printing elements belonging to scc "<<it->first<<endl;
+			cout<<"scc "<<it->first<<": \\{";
 		for(int elem : it->second){
-			cout<<vertices[elem]->name<<"\n";
+			cout<<vertices[elem]->name<<", ";
 			// cout<<vertices[elem]->id<<" ";
 		}
-		cout<<endl;
+		cout<<"\\}\\\\"<<endl;
 		it++;
 	}
 }
@@ -577,7 +628,7 @@ void graph::printDetaiLReachInterDyck(){
 				std::vector<string> tokens;
 				split(vertices[elem]->name,":",tokens);
 				if(tokens[1] == "0"){ //TODO disabled for test
-					cout<<vertices[elem]->name<<", ";
+					cout<<tokens[0]<<", ";
 					//cout<<tokens[0]<<"\n";
 				}
 			}

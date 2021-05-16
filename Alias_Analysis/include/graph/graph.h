@@ -51,6 +51,7 @@ public:
 	void addedge(Vertex *u,Vertex *v, field &f);
 	void printReach();
 	void printDetailReach();
+	void printDetailReach(DSU* dsu);
 	void printGraph();
 	void printEdges(Vertex *vtx);
 	bool query(int uid,int vid);
@@ -65,7 +66,7 @@ public:
 	graph flattenbracket(int depth);
 	void flattenReach();
 	void printFlattenedGraphAsTikz();
-	
+	void printNumReachablePairs();
 };
 
 #endif

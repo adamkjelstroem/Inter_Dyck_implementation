@@ -16,45 +16,29 @@ int main(int argc, const char * argv[]){
 	struct timeval tv1,tv2;
 	
 	
-	g2.construct2(argv[1]); //NOTE using construct2 uses the new format
-	
+	g.construct2(argv[1]); //NOTE using construct2 uses the new format
+	//graph is now loaded into memory 
 
-	g2.flattenReach();
+	//g.printGraph();
 	
-	
-	struct timeval buildt1, buildt2;
-	gettimeofday(&buildt1, NULL);
+	cout<<"Graph loaded from file"<<endl;
+	gettimeofday(&tv1, NULL);
 	time = clock();
-	graph g3;
-	g3.construct2(argv[1]);
-	g = g3.flattenbracket(6); //TODO hardcoded
+
+	g.flattenReach();
+
 	time = clock() - time;
-	gettimeofday(&buildt2, NULL);
-	cout<<"\nFlattening Algorithm"<<endl;
-	double flatten_time_s = (double) (buildt2.tv_usec - buildt1.tv_usec) / 1000000 +(double) (buildt2.tv_sec - buildt1.tv_sec);
-	cout<<"\tTime recorded in seconds : "<<flatten_time_s<<"\n\n";
+	gettimeofday(&tv2, NULL);
 
-	g.initWorklist();
+	//g.printDetailReach();
 
+	g.printNumReachablePairs();
 
-	//g.printFlattenedGraphAsTikz();
-
-	
-	gettimeofday(&tv1,NULL);
-	time = clock();
-	g.bidirectedReach();
-	time = clock()-time;
-	gettimeofday(&tv2,NULL);	
-
-	g.printDetaiLReachInterDyck(); //NOTE uses "InterDyckReach"
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;
 	double bidir_reach_time_s = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec);
 	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s<<"\n\n";
-
-	cout<<"\nTotal running time"<<endl;
-	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s + flatten_time_s<<"\n\n";
 
 	cout<<endl<<endl;
 	
