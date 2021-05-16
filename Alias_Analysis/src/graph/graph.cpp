@@ -87,9 +87,8 @@ graph graph::flattenbracket(int depth){
 
 void graph::flattenReach() {
 	//construct 2 layer graph
+	initWorklist();
 	graph g = flattenbracket(2);
-
-	
 
 	int n = vertices.size();
 	int c = 18*n*n + 6*n;
@@ -98,6 +97,8 @@ void graph::flattenReach() {
 		//demo
 		g.initWorklist();
 		
+		cout<<"\\\\"<<endl;
+		cout<<"\\\\"<<endl;
 		cout<<"layer "<<i<<"\\\\"<<endl;
 		g.printFlattenedGraphAsTikz();
 
@@ -106,6 +107,30 @@ void graph::flattenReach() {
 		g.bidirectedReach();
 
 		g.printDetaiLReachInterDyck();
+
+		//find layer zero items that have been joined, and merge them
+		map<int,set<int>> scc;
+		for(int i=0;i<this->N;i++){
+			scc[g.dsu.root(i)].insert(i);
+		}
+		auto it = scc.begin();
+		while(it!=scc.end()){
+			int first = -1;
+			for(int elem : it->second){
+				std::vector<string> tokens;
+				split(g.vertices[elem]->name,":",tokens);
+
+				if(tokens[1] == "0"){
+					if(first == -1){
+						first = str2vtx[tokens[0]]->id;
+					}else{
+						cout<<"merging "<<vertices[first]->name<<" and "<<str2vtx[tokens[0]]->name<<endl;
+						dsu.merge(first, str2vtx[tokens[0]]->id);
+					}
+				}
+			}
+			it++;
+		}
 
 		//build new graph
 		graph g2;
@@ -185,6 +210,13 @@ void graph::flattenReach() {
 
 
 	g.printFlattenedGraphAsTikz();
+
+	cout<<"FINAL PRINT"<<endl;
+
+	printDetailReach();
+
+
+	
 }
 
 void graph::printFlattenedGraphAsTikz(){

@@ -21,12 +21,13 @@ int main(int argc, const char * argv[]){
 
 	g2.flattenReach();
 	
-	if(true)return 0;
 	
 	struct timeval buildt1, buildt2;
 	gettimeofday(&buildt1, NULL);
 	time = clock();
-	g = g2.flattenbracket(6); //TODO hardcoded
+	graph g3;
+	g3.construct2(argv[1]);
+	g = g3.flattenbracket(6); //TODO hardcoded
 	time = clock() - time;
 	gettimeofday(&buildt2, NULL);
 	cout<<"\nFlattening Algorithm"<<endl;
@@ -36,7 +37,7 @@ int main(int argc, const char * argv[]){
 	g.initWorklist();
 
 
-	g.printFlattenedGraphAsTikz();
+	//g.printFlattenedGraphAsTikz();
 
 	
 	gettimeofday(&tv1,NULL);
