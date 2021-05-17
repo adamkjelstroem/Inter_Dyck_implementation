@@ -34,7 +34,7 @@ class graph {
 	void appendedges(std::set<int>& roots,Vertex *rootvtx,int uid,field mf);
 	void removeRepeatedges(list<int> &l);
 	void dsuUnion(int root,std::set<int>& roots);
-	
+	string makeFlattenedName(Vertex* vertex, int layer);
 
 public:
 	int N = 0;
@@ -66,7 +66,7 @@ public:
 	graph flattenbracket(int depth);
 	void flattenReach();
 	void printFlattenedGraphAsTikz();
-	void printNumReachablePairs();
+	void printNumReachablePairs();     //TODO clean up which methods should be private
 };
 
 #endif

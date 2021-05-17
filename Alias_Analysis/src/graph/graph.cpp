@@ -61,14 +61,14 @@ graph graph::flattenbracket(int depth){
 						//flatten on brackets
 						if(i+1!=depth)
 							g.addedge(
-								g.getVertex(vertex->name + ": " + to_string(i+1)),
-								g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+								g.getVertex(makeFlattenedName(vertex, i+1)),
+								g.getVertex(makeFlattenedName(vertices[*fedgeit],i)), //end node
 								g.EPS
 							);
 					}else{
 						g.addedge(
-							g.getVertex(vertex->name + ": " + to_string(i)),
-							g.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+							g.getVertex(makeFlattenedName(vertex, i)),
+							g.getVertex(makeFlattenedName(vertices[*fedgeit], i)), //end node
 							g.getfield(f.field_name)
 						);
 					}
@@ -82,6 +82,10 @@ graph graph::flattenbracket(int depth){
 	g.dsu.init(g.vertices.size());
 
 	return g;
+}
+
+string graph::makeFlattenedName(Vertex* vertex, int layer){
+	return to_string(vertex->id) + ": " + to_string(layer);
 }
 
 
@@ -105,15 +109,13 @@ void graph::flattenReach() {
 
 		//g.printFlattenedGraphAsTikz();
 
-
 		//compute SCCs
 		g.bidirectedReach();
+
 
 		//g.printDetaiLReachInterDyck();
 
 		//find layer zero items that have been joined, and merge them
-		
-		
 		map<int,set<int>> scc;
 		for(int i=0;i<g.N;i++){
 			scc[g.dsu.root(i)].insert(i);
@@ -193,7 +195,7 @@ void graph::flattenReach() {
 						//flatten on brackets
 						//if(i+1!=c)
 						
-						auto start_name = vertices[*fedgeit]->name + ": " + to_string(i-1);
+						auto start_name = makeFlattenedName(vertices[*fedgeit], i-1);
 
 						auto start_root = g.vertices[g.dsu.root(g.getVertex(start_name)->id)]->name;
 						
@@ -208,17 +210,17 @@ void graph::flattenReach() {
 					
 						//flattened edges connect between layers
 						g2.addedge(
-							g2.getVertex(vertex->name + ": " + to_string(i)),
+							g2.getVertex(makeFlattenedName(vertex, i)),
 							g2.getVertex(start_root), //end node
 							g2.EPS
 						);
 					}else{
 						//non-flattened edges connect 'inside' layers
 						g2.addedge(
-							g2.getVertex(vertex->name + ": " + to_string(i)),
-							g2.getVertex(vertices[*fedgeit]->name + ": " + to_string(i)), //end node
+							g2.getVertex(makeFlattenedName(vertex, i)),
+							g2.getVertex(makeFlattenedName(vertices[*fedgeit], i)), //end node
 							g2.getfield(f.field_name)
-						);
+						); 
 					}
 
 					fedgeit++;
@@ -248,7 +250,7 @@ void graph::flattenReach() {
 	while(it!=scc.end()){
 		cout<<"scc: \\{";
 		for(int elem : it->second){
-			cout<<vertices[elem]->id<<", "; //NOTE using id, not name!
+			cout<<vertices[elem]->name<<", "; 
 		}
 		cout<<"\\}\\\\"<<endl;
 		
@@ -558,6 +560,7 @@ Vertex* graph::getVertex(const string &s){
 	auto it = str2vtx.find(s);
 	if(it==str2vtx.end()){
 		Vertex* vtx = new Vertex(this->N,s);
+		//cout<<"adding new edge with id \""<<vtx->id<<"\" and name \""<<vtx->name<<"\""<<endl;
 		vertices.push_back(vtx);
 		vtx->addedge(EPS,vtx->id);
 		this->N++;
@@ -611,6 +614,7 @@ void graph::printDetaiLReachInterDyck(){
 	for(int i=0;i<this->N;i++){
 		scc[dsu.root(i)].insert(i);
 	}
+
 	auto it = scc.begin();
 	while(it!=scc.end()){
 		int zero_elems = 0;
