@@ -96,10 +96,15 @@ void graph::flattenReach() {
 
 	
 	
-	int n = vertices.size();
-	int c = 18*n*n + 6*n;
-	c = 6; //TODO hardcoded
-	for(int i = 2; i < c; i++){
+	long long n = vertices.size();
+	long long c = 18*n*n + 6*n;
+	cout<<"n="<<n<<" and c="<<c<<endl;
+	//c = 6; //TODO hardcoded
+	for(long long i = 2; i < c; i++){
+		cout<<"computing ... "<<(i*100/c)<<"% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<endl;
+		printNumReachablePairs();
+
+
 		//demo
 		g.initWorklist();
 		
@@ -271,8 +276,7 @@ void graph::printNumReachablePairs(){
 		n += (it->second - 1) * it->second / 2;	
 		it++;
 	}
-	cout<<"Number of reachable pairs:"<<endl;
-	cout<<n<<endl;
+	cout<<"Number of reachable pairs: "<<n<<endl;
 }
 
 void graph::printFlattenedGraphAsTikz(){
