@@ -94,7 +94,7 @@ void graph::flattenReach() {
 	
 	int n = vertices.size();
 	int c = 18*n*n + 6*n;
-	c = 6;
+	c = 6; //TODO hardcoded
 	for(int i = 2; i < c; i++){
 		//demo
 		g.initWorklist();
