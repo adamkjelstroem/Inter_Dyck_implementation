@@ -15,25 +15,68 @@ int main(int argc, const char * argv[]){
 	clock_t time;
 	struct timeval tv1,tv2;
 	
-	
-	g.construct2(argv[1]); //NOTE using construct2 uses the new format
-	//graph is now loaded into memory 
+	//TODO uncomment
 
-	//g.printGraph();
+	//true -> construct form input
+	//false -> generate
+	if(true){
+		g.construct2(argv[1]); //NOTE using construct2 uses the new format
+		g2.construct2(argv[1]);
+		cout<<"Graph loaded from file"<<endl;
+	}else{
+		gettimeofday(&tv1, NULL);
+		time = clock();
+		srand((int)tv2.tv_usec);
+
+		for(int i = 0; i < 5; i++){
+			string a = to_string(rand() % 5);
+			string b = to_string(rand() % 5);
+			string field = "[";
+			if(rand() % 2 == 0) field = "(";
+			
+			g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
+			g2.addedge(g2.getVertex(a), g2.getVertex(b), g2.getfield(field));
+		}
+		
+		g.dsu.init(g.vertices.size());
+		g2.dsu.init(g2.vertices.size());
+	}
 	
-	cout<<"Graph loaded from file"<<endl;
+	
+	
+
 	gettimeofday(&tv1, NULL);
 	time = clock();
 
-	g.flattenReach();
+	//true -> flattenReach
+	//false -> flatten, then reach
+	if(true){
+		g.initWorklist();
+		g2.initWorklist();
+
+		g.flattenReach("[");
+		g2.flattenReach("(");
+	}else{
+		g = g.flatten("[", 8);
+		g2 = g2.flatten("(", 8);
+
+		g.initWorklist();
+		g2.initWorklist();
+
+		g.bidirectedReach();
+		g2.bidirectedReach();
+	}
+	
 
 	time = clock() - time;
 	gettimeofday(&tv2, NULL);
 
 	//g.printDetailReach();
 
+	cout<<"flattened on '[':\\\\"<<endl;
 	g.printNumReachablePairs();
-
+	cout<<"flattened on '(':\\\\"<<endl;
+	g2.printNumReachablePairs();
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;
