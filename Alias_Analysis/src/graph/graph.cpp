@@ -81,6 +81,8 @@ graph graph::flatten(string field_name, int depth){
 	}
 	g.dsu.init(g.vertices.size());
 
+	g.initWorklist();
+
 	return g;
 }
 
@@ -91,7 +93,7 @@ string graph::makeFlattenedName(Vertex* vertex, int layer){
 //flattens on 'flatten_label' 
 void graph::flattenReach(string flatten_label) {
 	//construct 2 layer graph
-	initWorklist(); //TODO is this necessary?
+	initWorklist(); // simplifies test code
 	
 
 	
@@ -108,7 +110,7 @@ void graph::flattenReach(string flatten_label) {
 	c = 8; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
-		printNumReachablePairs();
+		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 
 
 		//demo
@@ -310,7 +312,7 @@ graph graph::copy(){
 
 int graph::calcNumReachablePairs(){
 	int n = 0;
-	if(vertices[0]->name.find(":") != string::npos){
+	if(isFlattened()){
 		//graph is flattened
 
 		map<int,set<int>> scc;
@@ -349,8 +351,13 @@ int graph::calcNumReachablePairs(){
 	return n;
 }
 
+bool graph::isFlattened(){
+	return vertices[0]->name.find(":") != string::npos;
+}
 
-void graph::printFlattenedGraphAsTikz(){
+void graph::printGraphAsTikz(){
+
+
 
 	cout<<"\\begin{tikzpicture}"<<endl;
 

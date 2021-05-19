@@ -72,9 +72,10 @@ public:
 
 	//helper functions
 	graph makeRandomGraph(int seed, int edges, int vertices);
-	void printFlattenedGraphAsTikz();
+	void printGraphAsTikz();
 	void printAsDot();
 	graph copy();
+	bool isFlattened();
 };
 
 #endif
