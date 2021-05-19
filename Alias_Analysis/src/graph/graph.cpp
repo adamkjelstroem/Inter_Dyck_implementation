@@ -356,37 +356,66 @@ bool graph::isFlattened(){
 }
 
 void graph::printGraphAsTikz(){
-
-
-
 	cout<<"\\begin{tikzpicture}"<<endl;
 
-	for (Vertex* v : vertices){
-		std::vector<string> tokens;
-		split((*v).name ,":",tokens);
-		
-		cout<<"\\node ("<<(*v).id<<") at ("<<std::stoi(tokens[0]) * 2<<","<<std::stoi(tokens[tokens.size() - 1])*2<<") {"<<(*v).name<<"};"<<endl;
 
-	}
+	if(isFlattened()){
+		//graph is flattened
+		for (Vertex* v : vertices){
+			std::vector<string> tokens;
+			split((*v).name ,":",tokens);
+			
+			cout<<"\\node ("<<(*v).id<<") at ("<<std::stoi(tokens[0]) * 2<<","<<std::stoi(tokens[tokens.size() - 1])*2<<") {"<<(*v).name<<"};"<<endl;
 
-	cout<<endl;
+		}
 
-	for (Vertex* vtx : vertices){
-		auto fit = vtx->edgesbegin();
-		while(fit!=vtx->edgesend()){   // iterating over field
-			field f = fit->first;
-			auto fedgeit = vtx->edgesbegin(f);
-			while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-				if(vtx->id != vertices[*fedgeit]->id){
-					if (f.field_name == "eps"){
-						cout<< "\\path ("<<vertices[*fedgeit]->id<<") edge node {$ $} ("<<vtx->id<<");"<<endl;
-					}else{
-						cout<< "\\path [->, red] ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
+		cout<<endl;
+
+		for (Vertex* vtx : vertices){
+			auto fit = vtx->edgesbegin();
+			while(fit!=vtx->edgesend()){   // iterating over field
+				field f = fit->first;
+				auto fedgeit = vtx->edgesbegin(f);
+				while(fedgeit != vtx->edgesend(f)){   // iterating over edges
+					if(vtx->id != vertices[*fedgeit]->id){
+						if (f.field_name == "eps"){
+							cout<< "\\path ("<<vertices[*fedgeit]->id<<") edge node {$ $} ("<<vtx->id<<");"<<endl;
+						}else{
+							cout<< "\\path [->, red] ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
+						}
 					}
+					fedgeit++;
 				}
-				fedgeit++;
+				fit++;
 			}
-			fit++;
+		}
+
+	}else{
+		//graph is not flattened
+
+		for (Vertex* v : vertices){
+			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", 0) {"<<v->name<<"};"<<endl;
+		}
+
+		cout<<endl;
+
+		for (Vertex* vtx : vertices){
+			auto fit = vtx->edgesbegin();
+			while(fit!=vtx->edgesend()){   // iterating over field
+				field f = fit->first;
+				auto fedgeit = vtx->edgesbegin(f);
+				while(fedgeit != vtx->edgesend(f)){   // iterating over edges
+					if(vtx->id != vertices[*fedgeit]->id){
+						if (f.field_name == "["){
+							cout<< "\\path [->, blue] ("<<vertices[*fedgeit]->id<<") edge [bend left=15] node {$ $} ("<<vtx->id<<");"<<endl;
+						}else{
+							cout<< "\\path [->, red]  ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
+						}
+					}
+					fedgeit++;
+				}
+				fit++;
+			}
 		}
 	}
 
