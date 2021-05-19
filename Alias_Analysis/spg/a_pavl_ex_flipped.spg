@@ -1,0 +1,8 @@
+1->0[label="op]
+0->1[label="ob]
+2->1[label="op]
+2->3[label="op]
+2->3[label="ob]
+4->2[label="ob]
+4->5[label="op]
+5->4[label="ob]

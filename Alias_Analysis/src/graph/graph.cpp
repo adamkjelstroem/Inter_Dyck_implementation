@@ -42,8 +42,8 @@ void graph::construct2(string infile_name){
 	dsu.init(vertices.size());
 }
 
-//performs graph flattening on brackets to depth 'depth'
-graph graph::flattenbracket(int depth){
+//performs graph flattening on 'field_name' to depth 'depth'
+graph graph::flatten(string field_name, int depth){
 	graph g;
 
 	for (int i = 0; i < depth; i++){ 
@@ -57,7 +57,7 @@ graph graph::flattenbracket(int depth){
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
 
-					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
+					if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
 						if(i+1!=depth)
 							g.addedge(
@@ -88,37 +88,42 @@ string graph::makeFlattenedName(Vertex* vertex, int layer){
 	return to_string(vertex->id) + ": " + to_string(layer);
 }
 
-
-void graph::flattenReach() {
+//flattens on 'flatten_label' 
+void graph::flattenReach(string flatten_label) {
 	//construct 2 layer graph
 	initWorklist(); //TODO is this necessary?
-	graph g = flattenbracket(2);
+	
+
+	
+	graph g = flatten(flatten_label, 2);
 
 	
 	
 	long long n = vertices.size();
 	long long c = 18*n*n + 6*n;
+	
 	cout<<"n="<<n<<" and c="<<c<<endl;
-	//c = 6; //TODO hardcoded
+	
+	
+	c = 8; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
-		cout<<"computing ... "<<(i*100/c)<<"% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<endl;
+		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 		printNumReachablePairs();
 
 
 		//demo
 		g.initWorklist();
 		
-		//cout<<"\\\\"<<endl;
-		//cout<<"\\\\"<<endl;
-		//cout<<""<<i<<" layers\\\\"<<endl;
-
-		//g.printFlattenedGraphAsTikz();
+		cout<<"\\\\"<<endl;
+		cout<<"\\\\"<<endl;
+		cout<<""<<i<<" layers\\\\"<<endl;
+		g.printFlattenedGraphAsTikz();
 
 		//compute SCCs
 		g.bidirectedReach();
 
 
-		//g.printDetaiLReachInterDyck();
+		g.printDetaiLReachInterDyck();
 
 		//find layer zero items that have been joined, and merge them
 		map<int,set<int>> scc;
@@ -154,6 +159,7 @@ void graph::flattenReach() {
 		}
 
 		//build new graph
+		cout<<"building reduced graph"<<endl;
 		graph g2;
 		for(int j=0;j<g.N;j++){
 			auto vertex = g.vertices[j];
@@ -171,7 +177,7 @@ void graph::flattenReach() {
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
 					
-					//cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<endl;
+					cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<"\\\\"<<endl;
 
 					g2.addedge(
 						g2.getVertex(start_root),
@@ -184,7 +190,7 @@ void graph::flattenReach() {
 				fit++;
 			}
 		}
-		
+		cout<<"adding new layer"<<endl;
 		//add new layer
 		for (int k = 0; k < vertices.size(); k++){
 			auto vertex = vertices[k];
@@ -196,7 +202,7 @@ void graph::flattenReach() {
 				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
-					if(f.field_name == "["){ //TODO cache id of "[" field and do comparison on
+					if(f.field_name == flatten_label){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
 						//if(i+1!=c)
 						
@@ -209,7 +215,7 @@ void graph::flattenReach() {
 						
 						//if(*fedgeit == k) break;
 						
-						//cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
+						cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
 						//cout<<"\\\\"<<endl;
 
 					
@@ -245,6 +251,13 @@ void graph::flattenReach() {
 
 	//g.printFlattenedGraphAsTikz();
 
+	map<int,set<int>> scc;
+	for(int i=0;i<this->N;i++){
+		scc[dsu.root(i)].insert(i);
+	}	
+	cout<<"Number of sccs: "<<scc.size()<<endl;
+	
+
 	//Print results
 	/*
 	map<int,set<int>> scc;
@@ -260,20 +273,48 @@ void graph::flattenReach() {
 		cout<<"\\}\\\\"<<endl;
 		
 		it++;
-	}
-	*/
+	}*/
 }
 
+//works for non-flattened graphs
 void graph::printNumReachablePairs(){
 	int n = 0;
-	//Print results
+
 	map<int,int> scc;
 	for(int i=0;i<this->N;i++){
 		scc[dsu.root(i)]++;
-	}	
+	}
+
 	auto it = scc.begin();
 	while(it!=scc.end()){
-		n += (it->second - 1) * it->second / 2;	
+		n += it->second * (it->second-1) / 2;
+		it++;
+	}
+	cout<<"Number of reachable pairs: "<<n<<endl;
+}
+
+//works for flattened graphs
+void graph::printNumReachablePairsFlattened(){
+	int n = 0;
+
+	map<int,set<int>> scc;
+	for(int i=0;i<this->N;i++){
+		scc[dsu.root(i)].insert(i);
+	}
+
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		int zero_elems = 0;
+		for(int elem : it->second){
+			cout<<vertices[elem]->name<<endl;
+			std::vector<string> tokens;
+			split(vertices[elem]->name,":",tokens);
+			
+			if(tokens[1] == "0"){
+				zero_elems++;
+			}
+		}
+		n += zero_elems * (zero_elems-1) / 2;
 		it++;
 	}
 	cout<<"Number of reachable pairs: "<<n<<endl;
@@ -314,12 +355,13 @@ void graph::printFlattenedGraphAsTikz(){
 
 	//for (nodev)
 
-	cout<<"\\end{tikzpicture}\\"<<endl;
+	cout<<"\\end{tikzpicture}\\\\"<<endl;
 
 }
 
 
 //this also does flattening on one dyck language
+//TODO old code, should be removed?
 void graph::construct2flattenbracket(string infile_name){
 	//TODO old code; should be removed.
 	ifstream infile(infile_name);
@@ -587,6 +629,19 @@ field& graph::getfield(const string &s){
 
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
+
+	//this is all testing code
+	if(u->name.find(":") != string::npos && u->name != v->name){
+		std::vector<string> tokens1;
+		split(u->name,":",tokens1);
+
+		std::vector<string> tokens2;
+		split(v->name,":",tokens2);
+
+		if(tokens1[0] == tokens2[0]){
+			cout<<"adding 'unusual' edge from "<<u->name<<" to "<<v->name<<" with label "<<f.field_name<<"\\\\"<<endl;
+		}
+	}
 	//if(u != v) cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
 	numedges++;
 }

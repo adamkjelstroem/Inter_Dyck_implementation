@@ -21,9 +21,7 @@ class graph {
 	// g.bidirectedReach();
 
 
-	std::vector<Vertex*> vertices;
 	std::vector<field> fields;
-	DSU dsu;
 	field EPS = field(0,"eps");
 	
 	queue<pair<int,field>> worklist;  //vertex id and field
@@ -37,6 +35,10 @@ class graph {
 	string makeFlattenedName(Vertex* vertex, int layer);
 
 public:
+	
+	std::vector<Vertex*> vertices;
+	DSU dsu; //TODO make these private again
+	
 	int N = 0;
 	double numedges;
 	graph(){
@@ -63,10 +65,11 @@ public:
 	void construct2(string infile_name);
 	void construct2flattenbracket(string infile_name);
 	void printDetaiLReachInterDyck();
-	graph flattenbracket(int depth);
-	void flattenReach();
+	graph flatten(string field_name, int depth);
+	void flattenReach(string flatten_label);
 	void printFlattenedGraphAsTikz();
 	void printNumReachablePairs();     //TODO clean up which methods should be private
+	void printNumReachablePairsFlattened();
 };
 
 #endif
