@@ -55,12 +55,6 @@ int main(int argc, const char * argv[]){
 		cout<<"g4 done"<<endl;
 
 		if(!(g1Pairs == g2Pairs && g2Pairs == g3Pairs && g3Pairs == g4Pairs)){
-			cout<<"Found an exception example!"<<endl;
-			cout<<"flatten on (: "<<g1Pairs<<endl;
-			cout<<"flatten on [: "<<g2Pairs<<endl;
-			cout<<"flattenReach on (: "<<g3Pairs<<endl;
-			cout<<"flattenReach on [: "<<g4Pairs<<endl;
-			original.printAsDot();
 
 
 			cout<<endl<<endl;
@@ -79,6 +73,13 @@ int main(int argc, const char * argv[]){
 			g5.flattenReach("(");
 			graph g6 = original.copy();
 			g6.flattenReach("[");
+
+			cout<<"Found an exception example!"<<endl;
+			cout<<"flatten on (: "<<g1Pairs<<endl;
+			cout<<"flatten on [: "<<g2Pairs<<endl;
+			cout<<"flattenReach on (: "<<g3Pairs<<endl;
+			cout<<"flattenReach on [: "<<g4Pairs<<endl;
+			original.printAsDot();
 			
 
 			return 0;
