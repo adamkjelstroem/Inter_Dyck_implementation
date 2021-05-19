@@ -41,6 +41,7 @@ public:
 	
 	int N = 0;
 	double numedges;
+	bool isFlattened = false;
 	graph(){
 		numedges=0;
 		fields.push_back(EPS);
@@ -60,22 +61,23 @@ public:
 	int getRoot(Vertex* vtx,field& f,std::set<int>& roots,int &rootS);
 	field& getfield(const string &s);
 	// gets the vertex with name s, if not present creates it
-	Vertex* getVertex(const string &s);
+	Vertex* getVertex(const string &s, int layer);
 
 	void construct2(string infile_name);
 	void construct2flattenbracket(string infile_name);
-	void printDetaiLReachInterDyck();
 	graph flatten(string field_name, int depth);
 	void flattenReach(string flatten_label);
 	int calcNumReachablePairs();
 	
 
 	//helper functions
+	void setFlattened(bool v){
+		isFlattened = isFlattened | v;
+	}
 	graph makeRandomGraph(int seed, int edges, int vertices);
 	void printGraphAsTikz();
 	void printAsDot();
 	graph copy();
-	bool isFlattened();
 };
 
 #endif

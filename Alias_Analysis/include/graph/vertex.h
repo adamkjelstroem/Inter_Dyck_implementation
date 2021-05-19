@@ -17,12 +17,13 @@ public:
 	std::map<field,list<int>> edges;
 
 /*public:*/
-	int id;
+	int id, layer;
 	string name;
 	int graph_num;
 	
-	Vertex(int id,string s){
+	Vertex(int id, int layer, string s){
 		this->id = id;
+		this->layer = layer;
 		this->name = s;
 		graph_num=id;
 	}
