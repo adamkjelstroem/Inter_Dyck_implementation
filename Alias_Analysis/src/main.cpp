@@ -19,27 +19,29 @@ int main(int argc, const char * argv[]){
 
 	//true -> construct form input
 	//false -> generate
-	if(true){
+	if(false){
 		g.construct2(argv[1]); //NOTE using construct2 uses the new format
-		g2.construct2(argv[1]);
+		g2 = g.copy();
 		cout<<"Graph loaded from file"<<endl;
 	}else{
 		gettimeofday(&tv1, NULL);
 		time = clock();
 		srand((int)tv2.tv_usec);
 
-		for(int i = 0; i < 5; i++){
-			string a = to_string(rand() % 5);
-			string b = to_string(rand() % 5);
+		int edges = 10;
+		int vertices = edges * 7 / 10;
+
+		for(int i = 0; i < edges; i++){
+			string a = to_string(rand() % vertices);
+			string b = to_string(rand() % vertices);
 			string field = "[";
 			if(rand() % 2 == 0) field = "(";
 			
 			g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
-			g2.addedge(g2.getVertex(a), g2.getVertex(b), g2.getfield(field));
 		}
 		
 		g.dsu.init(g.vertices.size());
-		g2.dsu.init(g2.vertices.size());
+		g2 = g.copy();
 	}
 	
 	
