@@ -293,6 +293,37 @@ void graph::printNumReachablePairs(){
 	cout<<"Number of reachable pairs: "<<n<<endl;
 }
 
+graph graph::copy(){
+	graph g;
+
+	for(int j=0;j<N;j++){
+		auto vertex = vertices[j];
+		auto fit = vertex->edgesbegin();
+
+		auto start_root = vertices[j]->name;
+		while(fit!=vertex->edgesend()){   // iterating over field
+			field f = fit->first;
+			//f.field_name is edge label name
+			auto fedgeit = vertex->edgesbegin(f);
+			while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+				
+				g.addedge(
+					g.getVertex(vertices[j]->name),
+					g.getVertex(vertices[*fedgeit]->name), //end node
+					g.getfield(f.field_name)
+				);
+				
+				fedgeit++;
+			}
+			fit++;
+		}
+	}
+
+	g.dsu.init(g.vertices.size());
+
+	return g;
+}
+
 //works for flattened graphs
 void graph::printNumReachablePairsFlattened(){
 	int n = 0;

@@ -70,6 +70,8 @@ public:
 	void printFlattenedGraphAsTikz();
 	void printNumReachablePairs();     //TODO clean up which methods should be private
 	void printNumReachablePairsFlattened();
+
+	graph copy();
 };
 
 #endif
