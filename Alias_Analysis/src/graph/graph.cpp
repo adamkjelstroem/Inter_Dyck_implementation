@@ -105,17 +105,16 @@ void graph::flattenReach(string flatten_label) {
 	
 	c = 8; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
+		
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
-
-
-		g.initWorklist();
-		
 		cout<<"\\\\"<<endl;
 		cout<<"\\\\"<<endl;
 		cout<<""<<i<<" layers\\\\"<<endl;
 		g.printGraphAsTikz();
 
+
+		g.initWorklist();
 		//compute SCCs
 		g.bidirectedReach();
 
@@ -344,6 +343,21 @@ void graph::printGraphAsTikz(){
 
 		cout<<endl;
 
+
+		auto print = [](Vertex a, Vertex b, field f, void* extra) {
+			if(a.id != b.id){
+				if (f.field_name == "eps"){
+					cout<< "\\path ("<<b.id<<") edge node {$ $} ("<<a.id<<");"<<endl;
+				}else{
+					cout<< "\\path [->, red] ("<<b.id<<") edge [bend right=20] node {$ $} ("<<a.id<<");"<<endl;
+				}
+			}
+		};
+
+		iterateOverEdges(print, nullptr);
+
+
+		/* TODO test before deleting
 		for (Vertex* vtx : vertices){
 			auto fit = vtx->edgesbegin();
 			while(fit!=vtx->edgesend()){   // iterating over field
@@ -361,7 +375,7 @@ void graph::printGraphAsTikz(){
 				}
 				fit++;
 			}
-		}
+		}*/
 
 	}else{
 		//graph is not flattened
@@ -372,6 +386,20 @@ void graph::printGraphAsTikz(){
 
 		cout<<endl;
 
+
+		auto print = [](Vertex a, Vertex b, field f, void* extra) {
+			if(a.id != b.id){
+				if (f.field_name == "eps"){
+					cout<< "\\path [->, blue] ("<<b.id<<") edge [bend left=20] node {$ $} ("<<a.id<<");"<<endl;
+				}else{
+					cout<< "\\path [->, red] ("<<b.id<<") edge [bend right=20] node {$ $} ("<<a.id<<");"<<endl;
+				}
+			}
+		};
+
+		iterateOverEdges(print, nullptr);
+
+		/* //TODO test before deleting
 		for (Vertex* vtx : vertices){
 			auto fit = vtx->edgesbegin();
 			while(fit!=vtx->edgesend()){   // iterating over field
@@ -389,7 +417,7 @@ void graph::printGraphAsTikz(){
 				}
 				fit++;
 			}
-		}
+		}*/
 	}
 
 	//for (nodev)
@@ -400,25 +428,11 @@ void graph::printGraphAsTikz(){
 
 //prints the graph in the 'dot' format
 void graph::printAsDot(){
-	graph g;
-
-	for(int j=0;j<N;j++){
-		auto vertex = vertices[j];
-		auto fit = vertex->edgesbegin();
-
-		auto start_root = vertices[j]->name;
-		while(fit!=vertex->edgesend()){   // iterating over field
-			field f = fit->first;
-			//f.field_name is edge label name
-			auto fedgeit = vertex->edgesbegin(f);
-			while(fedgeit != vertex->edgesend(f)){   // iterating over edges
-				cout<<vertices[j]->name<<"->"<<vertices[*fedgeit]->name<<"[label=\""<<f.field_name<<endl;
-				
-				fedgeit++;
-			}
-			fit++;
-		}
-	}
+	iterateOverEdges(
+		[](Vertex a, Vertex b, field f, void* extra) {
+			cout<<a.name<<"->"<<b.name<<"[label=\""<<f.field_name<<endl;
+		}, 
+	nullptr);
 }
 
 
