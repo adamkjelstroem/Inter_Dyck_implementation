@@ -67,10 +67,13 @@ public:
 	void printDetaiLReachInterDyck();
 	graph flatten(string field_name, int depth);
 	void flattenReach(string flatten_label);
-	void printFlattenedGraphAsTikz();
 	int calcNumReachablePairs();
-	void printAsDot();
+	
 
+	//helper functions
+	graph makeRandomGraph(int seed, int edges, int vertices);
+	void printFlattenedGraphAsTikz();
+	void printAsDot();
 	graph copy();
 };
 

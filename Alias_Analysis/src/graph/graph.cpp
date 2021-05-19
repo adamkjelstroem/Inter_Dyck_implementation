@@ -412,6 +412,25 @@ void graph::printAsDot(){
 	}
 }
 
+
+graph graph::makeRandomGraph(int seed, int edges, int vertices){
+	graph g;
+
+	srand(seed);
+
+	for(int i = 0; i < edges; i++){
+		string a = to_string(rand() % vertices);
+		string b = to_string(rand() % vertices);
+		string field = "[";
+		if(rand() % 2 == 0) field = "(";
+		
+		g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
+	}
+	g.dsu.init(g.vertices.size());
+
+	return g;
+}
+
 //this also does flattening on one dyck language
 //TODO old code, should be removed?
 void graph::construct2flattenbracket(string infile_name){
