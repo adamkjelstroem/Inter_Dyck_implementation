@@ -15,8 +15,6 @@ int main(int argc, const char * argv[]){
 	clock_t time;
 	struct timeval tv1,tv2;
 	
-	//TODO uncomment
-
 	//true -> construct form input
 	//false -> generate
 	if(false){
@@ -39,9 +37,11 @@ int main(int argc, const char * argv[]){
 			
 			g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
 		}
-		
 		g.dsu.init(g.vertices.size());
+
+
 		g2 = g.copy();
+		cout<<"Graph generated from file"<<endl;
 	}
 	
 	
@@ -76,9 +76,9 @@ int main(int argc, const char * argv[]){
 	//g.printDetailReach();
 
 	cout<<"flattened on '[':\\\\"<<endl;
-	g.printNumReachablePairs();
+	cout<<"Number of reachable pairs: "<<g.calcNumReachablePairs()<<endl;
 	cout<<"flattened on '(':\\\\"<<endl;
-	g2.printNumReachablePairs();
+	cout<<"Number of reachable pairs: "<<g2.calcNumReachablePairs()<<endl;
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;

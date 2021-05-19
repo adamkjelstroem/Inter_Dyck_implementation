@@ -276,22 +276,6 @@ void graph::flattenReach(string flatten_label) {
 	}*/
 }
 
-//works for non-flattened graphs
-void graph::printNumReachablePairs(){
-	int n = 0;
-
-	map<int,int> scc;
-	for(int i=0;i<this->N;i++){
-		scc[dsu.root(i)]++;
-	}
-
-	auto it = scc.begin();
-	while(it!=scc.end()){
-		n += it->second * (it->second-1) / 2;
-		it++;
-	}
-	cout<<"Number of reachable pairs: "<<n<<endl;
-}
 
 graph graph::copy(){
 	graph g;
@@ -324,32 +308,47 @@ graph graph::copy(){
 	return g;
 }
 
-//works for flattened graphs
-void graph::printNumReachablePairsFlattened(){
+int graph::calcNumReachablePairs(){
 	int n = 0;
+	if(vertices[0]->name.find(":") != string::npos){
+		//graph is flattened
 
-	map<int,set<int>> scc;
-	for(int i=0;i<this->N;i++){
-		scc[dsu.root(i)].insert(i);
-	}
-
-	auto it = scc.begin();
-	while(it!=scc.end()){
-		int zero_elems = 0;
-		for(int elem : it->second){
-			cout<<vertices[elem]->name<<endl;
-			std::vector<string> tokens;
-			split(vertices[elem]->name,":",tokens);
-			
-			if(tokens[1] == "0"){
-				zero_elems++;
-			}
+		map<int,set<int>> scc;
+		for(int i=0;i<this->N;i++){
+			scc[dsu.root(i)].insert(i);
 		}
-		n += zero_elems * (zero_elems-1) / 2;
-		it++;
+
+		auto it = scc.begin();
+		while(it!=scc.end()){
+			int zero_elems = 0;
+			for(int elem : it->second){
+				cout<<vertices[elem]->name<<endl;
+				std::vector<string> tokens;
+				split(vertices[elem]->name,":",tokens);
+				
+				if(tokens[1] == "0"){
+					zero_elems++;
+				}
+			}
+			n += zero_elems * (zero_elems-1) / 2;
+			it++;
+		}
+	}else{
+		//graph is not flattened
+		map<int,int> scc;
+		for(int i=0;i<this->N;i++){
+			scc[dsu.root(i)]++;
+		}
+
+		auto it = scc.begin();
+		while(it!=scc.end()){
+			n += it->second * (it->second-1) / 2;
+			it++;
+		}
 	}
-	cout<<"Number of reachable pairs: "<<n<<endl;
+	return n;
 }
+
 
 void graph::printFlattenedGraphAsTikz(){
 

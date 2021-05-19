@@ -68,8 +68,7 @@ public:
 	graph flatten(string field_name, int depth);
 	void flattenReach(string flatten_label);
 	void printFlattenedGraphAsTikz();
-	void printNumReachablePairs();     //TODO clean up which methods should be private
-	void printNumReachablePairsFlattened();
+	int calcNumReachablePairs();
 
 	graph copy();
 };
