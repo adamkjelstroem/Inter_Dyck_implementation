@@ -389,6 +389,28 @@ void graph::printFlattenedGraphAsTikz(){
 
 }
 
+//prints the graph in the 'dot' format
+void graph::printAsDot(){
+	graph g;
+
+	for(int j=0;j<N;j++){
+		auto vertex = vertices[j];
+		auto fit = vertex->edgesbegin();
+
+		auto start_root = vertices[j]->name;
+		while(fit!=vertex->edgesend()){   // iterating over field
+			field f = fit->first;
+			//f.field_name is edge label name
+			auto fedgeit = vertex->edgesbegin(f);
+			while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+				cout<<vertices[j]->name<<"->"<<vertices[*fedgeit]->name<<"[label=\""<<f.field_name<<endl;
+				
+				fedgeit++;
+			}
+			fit++;
+		}
+	}
+}
 
 //this also does flattening on one dyck language
 //TODO old code, should be removed?

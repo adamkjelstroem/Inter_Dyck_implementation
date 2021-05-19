@@ -69,6 +69,7 @@ public:
 	void flattenReach(string flatten_label);
 	void printFlattenedGraphAsTikz();
 	int calcNumReachablePairs();
+	void printAsDot();
 
 	graph copy();
 };
