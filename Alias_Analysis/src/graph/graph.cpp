@@ -311,39 +311,22 @@ graph graph::copy(){
 
 int graph::calcNumReachablePairs(){
 	int n = 0;
-	if(isFlattened){
-		//graph is flattened
 
-		map<int,set<int>> scc;
-		for(int i=0;i<this->N;i++){
-			scc[dsu.root(i)].insert(i);
-		}
-
-		auto it = scc.begin();
-		while(it!=scc.end()){
-			int zero_elems = 0;
-			for(int elem : it->second){
-				//cout<<vertices[elem]->name<<endl;
-				if(vertices[elem]->layer == 0){
-					zero_elems++;
-				}
-			}
-			n += zero_elems * (zero_elems-1) / 2;
-			it++;
-		}
-	}else{
-		//graph is not flattened
-		map<int,int> scc;
-		for(int i=0;i<this->N;i++){
-			scc[dsu.root(i)]++;
-		}
-
-		auto it = scc.begin();
-		while(it!=scc.end()){
-			n += it->second * (it->second-1) / 2;
-			it++;
-		}
+	map<int,set<int>> scc;
+	for(int i=0;i<this->N;i++){
+		scc[dsu.root(i)].insert(i);
 	}
+
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		int zero_elems = 0;
+		for(int elem : it->second){
+			if(vertices[elem]->layer == 0) zero_elems++;
+		}
+		n += zero_elems * (zero_elems-1) / 2;
+		it++;
+	}
+
 	return n;
 }
 
