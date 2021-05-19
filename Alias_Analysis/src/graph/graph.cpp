@@ -119,7 +119,7 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"\\\\"<<endl;
 		cout<<"\\\\"<<endl;
 		cout<<""<<i<<" layers\\\\"<<endl;
-		g.printFlattenedGraphAsTikz();
+		g.printGraphAsTikz();
 
 		//compute SCCs
 		g.bidirectedReach();
@@ -179,7 +179,7 @@ void graph::flattenReach(string flatten_label) {
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
 					
-					cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<"\\\\"<<endl;
+					//cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<"\\\\"<<endl;
 
 					g2.addedge(
 						g2.getVertex(start_root),
@@ -217,7 +217,7 @@ void graph::flattenReach(string flatten_label) {
 						
 						//if(*fedgeit == k) break;
 						
-						cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
+						//cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
 						//cout<<"\\\\"<<endl;
 
 					
@@ -251,7 +251,7 @@ void graph::flattenReach(string flatten_label) {
 	}
 
 
-	//g.printFlattenedGraphAsTikz();
+	//g.printGraphAsTikz();
 
 	map<int,set<int>> scc;
 	for(int i=0;i<this->N;i++){
@@ -324,7 +324,7 @@ int graph::calcNumReachablePairs(){
 		while(it!=scc.end()){
 			int zero_elems = 0;
 			for(int elem : it->second){
-				cout<<vertices[elem]->name<<endl;
+				//cout<<vertices[elem]->name<<endl;
 				std::vector<string> tokens;
 				split(vertices[elem]->name,":",tokens);
 				
@@ -405,13 +405,13 @@ void graph::printGraphAsTikz(){
 				field f = fit->first;
 				auto fedgeit = vtx->edgesbegin(f);
 				while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-					if(vtx->id != vertices[*fedgeit]->id){
-						if (f.field_name == "["){
-							cout<< "\\path [->, blue] ("<<vertices[*fedgeit]->id<<") edge [bend left=15] node {$ $} ("<<vtx->id<<");"<<endl;
-						}else{
-							cout<< "\\path [->, red]  ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
-						}
+					//if(vtx->id != vertices[*fedgeit]->id){
+					if (f.field_name == "["){
+						cout<< "\\path [->, blue] ("<<vertices[*fedgeit]->id<<") edge [bend left=20] node {$ $} ("<<vtx->id<<");"<<endl;
+					}else{
+						cout<< "\\path [->, red]  ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
 					}
+					//}
 					fedgeit++;
 				}
 				fit++;
@@ -455,12 +455,13 @@ graph graph::makeRandomGraph(int seed, int edges, int vertices){
 	srand(seed);
 
 	for(int i = 0; i < edges; i++){
-		string a = to_string(rand() % vertices);
-		string b = to_string(rand() % vertices);
+		int a = rand() % vertices;
+		int b = rand() % (vertices-1);
+		if (b >= a) b++; //guarantees a != b
 		string field = "[";
 		if(rand() % 2 == 0) field = "(";
 		
-		g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
+		g.addedge(g.getVertex(to_string(a)), g.getVertex(to_string(b)), g.getfield(field));
 	}
 	g.dsu.init(g.vertices.size());
 
@@ -738,6 +739,7 @@ void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
 
 	//this is all testing code
+	/*
 	if(u->name.find(":") != string::npos && u->name != v->name){
 		std::vector<string> tokens1;
 		split(u->name,":",tokens1);
@@ -748,7 +750,7 @@ void graph::addedge(Vertex* u,Vertex* v,field &f){
 		if(tokens1[0] == tokens2[0]){
 			cout<<"adding 'unusual' edge from "<<u->name<<" to "<<v->name<<" with label "<<f.field_name<<"\\\\"<<endl;
 		}
-	}
+	}*/
 	//if(u != v) cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
 	numedges++;
 }
@@ -757,7 +759,7 @@ void graph::printReach(){
 	cout<<"\tNumber of Strongly connected components : "<<dsu.getN()<<endl;
 }
 
-void graph::printDetailReach(){
+void graph::printDetailReach(){ //TODO merge 'printDetailReach' and 'printDetaiLReachinterDyck', splitting on ifSlattened()
 	cout<<"Number of Strongly connected components : "<<dsu.getN()<<endl;
 	map<int,set<int>> scc;
 	for(int i=0;i<this->N;i++){
