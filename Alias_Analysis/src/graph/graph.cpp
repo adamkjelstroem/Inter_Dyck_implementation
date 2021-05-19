@@ -46,7 +46,32 @@ void graph::construct2(string infile_name){
 graph graph::flatten(string field_name, int depth){
 	graph g;
 
+
+
 	for (int i = 0; i < depth; i++){ 
+		/*
+		auto cop = [](Vertex a, Vertex b, field f, void* extra) {
+			graph* g = (graph*)extra;
+			
+			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+				//flatten on brackets
+				if(i+1!=depth)
+					g.addedge(
+						g.getVertex(to_string(vertex->id), i+1),
+						g.getVertex(to_string(vertices[*fedgeit]->id),i), //end node
+						g.EPS
+					);
+			}else{
+				g.addedge(
+					g.getVertex(to_string(vertex->id), i),
+					g.getVertex(to_string(vertices[*fedgeit]->id), i), //end node
+					g.getfield(f.field_name)
+				);
+			}
+		};
+
+		iterateOverEdges(cop, &g);*/
+
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
 			while(fit!=vertex->edgesend()){   // iterating over field
@@ -105,7 +130,7 @@ void graph::flattenReach(string flatten_label) {
 	
 	c = 8; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
-		
+
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 		cout<<"\\\\"<<endl;
@@ -152,6 +177,19 @@ void graph::flattenReach(string flatten_label) {
 		//build new graph
 		cout<<"building reduced graph"<<endl;
 		graph g2;
+
+		
+		//TODO refactor here
+		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+			auto w = (std::initializer_list<graph>*) extra;
+			auto g = w->begin();
+			auto g2 = w->end();
+		};
+
+		void* w[] = {&g, &g2};
+
+		iterateOverEdges(cop, w);
+
 		for(int j=0;j<g.N;j++){
 			auto vertex = g.vertices[j];
 			auto fit = vertex->edgesbegin();
@@ -269,7 +307,7 @@ void graph::flattenReach(string flatten_label) {
 }
 
 
-void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra), void* extra){
+void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
 	for(int j=0;j<N;j++){
 		auto vertex = vertices[j];
 		auto fit = vertex->edgesbegin();
@@ -292,16 +330,16 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 graph graph::copy(){
 	graph g;
 
-	auto cop = [](Vertex a, Vertex b, field f, void* extra) {
-		graph* g = (graph*)extra;
+	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+		graph* g = (graph*)extra[0];
 		g->addedge(
 			g->getVertex(a.name, a.layer),
 			g->getVertex(b.name, b.layer), //end node
 			g->getfield(f.field_name)
 		);
 	};
-
-	iterateOverEdges(cop, &g);
+	void* w[] = {&g};
+	iterateOverEdges(cop, w);
 
 	g.dsu.init(g.vertices.size());
 
@@ -332,19 +370,14 @@ int graph::calcNumReachablePairs(){
 void graph::printGraphAsTikz(){
 	cout<<"\\begin{tikzpicture}"<<endl;
 
+	for (Vertex* v : vertices){
+		cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", 0) {"<<v->name<<"};"<<endl;
+	}
 
+	cout<<endl;
 	if(isFlattened){
 		//graph is flattened
-		for (Vertex* v : vertices){
-			
-			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<","<<(v->layer)*2<<") {"<<(*v).name<<"};"<<endl;
-
-		}
-
-		cout<<endl;
-
-
-		auto print = [](Vertex a, Vertex b, field f, void* extra) {
+		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
 			if(a.id != b.id){
 				if (f.field_name == "eps"){
 					cout<< "\\path ("<<b.id<<") edge node {$ $} ("<<a.id<<");"<<endl;
@@ -353,43 +386,13 @@ void graph::printGraphAsTikz(){
 				}
 			}
 		};
-
 		iterateOverEdges(print, nullptr);
-
-
-		/* TODO test before deleting
-		for (Vertex* vtx : vertices){
-			auto fit = vtx->edgesbegin();
-			while(fit!=vtx->edgesend()){   // iterating over field
-				field f = fit->first;
-				auto fedgeit = vtx->edgesbegin(f);
-				while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-					if(vtx->id != vertices[*fedgeit]->id){
-						if (f.field_name == "eps"){
-							cout<< "\\path ("<<vertices[*fedgeit]->id<<") edge node {$ $} ("<<vtx->id<<");"<<endl;
-						}else{
-							cout<< "\\path [->, red] ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
-						}
-					}
-					fedgeit++;
-				}
-				fit++;
-			}
-		}*/
-
 	}else{
 		//graph is not flattened
 
-		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", 0) {"<<v->name<<"};"<<endl;
-		}
-
-		cout<<endl;
-
-
-		auto print = [](Vertex a, Vertex b, field f, void* extra) {
+		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
 			if(a.id != b.id){
-				if (f.field_name == "eps"){
+				if (f.field_name == "["){
 					cout<< "\\path [->, blue] ("<<b.id<<") edge [bend left=20] node {$ $} ("<<a.id<<");"<<endl;
 				}else{
 					cout<< "\\path [->, red] ("<<b.id<<") edge [bend right=20] node {$ $} ("<<a.id<<");"<<endl;
@@ -398,29 +401,7 @@ void graph::printGraphAsTikz(){
 		};
 
 		iterateOverEdges(print, nullptr);
-
-		/* //TODO test before deleting
-		for (Vertex* vtx : vertices){
-			auto fit = vtx->edgesbegin();
-			while(fit!=vtx->edgesend()){   // iterating over field
-				field f = fit->first;
-				auto fedgeit = vtx->edgesbegin(f);
-				while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-					//if(vtx->id != vertices[*fedgeit]->id){
-					if (f.field_name == "["){
-						cout<< "\\path [->, blue] ("<<vertices[*fedgeit]->id<<") edge [bend left=20] node {$ $} ("<<vtx->id<<");"<<endl;
-					}else if(f.field_name == "("){
-						cout<< "\\path [->, red]  ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
-					}
-					//}
-					fedgeit++;
-				}
-				fit++;
-			}
-		}*/
 	}
-
-	//for (nodev)
 
 	cout<<"\\end{tikzpicture}\\\\"<<endl;
 
@@ -429,7 +410,7 @@ void graph::printGraphAsTikz(){
 //prints the graph in the 'dot' format
 void graph::printAsDot(){
 	iterateOverEdges(
-		[](Vertex a, Vertex b, field f, void* extra) {
+		[](Vertex a, Vertex b, field f, void* extra[]) {
 			cout<<a.name<<"->"<<b.name<<"[label=\""<<f.field_name<<endl;
 		}, 
 	nullptr);
