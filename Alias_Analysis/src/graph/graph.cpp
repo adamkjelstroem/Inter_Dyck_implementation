@@ -109,7 +109,6 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 
 
-		//demo
 		g.initWorklist();
 		
 		cout<<"\\\\"<<endl;
@@ -134,7 +133,7 @@ void graph::flattenReach(string flatten_label) {
 			for(int elem : it->second){
 				if(g.vertices[elem]->layer == 0){
 					zero_elems++;
-					first_zero = std::stoi(g.vertices[elem]->name); //TODO should be name or id here?
+					first_zero = std::stoi(g.vertices[elem]->name);
 					if(zero_elems>=2) break;
 				}
 			}
@@ -183,8 +182,9 @@ void graph::flattenReach(string flatten_label) {
 				fit++;
 			}
 		}
-		cout<<"adding new layer"<<endl;
+
 		//add new layer
+		cout<<"adding new layer"<<endl;
 		for (int k = 0; k < vertices.size(); k++){
 			auto vertex = vertices[k];
 			auto fit = vertex->edgesbegin();
@@ -270,31 +270,39 @@ void graph::flattenReach(string flatten_label) {
 }
 
 
-graph graph::copy(){
-	graph g;
-
+void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra), void* extra){
 	for(int j=0;j<N;j++){
 		auto vertex = vertices[j];
 		auto fit = vertex->edgesbegin();
 
-		auto start_root = vertices[j]->name;
 		while(fit!=vertex->edgesend()){   // iterating over field
-			field f = fit->first;
+			field fi = fit->first;
 			//f.field_name is edge label name
-			auto fedgeit = vertex->edgesbegin(f);
-			while(fedgeit != vertex->edgesend(f)){   // iterating over edges
+			auto fedgeit = vertex->edgesbegin(fi);
+			while(fedgeit != vertex->edgesend(fi)){   // iterating over edges
 				
-				g.addedge(
-					g.getVertex(vertices[j]->name, vertices[j]->layer),
-					g.getVertex(vertices[*fedgeit]->name, vertices[*fedgeit]->layer), //end node
-					g.getfield(f.field_name)
-				);
+				(*f)(*vertices[j], *vertices[*fedgeit], fi, extra);
 				
 				fedgeit++;
 			}
 			fit++;
 		}
 	}
+}
+
+graph graph::copy(){
+	graph g;
+
+	auto cop = [](Vertex a, Vertex b, field f, void* extra) {
+		graph* g = (graph*)extra;
+		g->addedge(
+			g->getVertex(a.name, a.layer),
+			g->getVertex(b.name, b.layer), //end node
+			g->getfield(f.field_name)
+		);
+	};
+
+	iterateOverEdges(cop, &g);
 
 	g.dsu.init(g.vertices.size());
 
