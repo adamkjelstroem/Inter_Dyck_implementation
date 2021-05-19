@@ -10,11 +10,90 @@ int main(int argc, const char * argv[]){
 		cerr<<"the argument should be path to file containing spg graph"<<endl;
 		return 1;
 	}
+	
+
+	while (true){
+
+		//compute number of reachable pairs for many graphs using
+		//1) flatten on parenthesis, then compute
+		//2) flatten on brackets, then compute
+		//3) flattenReach on parenthesis
+		//4) flattenReach on brackets
+		// if these don't all match, print the original graph
+		
+		graph original, g1, g2, g3, g4;
+
+		clock_t time;
+		struct timeval tv1;
+
+		gettimeofday(&tv1, NULL);
+		time = clock();
+		
+		original = original.makeRandomGraph((int)tv1.tv_usec, 10, 7);
+
+		g1 = original.copy();
+		g2 = original.copy();
+		g3 = original.copy();
+		g4 = original.copy();
+
+		g1 = g1.flatten("(", 20);
+		g1.bidirectedReach();
+		int g1Pairs = g1.calcNumReachablePairs();
+		cout<<"g1 done"<<endl;
+
+		g2 = g2.flatten("[", 20);
+		g2.bidirectedReach();
+		int g2Pairs = g2.calcNumReachablePairs();
+		cout<<"g2 done"<<endl;
+
+		g3.flattenReach("(");
+		int g3Pairs = g3.calcNumReachablePairs();
+		cout<<"g3 done"<<endl;
+
+		g4.flattenReach("[");
+		int g4Pairs = g4.calcNumReachablePairs();
+		cout<<"g4 done"<<endl;
+
+		if(!(g1Pairs == g2Pairs && g2Pairs == g3Pairs && g3Pairs == g4Pairs)){
+			cout<<"Found an exception example!"<<endl;
+			cout<<"flatten on (: "<<g1Pairs<<endl;
+			cout<<"flatten on [: "<<g2Pairs<<endl;
+			cout<<"flattenReach on (: "<<g3Pairs<<endl;
+			cout<<"flattenReach on [: "<<g4Pairs<<endl;
+			original.printAsDot();
+
+
+			cout<<endl<<endl;
+
+			original.printGraphAsTikz();
+
+			cout<<endl<<endl;
+
+			cout<<"Reachability details for flattenReach on (:"<<endl;
+			g3.printDetailReach();
+
+			cout<<"Reachability details for flattenReach on [:"<<endl;
+			g4.printDetailReach();
+
+			graph g5 = original.copy();
+			g5.flattenReach("(");
+			graph g6 = original.copy();
+			g6.flattenReach("[");
+			
+
+			return 0;
+		}
+
+	}
+	
+	if(true)return 0;
+	
 	// Bidirected Reach Algorithm
 	graph g2, g;
 	clock_t time;
 	struct timeval tv1,tv2;
 	
+
 	//true -> construct form input
 	//false -> generate
 	if(false){
@@ -24,28 +103,13 @@ int main(int argc, const char * argv[]){
 	}else{
 		gettimeofday(&tv1, NULL);
 		time = clock();
-		srand((int)tv2.tv_usec);
-
-		int edges = 10;
-		int vertices = edges * 7 / 10;
-
-		for(int i = 0; i < edges; i++){
-			string a = to_string(rand() % vertices);
-			string b = to_string(rand() % vertices);
-			string field = "[";
-			if(rand() % 2 == 0) field = "(";
-			
-			g.addedge(g.getVertex(a), g.getVertex(b), g.getfield(field));
-		}
-		g.dsu.init(g.vertices.size());
-
+		
+		g = g.makeRandomGraph((int)tv1.tv_usec, 10, 7);
 
 		g2 = g.copy();
-		cout<<"Graph generated from file"<<endl;
+		cout<<"Graph generated"<<endl;
 	}
-	
-	
-	
+
 
 	gettimeofday(&tv1, NULL);
 	time = clock();
@@ -53,17 +117,11 @@ int main(int argc, const char * argv[]){
 	//true -> flattenReach
 	//false -> flatten, then reach
 	if(true){
-		g.initWorklist();
-		g2.initWorklist();
-
 		g.flattenReach("[");
 		g2.flattenReach("(");
 	}else{
 		g = g.flatten("[", 8);
 		g2 = g2.flatten("(", 8);
-
-		g.initWorklist();
-		g2.initWorklist();
 
 		g.bidirectedReach();
 		g2.bidirectedReach();

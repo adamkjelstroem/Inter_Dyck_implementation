@@ -408,7 +408,7 @@ void graph::printGraphAsTikz(){
 					//if(vtx->id != vertices[*fedgeit]->id){
 					if (f.field_name == "["){
 						cout<< "\\path [->, blue] ("<<vertices[*fedgeit]->id<<") edge [bend left=20] node {$ $} ("<<vtx->id<<");"<<endl;
-					}else{
+					}else if(f.field_name == "("){
 						cout<< "\\path [->, red]  ("<<vertices[*fedgeit]->id<<") edge [bend right=20] node {$ $} ("<<vtx->id<<");"<<endl;
 					}
 					//}
