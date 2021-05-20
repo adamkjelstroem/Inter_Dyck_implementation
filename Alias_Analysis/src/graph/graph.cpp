@@ -380,13 +380,16 @@ int graph::calcNumReachablePairs(){
 void graph::printGraphAsTikz(){
 	cout<<"\\begin{tikzpicture}"<<endl;
 
-	for (Vertex* v : vertices){
-		cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", 0) {"<<v->name<<"};"<<endl;
-	}
+	
 
 	cout<<endl;
 	if(isFlattened){
 		//graph is flattened
+
+		for (Vertex* v : vertices){
+			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", "<<v->layer<<") {("<<v->name<<", "<<v->layer<<")};"<<endl;
+		}
+
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
 			if(a.id != b.id){
 				if (f.field_name == "eps"){
@@ -399,6 +402,10 @@ void graph::printGraphAsTikz(){
 		iterateOverEdges(print, nullptr);
 	}else{
 		//graph is not flattened
+
+		for (Vertex* v : vertices){
+			cout<<"\\node ("<<v->id<<") at ("<<v->id * 2<<", 0) {"<<v->name<<"};"<<endl;
+		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
 			if(a.id != b.id){
