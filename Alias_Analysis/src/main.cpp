@@ -1,4 +1,5 @@
 #include "graph/graph.h"
+#include "test/test.h"
 #include "graph/Ngraph.h"
 #include <iostream>
 #include <time.h>
@@ -10,7 +11,17 @@ int main(int argc, const char * argv[]){
 		cerr<<"the argument should be path to file containing spg graph"<<endl;
 		return 1;
 	}
-	
+
+	if(true){
+		
+		Test t;
+		bool res = t.test();
+
+		if(!res){
+			cout<<"A test failed!"<<endl;
+		}
+		return 0;
+	}	
 
 	while(false){
 
