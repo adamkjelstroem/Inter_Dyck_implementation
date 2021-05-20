@@ -18,6 +18,8 @@ int main(int argc, const char * argv[]){
 
 		if(!res){
 			cout<<"A test failed!"<<endl;
+		}else{
+			cout<<"All tests passed!"<<endl;
 		}
 		return 0;
 	}	

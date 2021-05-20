@@ -11,15 +11,39 @@ graph buildSimple(int k);
 
 bool Test::test(){
     
+
+    if(false){
+        //do flattenReach on some graph
+        graph g = makeRandomGraph(10, 10, 7);
+
+        graph g2 = g.copy();
+        g2 = g2.flatten("(", 20);
+        g2.bidirectedReach();
+
+
+        g.printGraphAsTikz();
+
+        g.flattenReach("(");
+        
+        cout<<"flattenReach detailed reachability:\\\\"<<endl;
+        g.printDetailReach();
+
+        cout<<"Flatten then reach: \\\\"<<endl;
+
+        g2.printDetailReach();
+
+        //return false;
+    }
+
     //make a graph with 1 edge, make sure it comes out correctly when iterating
     {
         graph g;
-        g.addEdge("a", 0, "b", 1, "label");
+        g.addEdge(1, 0, 2, 1, "label");
 
         bool k = false;
         void* data[] = {&k};
         g.iterateOverEdges([](Vertex start, Vertex end, field f, void* extra[]){
-            if(start.name == "b" && end.name == "a"){
+            if(start.x == 2 && end.x == 1){
                 (*(bool*)extra[0]) = true;
             }
         }, data);
@@ -33,10 +57,10 @@ bool Test::test(){
     {
         graph g;
         for(int i = 0; i < 7; i++){
-            g.getVertex(to_string(i), 0);
+            g.getVertex((i), 0, "");
         }
-        g.addEdge("0", 0, "1", 0, "(");
-        g.addEdge("2", 0, "1", 0, "(");
+        g.addEdge(0, 0, 1, 0, "(");
+        g.addEdge(2, 0, 1, 0, "(");
         g.dsu.init(g.vertices.size());
         g.initWorklist();
 
@@ -143,7 +167,7 @@ bool Test::test(){
     {
         graph g;
         for(int i = 0; i <10; i++){
-            g.getVertex(to_string(i), 0);
+            g.getVertex((i), 0, "");
         }
         
         g.dsu.init(g.vertices.size());
@@ -161,7 +185,7 @@ bool Test::test(){
     {
         graph g;
         for(int i = 0; i < 10; i++){
-            g.addEdge(to_string(i), 0, to_string(i+1), 0, "eps");
+            g.addEdge((i), 0, (i+1), 0, "eps");
         }
         //scc should be of size 11
 
@@ -196,6 +220,7 @@ bool Test::test(){
             cout<<"number of reachable pairs is different when doing flattenReach ("<<numg1<<") and when doing flatten, then reach ("<<numg2<<") on brackets"<<endl;
             return false;
         }
+        return true; //TODO 
     }
 
     //testing that flattenReach on brackets and parentheses should be the same for this simple case
@@ -224,9 +249,12 @@ bool Test::test(){
 
     //testing for random graphs that all 4 different techniques produce same results
     {
-        int flattenHeight = 20;
-        for(int seed = 0; seed < 10; seed++){
-            graph orig = makeRandomGraph(seed, 5, 7);
+        int flattenHeight = 100;
+        int edges = 20;
+        int vertices = edges * 7 / 10;
+        int repetitions = 20;
+        for(int seed = 0; seed < repetitions; seed++){
+            graph orig = makeRandomGraph(seed, edges, vertices);
 
             graph g1 = orig.copy();
             graph g2 = orig.copy();
@@ -234,6 +262,10 @@ bool Test::test(){
             graph g4 = orig.copy();
 
             g1.flattenReach("(");
+
+            {
+                return false;
+            }
             int num1 = g1.calcNumReachablePairs();
 
             g2.flattenReach("[");
@@ -252,16 +284,26 @@ bool Test::test(){
 
                 cout<<"Number of reachable pairs should be the same for all 4 methods!\\\\"<<endl;
                 cout<<"flattenReach on parenthesis: "<<num1<<"\\\\"<<endl;
+                g1.printDetailReach();
                 cout<<"flattenReach on bracket: "<<num2<<"\\\\"<<endl;
                 g2.printDetailReach();
                 cout<<"flatten, then reach on parenthesis up to height "<<flattenHeight<<": "<<num3<<"\\\\"<<endl;
+                g3.printDetailReach();
                 cout<<"flatten, then reach on brackets up to height "<<flattenHeight<<": "<<num3<<"\\\\"<<endl;
                 g4.printDetailReach();
 
-                cout<<"original number of vertices: "<<orig.vertices.size()<<endl;
+                cout<<"original number of vertices: "<<orig.vertices.size()<<"\\\\"<<endl;
 
-                //orig = orig.flatten("[", 8);
-                //orig.printGraphAsTikz();
+                orig = orig.flatten("[", 8);
+                orig.printGraphAsTikz();
+
+                cout<<"seed is "<<seed<<endl;
+                return false;
+            }else{
+                /*cout<<"we did it?? nums all = "<<num1<<endl;
+                orig.printGraphAsTikz();
+                orig = orig.flatten("[", 8);
+                orig.printGraphAsTikz();*/
             }
         }
     }
@@ -275,20 +317,20 @@ graph buildSimple(int k){
     graph g;
     
     for(int i = 0; i < k; i++){
-        g.getVertex(to_string(i), 0);
-        g.addEdge(to_string(i), 0, to_string(i+1), 0, "(");
+        g.getVertex(i, 0, "");
+        g.addEdge(i, 0, i+1, 0, "(");
     }
     for(int i = 0; i < k; i++){
-        g.getVertex(to_string(i+k), 0);
-        g.addEdge(to_string(i+k), 0, to_string(i+k+1), 0, "[");
+        g.getVertex((i+k), 0, "");
+        g.addEdge((i+k), 0, (i+k+1), 0, "[");
     }
     for(int i = 0; i < k; i++){
-        g.getVertex(to_string(i+k*2), 0);
-        g.addEdge(to_string(i+k*2+1), 0, to_string(i+k*2), 0, "(");
+        g.getVertex((i+k*2), 0, "");
+        g.addEdge((i+k*2+1), 0, (i+k*2), 0, "(");
     }
     for(int i = 0; i < k; i++){
-        g.getVertex(to_string(i+k*3), 0);
-        g.addEdge(to_string(i+k*3+1), 0, to_string(i+k*3), 0, "[");
+        g.getVertex((i+k*3), 0, "");
+        g.addEdge((i+k*3+1), 0, (i+k*3), 0, "[");
     }
 
     g.dsu.init(g.vertices.size());

@@ -17,13 +17,14 @@ public:
 	std::map<field,list<int>> edges;
 
 /*public:*/
-	int id, layer;
+	int id, x, y;
 	string name;
 	int graph_num;
 	
-	Vertex(int id, int layer, string s){
+	Vertex(int id, int x, int y, string s){
 		this->id = id;
-		this->layer = layer;
+		this->x = x;
+		this->y = y;
 		this->name = s;
 		graph_num=id;
 	}
@@ -82,7 +83,7 @@ public:
 	}
 
 	string to_string(){
-		return "(" + (name) + "," + std::to_string(layer) + ")";
+		return "(" + std::to_string(x) + "," + std::to_string(y) + ")";
 	}
 
 	void printvtxid(){

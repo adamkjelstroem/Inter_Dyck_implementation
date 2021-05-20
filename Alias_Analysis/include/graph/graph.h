@@ -26,6 +26,7 @@ class graph {
 	
 	queue<pair<int,field>> worklist;  //vertex id and field
 	map<string,Vertex*> str2vtx;
+	map<int, map<int,Vertex*>> pos2vtx;
 	map<string,field> str2field;
 
 	void addnewPair(Vertex *rootvtx);
@@ -54,7 +55,7 @@ public:
 	//void addedge(Vertex *u,Vertex *v, field &f);
 
 	//adds edge from start to end with label l. example: l="(" means   a -- "(" --> b
-	void addEdge(string start_name, int start_height, string end_name, int end_height, string label);
+	void addEdge(int start_x, int start_y, int end_x, int end_y, string label);
 
 	void printReach();
 	void printDetailReach();
@@ -64,8 +65,8 @@ public:
 	bool query(int uid,int vid);
 	int getRoot(Vertex* vtx,field& f,std::set<int>& roots,int &rootS);
 	field& getfield(const string &s);
-	// gets the vertex with name s, if not present creates it
-	Vertex* getVertex(const string &s, int layer);
+	// gets the vertex with name, if not present creates it. name is arbitrary display value
+	Vertex* getVertex(int x, int y, const string &name);
 
 	void construct2(string infile_name);
 	void construct2flattenbracket(string infile_name);

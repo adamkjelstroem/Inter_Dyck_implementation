@@ -17,10 +17,10 @@ void graph::construct2(string infile_name){
 		if(line.find("->") != string::npos){
 			std::vector<string> tokens;
 			split(line, "->", tokens);
-			string a = tokens[0];
+			int a = std::stoi(tokens[0]);
 			std::vector<string> tokens2;
 			split(tokens[1], "[label=\"", tokens2);
-			string b = tokens2[0];
+			int b = std::stoi(tokens2[0]);
 			string label = tokens2[1];
 
 			//parse
@@ -55,14 +55,14 @@ graph graph::flatten(string field_name, int depth){
 				//flatten on this field
 				if(i+1!=depth)
 					g->addEdge(
-						to_string(a.id), i, 
-						to_string(b.id), i+1, 
+						a.x, i, 
+						b.x, i+1, 
 						g->EPS.field_name
 					);
 			}else{
 				g->addEdge(
-					to_string(a.id), i,
-					to_string(b.id), i,
+					a.x, i,
+					b.x, i,
 					f.field_name
 				);
 					
@@ -97,7 +97,7 @@ void graph::flattenReach(string flatten_label) {
 	cout<<"n="<<n<<" and c="<<c<<endl;
 	
 	
-	c = 8; //TODO hardcoded
+	c = 6; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
 		
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
@@ -105,6 +105,7 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"\\\\"<<endl;
 		cout<<"\\\\"<<endl;
 		cout<<""<<i<<" layers\\\\"<<endl;
+		cout<<"starting graph for iteration:\\\\"<<endl;
 		g.printGraphAsTikz();
 		
 
@@ -116,6 +117,9 @@ void graph::flattenReach(string flatten_label) {
 
 		//find layer zero items that have been joined, and merge them
 		//TODO is this meaningful?
+		cout<<"DETAIL REACH\\\\"<<endl;
+		g.printDetailReach();
+
 		map<int,set<int>> scc;
 		for(int i=0;i<g.N;i++){
 			scc[g.dsu.root(i)].insert(i);
@@ -125,17 +129,17 @@ void graph::flattenReach(string flatten_label) {
 			int zero_elems = 0;
 			int first_zero = -1;
 			for(int elem : it->second){
-				if(g.vertices[elem]->layer == 0){
+				if(g.vertices[elem]->y == 0){
 					zero_elems++;
-					first_zero = getVertex(g.vertices[elem]->name, 0)->id;
+					first_zero = getVertex(g.vertices[elem]->x, 0, "")->id;
 					if(zero_elems>=2) break;
 				}
 			}
 			if(zero_elems>=2){
 				for(int elem : it->second){
-					if(g.vertices[elem]->layer == 0){
+					if(g.vertices[elem]->y == 0){
 						dsu.merge(
-							dsu.root(getVertex(g.vertices[elem]->name, 0)->id),
+							dsu.root(getVertex(g.vertices[elem]->x, 0, "")->id),
 							dsu.root(first_zero)
 							);
 					}
@@ -155,20 +159,44 @@ void graph::flattenReach(string flatten_label) {
 
 			auto start_root = g->vertices[g->dsu.root(a.id)];
 			auto end_root =   g->vertices[g->dsu.root(b.id)];
-			
-			//cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
 
-			g2->addEdge(
-				start_root->name, start_root->layer, 
-				end_root->name,end_root->layer, 
+			if(a.x == 7 && a.y == 1 && false){
+				cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
+				exit(0);
+				//TODO for some reason, these edges go the wrong way??
+				//Does it have something to do with the merging of ids??
+				//TODO I think this is the only error left
+			}
+
+			//TODO still not working???
+			if( !(start_root->x == a.x && start_root->y == a.y) ||
+				!(end_root->x == b.x && end_root->y == b.y)){
+				g2->addEdge( //Flipped
+				end_root->x,end_root->y, 
+				start_root->x, start_root->y, 
 				f.field_name);
-			
+			}else{
+				g2->addEdge(
+				start_root->x, start_root->y, 
+				end_root->x,end_root->y, 
+				f.field_name);
+			}
+
+			//cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
+			/** //TODO revert to original code??
+			g2->addEdge(
+				start_root->x, start_root->y, 
+				end_root->x,end_root->y, 
+				f.field_name);
+			*/
 		};
 
 		void* w[] = {&g, &g2};
 
 		g.iterateOverEdges(cop, w);
 
+		cout<<"reduced graph:\\\\"<<endl;
+		g2.printGraphAsTikz();
 
 		//add new layer
 		//cout<<"adding new layer"<<endl;
@@ -185,7 +213,7 @@ void graph::flattenReach(string flatten_label) {
 
 				//a is vertex in original graph
 
-				auto a_in_layer_i_minus_1_in_g =  g->getVertex(to_string(a.id), i-1); //TOD name here??
+				auto a_in_layer_i_minus_1_in_g =  g->getVertex(a.x, i-1, ""); //TOD name here??
 
 				
 				//TODO we're still not consisitent with coordinates ws ids
@@ -199,16 +227,16 @@ void graph::flattenReach(string flatten_label) {
 
 				//add new edge in g2
 				g2->addEdge(
-					root_of_a_in_g->name, root_of_a_in_g->layer,
-					to_string(b.id), i,
+					root_of_a_in_g->x, root_of_a_in_g->y,
+					b.x, i,
 					g2->EPS.field_name
 				);
 
 			}else{
 				//add edges that go inside new layer
 				g2->addEdge(
-					to_string(a.id), i,
-					to_string(b.id), i,
+					a.x, i,
+					b.x, i,
 					f.field_name
 				);
 			}
@@ -218,6 +246,9 @@ void graph::flattenReach(string flatten_label) {
 		void* q[] = {&g, &g2, &i, &flatten_label};
 
 		iterateOverEdges(addL, q);
+
+		cout<<"after adding new top layer:\\\\"<<endl;
+		g2.printGraphAsTikz();
 		
 		//before using new graph:
 		g2.dsu.init(g2.vertices.size());
@@ -281,7 +312,7 @@ graph graph::copy(){
 
 	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 		graph* g = (graph*)extra[0];
-		g->addEdge(a.name, a.layer, b.name, b.layer, f.field_name);
+		g->addEdge(a.x, a.y, b.x, b.y, f.field_name);
 	};
 	void* w[] = {&g};
 	iterateOverEdges(cop, w);
@@ -303,7 +334,7 @@ int graph::calcNumReachablePairs(){
 	while(it!=scc.end()){
 		int zero_elems = 0;
 		for(int elem : it->second){
-			if(vertices[elem]->layer == 0) zero_elems++;
+			if(vertices[elem]->y == 0) zero_elems++;
 			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
 		}
 		n += zero_elems * (zero_elems-1) / 2;
@@ -316,14 +347,14 @@ int graph::calcNumReachablePairs(){
 void graph::printGraphAsTikz(){
 	cout<<"\\begin{tikzpicture}"<<endl;
 
-	
+	int d = 1;
 
 	cout<<endl;
 	if(isFlattened){
 		//graph is flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 1<<", "<<v->layer<<") {("<<v->name<<", "<<v->layer<<")};"<<endl;
+			cout<<"\\node ("<<v->id<<") at ("<<v->x * d<<", "<<v->y*d<<") {("<<v->x<<", "<<v->y<<")"<<""<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -340,7 +371,7 @@ void graph::printGraphAsTikz(){
 		//graph is not flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<v->id<<", 0) {"<<v->id<<"};"<<endl;
+			cout<<"\\node ("<<v->id<<") at ("<<v->x*d<<", 0) {"<<v->x<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -430,6 +461,7 @@ void graph::construct2flattenbracket(string infile_name){
 // takes the file name containing the edge information of the spg as arguement
 // and construct a Ngraph from it
 void graph::construct(string infile_name){
+	/*
 	ifstream infile(infile_name);
 	string line;
 	while(std::getline(infile,line)){
@@ -467,7 +499,7 @@ void graph::construct(string infile_name){
 			cerr<<tokens[i]<<"   **;**   ";
 		cerr<<endl;
 	}
-	dsu.init(vertices.size());
+	dsu.init(vertices.size());*/ //TODO legacy code for old format, should be revisited
 }
 
 
@@ -613,15 +645,17 @@ bool graph::query(int uid,int vid){
 
 
 
-Vertex* graph::getVertex(const string &s, int layer){
-	auto it = str2vtx.find(s + ": " + to_string(layer));
-	if(it==str2vtx.end()){
-		Vertex* vtx = new Vertex(this->N, layer,s);
+Vertex* graph::getVertex(int x, int y, const string &name){
+	auto it = pos2vtx[x].find(y);
+	//auto it = str2vtx.find("");
+	if(it==pos2vtx[x].end()){
+		Vertex* vtx = new Vertex(this->N, x, y,name);
 		//cout<<"adding new edge with id \""<<vtx->id<<"\" and name \""<<vtx->name<<"\""<<endl;
 		vertices.push_back(vtx);
 		vtx->addedge(EPS,vtx->id);
 		this->N++;
-		str2vtx[s + ": " + to_string(layer)]=vtx;
+		pos2vtx[x][y] = vtx;
+		//str2vtx[s + ": " + to_string(layer)]=vtx;
 		return vtx;
 	}
 	return it->second;
@@ -639,13 +673,13 @@ field& graph::getfield(const string &s){
 }
 
 //adds edge from start to end with label l. example: l="(" means   a -- "(" --> b
-void graph::addEdge(string start_name, int start_height, string end_name, int end_height, string label){
-	Vertex* start = getVertex(start_name, start_height);
-	Vertex* end   = getVertex(end_name,   end_height);
-
+void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label){
+	Vertex* start = getVertex(start_x, start_y, "");
+	Vertex* end   = getVertex(end_x,   end_y, "");
+	
 	end->addedge(getfield(label), start->id);
 
-	setFlattened(start_height != 0 | end_height != 0);
+	setFlattened(end_y != 0 | start_y != 0);
 	numedges++;
 }
 
@@ -690,7 +724,7 @@ void graph::printDetailReach(){
 	while(it!=scc.end()){
 		int zero_elems = 0;
 		for(int elem : it->second){
-			if(vertices[elem]->layer == 0){
+			if(vertices[elem]->y == 0){
 				zero_elems++;
 				if(zero_elems>=2) break;
 			}
@@ -698,8 +732,8 @@ void graph::printDetailReach(){
 		if(zero_elems>=1){
 			cout<<"scc: \\{";
 			for(int elem : it->second){
-				if(vertices[elem]->layer == 0){ //TODO disabled for test
-					cout<<"("<<vertices[elem]->name<<","<<vertices[elem]->layer<<"), ";
+				if(vertices[elem]->y == 0){ //TODO disabled for test
+					cout<<"("<<vertices[elem]->x<<"), ";
 					//cout<<tokens[0]<<"\n";
 				}
 			}

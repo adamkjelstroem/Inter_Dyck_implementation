@@ -21,7 +21,7 @@ public:
                if (b >= a) b++; //guarantees a != b
                string field = "[";
                if(rand() % 2 == 0) field = "(";
-               g.addEdge(to_string(a), 0, to_string(b), 0, field);
+               g.addEdge((a), 0, (b), 0, field);
           }
           g.dsu.init(g.vertices.size());
 
