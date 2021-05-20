@@ -81,6 +81,10 @@ public:
 		return edges[f];
 	}
 
+	string to_string(){
+		return "(" + std::to_string(id) + "," + std::to_string(layer) + ")";
+	}
+
 	void printvtxid(){
 		cout<<"vertex id : "<<id<<endl;
 		cout<<"different fields are "<<edges.size()<<endl;
