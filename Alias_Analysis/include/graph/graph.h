@@ -51,7 +51,11 @@ public:
 	void bidirectedReach();
 	void construct(string infile_name);
 
-	void addedge(Vertex *u,Vertex *v, field &f);
+	//void addedge(Vertex *u,Vertex *v, field &f);
+
+	//adds edge from start to end with label l. example: l="(" means   a -- "(" --> b
+	void addEdge(string start_name, int start_height, string end_name, int end_height, string label);
+
 	void printReach();
 	void printDetailReach();
 	void printDetailReach(DSU* dsu);

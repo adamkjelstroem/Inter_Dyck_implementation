@@ -26,15 +26,15 @@ void graph::construct2(string infile_name){
 			//parse
 			//note the 'flipping' s.t. we "add an edge" from a to b by calling in order (b, a, label)
 			if (label.find("op") != string::npos){
-				addedge(getVertex(b,0), getVertex(a,0), getfield("("));
+				addEdge(a, 0, b, 0, "(");
 			}else if (label.find("cp") != string::npos){
-				addedge(getVertex(a,0), getVertex(b,0), getfield("("));
+				addEdge(b, 0, a, 0, "(");
 			}else if (label.find("ob") != string::npos){
-				addedge(getVertex(b,0), getVertex(a,0), getfield("["));
+				addEdge(a, 0, b, 0, "[");
 			}else if (label.find("cb") != string::npos){
-				addedge(getVertex(a,0), getVertex(b,0), getfield("["));
+				addEdge(b, 0, a, 0, "[");
 			}else{
-				addedge(getVertex(b,0), getVertex(a,0), EPS);
+				addEdge(a, 0, b, 0, EPS.field_name);
 			}
 			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 		}
@@ -49,28 +49,34 @@ graph graph::flatten(string field_name, int depth){
 
 
 	for (int i = 0; i < depth; i++){ 
-		/*
-		auto cop = [](Vertex a, Vertex b, field f, void* extra) {
-			graph* g = (graph*)extra;
-			
+		
+		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+			graph* g = (graph*)extra[0];
+			int i = *((int*)extra[1]);
+			int depth = *(int*)extra[2];
+			string field_name = *(string*)extra[3];
+
 			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
-				//flatten on brackets
+				//flatten on this field
 				if(i+1!=depth)
-					g.addedge(
-						g.getVertex(to_string(vertex->id), i+1),
-						g.getVertex(to_string(vertices[*fedgeit]->id),i), //end node
-						g.EPS
+					g->addEdge(
+						to_string(a.id), i, 
+						to_string(b.id), i+1, 
+						g->EPS.field_name
 					);
 			}else{
-				g.addedge(
-					g.getVertex(to_string(vertex->id), i),
-					g.getVertex(to_string(vertices[*fedgeit]->id), i), //end node
-					g.getfield(f.field_name)
+				g->addEdge(
+					to_string(a.id), i,
+					to_string(b.id), i,
+					f.field_name
 				);
+					
 			}
 		};
+		void* w[] = {&g, &i, &depth, &field_name};
 
-		iterateOverEdges(cop, &g);*/
+		iterateOverEdges(cop, w);
+		/*
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
 			while(fit!=vertex->edgesend()){   // iterating over field
@@ -81,12 +87,13 @@ graph graph::flatten(string field_name, int depth){
 					//"vertices[*fedgeit]" is end vertex
 					//"vertex" is start vertex
 
+					/*
 					if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
 						//flatten on brackets
 						if(i+1!=depth)
 							g.addedge(
-								g.getVertex(to_string(vertex->id), i+1),
-								g.getVertex(to_string(vertices[*fedgeit]->id),i), //end node
+								g.getVertex(to_string(vertex->id), i),
+								g.getVertex(to_string(vertices[*fedgeit]->id),i+1), //end node
 								g.EPS
 							);
 					}else{
@@ -95,13 +102,13 @@ graph graph::flatten(string field_name, int depth){
 							g.getVertex(to_string(vertices[*fedgeit]->id), i), //end node
 							g.getfield(f.field_name)
 						);
-					}
-
+					}*/ //TODO uncomment and fix
+				/*
 					fedgeit++;
 				}
 				fit++;
 			}
-		}
+		}*/
 	}
 	g.dsu.init(g.vertices.size());
 
@@ -186,11 +193,12 @@ void graph::flattenReach(string flatten_label) {
 			auto start_root = g->vertices[g->dsu.root(a.id)];
 			auto end_root = g->vertices[g->dsu.root(b.id)];
 
-			g2->addedge(
+			g2->addEdge(start_root->name, start_root->layer, end_root->name,end_root->layer, f.field_name);
+			/*g2->addedge(
 				g2->getVertex(start_root->name, start_root->layer),
 				g2->getVertex(end_root->name, end_root->layer), //end node
 				g2->getfield(f.field_name)
-			);
+			);*/
 		};
 
 		void* w[] = {&g, &g2};
@@ -260,18 +268,19 @@ void graph::flattenReach(string flatten_label) {
 
 					
 						//flattened edges connect between layers
-						g2.addedge(
-							g2.getVertex(vertex->name, i),
-							g2.getVertex(start_root->name, start_root->layer), //end node
-							g2.EPS
-						);
+						// note: order should not matter here
+						g2.addEdge(vertex->name, i, start_root->name, start_root->layer, g2.EPS.field_name);
+						
 					}else{
 						//non-flattened edges connect 'inside' layers
+						//TODO verify no flipping is going on here
+						//TODO write code here!
+						/*
 						g2.addedge(
 							g2.getVertex(vertex->name, i),
 							g2.getVertex(vertices[*fedgeit]->name, i), //end node
 							g2.getfield(f.field_name)
-						); 
+						);*/ 
 					}
 
 					fedgeit++;
@@ -328,7 +337,7 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 			auto fedgeit = vertex->edgesbegin(fi);
 			while(fedgeit != vertex->edgesend(fi)){   // iterating over edges
 				
-				(*f)(*vertices[j], *vertices[*fedgeit], fi, extra);
+				(*f)(*vertices[*fedgeit], *vertices[j], fi, extra);
 				
 				fedgeit++;
 			}
@@ -342,11 +351,7 @@ graph graph::copy(){
 
 	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 		graph* g = (graph*)extra[0];
-		g->addedge(
-			g->getVertex(a.name, a.layer),
-			g->getVertex(b.name, b.layer), //end node
-			g->getfield(f.field_name)
-		);
+		g->addEdge(a.name, a.layer, b.name, b.layer, f.field_name);
 	};
 	void* w[] = {&g};
 	iterateOverEdges(cop, w);
@@ -369,6 +374,7 @@ int graph::calcNumReachablePairs(){
 		int zero_elems = 0;
 		for(int elem : it->second){
 			if(vertices[elem]->layer == 0) zero_elems++;
+			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
 		}
 		n += zero_elems * (zero_elems-1) / 2;
 		it++;
@@ -387,7 +393,7 @@ void graph::printGraphAsTikz(){
 		//graph is flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 2<<", "<<v->layer<<") {("<<v->name<<", "<<v->layer<<")};"<<endl;
+			cout<<"\\node ("<<v->id<<") at ("<<std::stoi(v->name) * 1<<", "<<v->layer<<") {("<<v->name<<", "<<v->layer<<")};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -445,8 +451,7 @@ graph graph::makeRandomGraph(int seed, int edges, int vertices){
 		if (b >= a) b++; //guarantees a != b
 		string field = "[";
 		if(rand() % 2 == 0) field = "(";
-		
-		g.addedge(g.getVertex(to_string(a), 0), g.getVertex(to_string(b), 0), g.getfield(field));
+		g.addEdge(to_string(a), 0, to_string(b), 0, field);
 	}
 	g.dsu.init(g.vertices.size());
 
@@ -455,6 +460,7 @@ graph graph::makeRandomGraph(int seed, int edges, int vertices){
 
 //this also does flattening on one dyck language
 //TODO old code, should be removed?
+/*
 void graph::construct2flattenbracket(string infile_name){
 	//TODO old code; should be removed.
 	ifstream infile(infile_name);
@@ -480,21 +486,19 @@ void graph::construct2flattenbracket(string infile_name){
 
 			//parse
 			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
-			//note that a and b are flipped. this makes the graph compatible with the rest of the code base
-			//quite bizarre.
 			if (label.find("op") != string::npos){
 				//we're flattening on brackets, so parentesis edges are mostly left as-is
 				for(int i = 0; i <= c; i++){ //note the <= operator
-					addedge(getVertex(b, i), getVertex(a, i), getfield("("));
+					addEdge(a, i, b, i), getfield("("));
 				}
 			}else if (label.find("cp") != string::npos){
 				for(int i = 0; i <= c; i++){ //note the <= operator
 					//reverse order of a and b because of closing parentheses
-					addedge(getVertex(a, i), getVertex(b, i), getfield("("));
+					addedge(getVertex(b, i), getVertex(a, i), getfield("("));
 				}
 			}else if (label.find("ob") != string::npos){
 				for(int i = 0; i < c; i++){ //note the < operator
-					addedge(getVertex(b, i+1), getVertex(a, i), EPS);
+					addedge(getVertex(a, i+1), getVertex(a, i), EPS);
 				}
 			}else if(label.find("cb") != string::npos){
 				for(int i = 0; i < c; i++){ //note the < operator
@@ -508,7 +512,7 @@ void graph::construct2flattenbracket(string infile_name){
 		}
 	}
 	dsu.init(vertices.size());
-}
+}*/
 
 // takes the file name containing the edge information of the spg as arguement
 // and construct a Ngraph from it
@@ -522,7 +526,8 @@ void graph::construct(string infile_name){
 			continue;
 		if(tokens[0] == "e"){
 			// assert(tokens.size()==4);
-			addedge(getVertex(tokens[1], 0),getVertex(tokens[2], 0),getfield(tokens[3]));
+			//Note the flipping of tokens[1] and tokens[2]
+			addEdge(tokens[2], 0,tokens[1], 0,tokens[3]);
 			// if(getfield(tokens[3])==EPS){
 			// 	addedge(getVertex(tokens[2]),getVertex(tokens[1]),EPS);
 			// }
@@ -720,6 +725,18 @@ field& graph::getfield(const string &s){
 	return it->second;
 }
 
+//adds edge from start to end with label l. example: l="(" means   a -- "(" --> b
+void graph::addEdge(string start_name, int start_height, string end_name, int end_height, string label){
+	Vertex* start = getVertex(start_name, start_height);
+	Vertex* end   = getVertex(end_name,   end_height);
+
+	end->addedge(getfield(label), start->id);
+
+	setFlattened(start_height != 0 | end_height != 0);
+	numedges++;
+}
+
+/*
 void graph::addedge(Vertex* u,Vertex* v,field &f){
 	u->addedge(f,v->id);
 	setFlattened(u->layer != 0 | v->layer != 0);
@@ -738,8 +755,8 @@ void graph::addedge(Vertex* u,Vertex* v,field &f){
 		}
 	}*/
 	//if(u != v) cout<<"("<<v->name<<") -> ("<<u->name<<") with label "<<f.field_name<<endl;
-	numedges++;
-}
+	/*numedges++;
+}*/
 
 void graph::printReach(){
 	cout<<"\tNumber of Strongly connected components : "<<dsu.getN()<<endl;
