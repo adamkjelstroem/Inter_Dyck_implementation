@@ -12,6 +12,18 @@ int main(int argc, const char * argv[]){
 	}
 	
 
+	while(true){
+
+		graph g1;
+		g1 = g1.makeRandomGraph(10, 10, 10);
+		graph g2 = g1.copy();
+
+		g1.printGraphAsTikz();
+		g2.printGraphAsTikz();
+
+		return 0;
+	}
+
 	while (true){
 
 		//compute number of reachable pairs for many graphs using

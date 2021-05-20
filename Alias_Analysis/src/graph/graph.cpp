@@ -178,17 +178,24 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"building reduced graph"<<endl;
 		graph g2;
 
+		/*
 		
 		//TODO refactor here
 		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
-			auto w = (std::initializer_list<graph>*) extra;
-			auto g = w->begin();
-			auto g2 = w->end();
+			auto g =  (graph*)extra[0];
+			auto g2 = (graph*)extra[1];
+
+
+			auto start_root = g->vertices[g->dsu.root(a.id)];
+			auto end_root = g->vertices[g->dsu.root(*fedgeit)];
 		};
 
 		void* w[] = {&g, &g2};
 
 		iterateOverEdges(cop, w);
+		
+		//TODO maybe use 'removeRepeatedEdges after this??
+		*/
 
 		for(int j=0;j<g.N;j++){
 			auto vertex = g.vertices[j];
