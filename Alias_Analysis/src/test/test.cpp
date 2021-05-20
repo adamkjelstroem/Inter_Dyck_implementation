@@ -7,6 +7,7 @@
 #include <algorithm>
 
 graph buildSimple(int k);
+	
 
 bool Test::test(){
     
@@ -32,7 +33,7 @@ bool Test::test(){
 
     //testing (([[))]] type graphs work
     {
-        int height = 2;
+        int height = 4;
         graph g = buildSimple(height);
         g = g.flatten("(", height+1);
 
@@ -40,20 +41,18 @@ bool Test::test(){
 
         g.bidirectedReach();
         
-        g.printDetailReach();
-
         if(g.calcNumReachablePairs() != 1){
-            cout<<"graph of type ((([[[)))]]] should always have 1 reachable pair, but "<<g.calcNumReachablePairs()<<" found when flattening to "<<height<<endl;
-
             g.printGraphAsTikz();
-
+            
+            cout<<"graph of type ((([[[)))]]] should always have 1 reachable pair, but "<<g.calcNumReachablePairs()<<" found when flattening to "<<height<<endl;
+            
             return false;
         }
     }
 
     { //testing copy
         int height = 4;
-        graph g = g.makeRandomGraph(10, 10, 10);
+        graph g = Test::makeRandomGraph(10, 10, 10);
         graph g2 = g.copy();
 
 
@@ -71,7 +70,7 @@ bool Test::test(){
 
     }
 
-    { //test that flatten on "[" and "(" up to <above> the expected bound yields the same results
+    { //test that flatten on "[" and "(" up to the expected bound yields the same results
         int height = 4;
         graph g = buildSimple(height);
         graph g2 = g.copy();
@@ -83,11 +82,36 @@ bool Test::test(){
         g.bidirectedReach();
         g2.bidirectedReach();
 
-        if(g.calcNumReachablePairs() != g2.calcNumReachablePairs()){
-            cout<<"error message TODO"<<endl;
+        if(g.calcNumReachablePairs() != 1 || g.calcNumReachablePairs() != g2.calcNumReachablePairs()){
+            cout<<"Number of reachable pairs should be the same when flattening on either";
+            cout<<" parenthesis or bracket, but they're not!"<<endl;
+
+            cout<<"For parenthesis:"<<endl;
+            g.printGraphAsTikz();
+            cout<<"For brackets: "<<endl;
+            g2.printGraphAsTikz();
             return false;
         }
 
+    }
+
+    {
+        for(int seed = 0; seed < 10; seed++){
+
+            //compute number of reachable pairs for many graphs using
+            //1) flatten on parenthesis, then compute
+            //2) flatten on brackets, then compute
+            //3) flattenReach on parenthesis
+            //4) flattenReach on brackets
+            // if these don't all match, print the original graph
+            
+            graph original, g1, g2, g3, g4;
+            
+            original = Test::makeRandomGraph(seed, 10, 7);
+
+            
+
+        }
     }
 
 

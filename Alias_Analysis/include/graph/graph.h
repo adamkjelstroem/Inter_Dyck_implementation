@@ -79,7 +79,6 @@ public:
 		isFlattened = isFlattened | v;
 	}
 	void iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]);
-	graph makeRandomGraph(int seed, int edges, int vertices);
 	void printGraphAsTikz();
 	void printAsDot();
 	graph copy();

@@ -26,7 +26,7 @@ int main(int argc, const char * argv[]){
 	while(false){
 
 		graph g1;
-		g1 = g1.makeRandomGraph(10, 10, 10);
+		g1 = Test::makeRandomGraph(10, 10, 10);
 		graph g2 = g1.copy();
 
 		g1.printGraphAsTikz();
@@ -52,7 +52,7 @@ int main(int argc, const char * argv[]){
 		gettimeofday(&tv1, NULL);
 		time = clock();
 		
-		original = original.makeRandomGraph((int)tv1.tv_usec, 10, 7);
+		original = Test::makeRandomGraph((int)tv1.tv_usec, 10, 7);
 
 		g1 = original.copy();
 		g2 = original.copy();
@@ -127,7 +127,7 @@ int main(int argc, const char * argv[]){
 		gettimeofday(&tv1, NULL);
 		time = clock();
 		
-		g = g.makeRandomGraph((int)tv1.tv_usec, 10, 7);
+		g = Test::makeRandomGraph((int)tv1.tv_usec, 10, 7);
 
 		g2 = g.copy();
 		cout<<"Graph generated"<<endl;
