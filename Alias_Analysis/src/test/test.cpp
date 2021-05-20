@@ -11,8 +11,26 @@ graph buildSimple(int k);
 
 bool Test::test(){
     
+    //make a graph with 1 edge, make sure it comes out correctly when iterating
     {
-        //testing () graph works (single dyck)
+        graph g;
+        g.addEdge("a", 0, "b", 1, "label");
+
+        bool k = false;
+        void* data[] = {&k};
+        g.iterateOverEdges([](Vertex start, Vertex end, field f, void* extra[]){
+            if(start.name == "b" && end.name == "a"){
+                (*(bool*)extra[0]) = true;
+            }
+        }, data);
+        if(k){
+            cout<<"iterating wrongly over edges"<<endl;
+            return false;
+        }
+    }
+
+    //testing () graph works (single dyck)
+    {
         graph g;
         for(int i = 0; i < 7; i++){
             g.getVertex(to_string(i), 0);
@@ -30,6 +48,30 @@ bool Test::test(){
         }
 
     }
+
+    /*
+    {
+        graph g;
+        for(int i = 0; i < 7; i++){
+            g.getVertex(to_string(i), 0);
+        }
+        g.addEdge("0", 0, "1", 0, "(");
+        g.addEdge("2", 0, "1", 0, "(");
+        g.dsu.init(g.vertices.size());
+        g.initWorklist();
+
+        g.printGraphAsTikz();
+
+        g = g.flatten("(", 5);
+
+        g.printGraphAsTikz();
+
+        //g.bidirectedReach();
+
+        
+        return false;
+    }*/
+
 
     //testing (([[))]] type graphs work
     {
@@ -50,7 +92,8 @@ bool Test::test(){
         }
     }
 
-    { //testing copy
+    //testing copy
+    { 
         int height = 4;
         graph g = Test::makeRandomGraph(10, 10, 10);
         graph g2 = g.copy();
@@ -70,7 +113,8 @@ bool Test::test(){
 
     }
 
-    { //test that flatten on "[" and "(" up to the expected bound yields the same results
+    //test that flatten on "[" and "(" up to the expected bound yields the same results
+    {
         int height = 4;
         graph g = buildSimple(height);
         graph g2 = g.copy();
@@ -95,76 +139,46 @@ bool Test::test(){
 
     }
 
-    //generates random graphs and verifies that different flattening techniques produce same result
+    //test that an edge-less graph has no reachable pairs
     {
-        for(int seed = 0; seed < 10; seed++){
+        graph g;
+        for(int i = 0; i <10; i++){
+            g.getVertex(to_string(i), 0);
+        }
+        
+        g.dsu.init(g.vertices.size());
+        g.initWorklist();
 
-            //compute number of reachable pairs for many graphs using
-            //1) flatten on parenthesis, then compute
-            //2) flatten on brackets, then compute
-            //3) flattenReach on parenthesis
-            //4) flattenReach on brackets
-            // if these don't all match, print the original graph
-            
-            graph original, g1, g2, g3, g4;
-            
-            original = Test::makeRandomGraph(seed, 10, 7);
+        g.bidirectedReach();
 
-            
-            g1 = original.copy();
-            g2 = original.copy();
-            g3 = original.copy();
-            g4 = original.copy();
-
-            g1 = g1.flatten("(", 20);
-            g1.bidirectedReach();
-            int g1Pairs = g1.calcNumReachablePairs();
-            
-            g2 = g2.flatten("[", 20);
-            g2.bidirectedReach();
-            int g2Pairs = g2.calcNumReachablePairs();
-            
-
-            /*
-            g3.flattenReach("(");
-            int g3Pairs = g3.calcNumReachablePairs();
-            cout<<"g3 done"<<endl;
-
-            g4.flattenReach("[");
-            int g4Pairs = g4.calcNumReachablePairs();
-            cout<<"g4 done"<<endl;
-            */
-            if(!(g1Pairs == g2Pairs)){
-                cout<<endl<<endl;
-
-                original.printGraphAsTikz();
-
-                cout<<endl<<endl;
-
-                cout<<"Reachability details for flattenReach on (:"<<endl;
-                g3.printDetailReach();
-
-                cout<<"Reachability details for flattenReach on [:"<<endl;
-                g4.printDetailReach();
-
-                graph g5 = original.copy();
-                g5.flattenReach("(");
-                graph g6 = original.copy();
-                g6.flattenReach("[");
-
-                cout<<"Found an exception example!"<<endl;
-                cout<<"flatten on (: "<<g1Pairs<<endl;
-                cout<<"flatten on [: "<<g2Pairs<<endl;
-                original.printAsDot();
-                
-
-                return false;
-            }
-
+        if(g.calcNumReachablePairs() != 0){
+            cout<<"Edge-less graph should have no reachable pairs"<<endl;
+            return false;
         }
     }
 
-    //testing that flattenReach on brackets and flatten then reach on brackets yeilds same result
+    //test that fully connected graph has 'many' reachable pairs
+    {
+        graph g;
+        for(int i = 0; i < 10; i++){
+            g.addEdge(to_string(i), 0, to_string(i+1), 0, "eps");
+        }
+        //scc should be of size 11
+
+        g.dsu.init(g.vertices.size());
+        g.initWorklist();
+
+        g.bidirectedReach();
+
+        if(g.calcNumReachablePairs() != 55){
+            cout<<"fully connected graph (with only epsilon edges) has wrong number of reachable pairs"<<endl;
+            return false;
+        }
+    }
+
+
+
+    //testing that flattenReach on brackets and flatten then reach on brackets yields same result
     {
         int height = 3;
         graph g1 = buildSimple(height);
@@ -212,7 +226,7 @@ bool Test::test(){
     {
         int flattenHeight = 20;
         for(int seed = 0; seed < 10; seed++){
-            graph orig = makeRandomGraph(seed, 10, 10);
+            graph orig = makeRandomGraph(seed, 5, 7);
 
             graph g1 = orig.copy();
             graph g2 = orig.copy();
@@ -236,11 +250,18 @@ bool Test::test(){
             if(!(num1 == num2 && num2 == num3 && num3 == num4)){
                 orig.printGraphAsTikz();
 
-                cout<<"Number of reachable pairs should be the same for all 4 methods!"<<endl;
-                cout<<"flattenReach on parenthesis: "<<num1<<endl;
-                cout<<"flattenReach on bracket: "<<num2<<endl;
-                cout<<"flatten, then reach on prenthesis up to height "<<flattenHeight<<": "<<num3<<endl;
-                cout<<"flatten, then reach on brackets up to height "<<flattenHeight<<": "<<num3<<endl;
+                cout<<"Number of reachable pairs should be the same for all 4 methods!\\\\"<<endl;
+                cout<<"flattenReach on parenthesis: "<<num1<<"\\\\"<<endl;
+                cout<<"flattenReach on bracket: "<<num2<<"\\\\"<<endl;
+                g2.printDetailReach();
+                cout<<"flatten, then reach on parenthesis up to height "<<flattenHeight<<": "<<num3<<"\\\\"<<endl;
+                cout<<"flatten, then reach on brackets up to height "<<flattenHeight<<": "<<num3<<"\\\\"<<endl;
+                g4.printDetailReach();
+
+                cout<<"original number of vertices: "<<orig.vertices.size()<<endl;
+
+                //orig = orig.flatten("[", 8);
+                //orig.printGraphAsTikz();
             }
         }
     }

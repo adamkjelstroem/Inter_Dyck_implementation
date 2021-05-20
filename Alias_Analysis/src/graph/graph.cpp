@@ -99,20 +99,20 @@ void graph::flattenReach(string flatten_label) {
 	
 	c = 8; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
-
+		
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 		cout<<"\\\\"<<endl;
 		cout<<"\\\\"<<endl;
 		cout<<""<<i<<" layers\\\\"<<endl;
 		g.printGraphAsTikz();
-
+		
 
 		g.initWorklist();
 		//compute SCCs
 		g.bidirectedReach();
 
-		g.printDetailReach();
+		//g.printDetailReach();
 
 		//find layer zero items that have been joined, and merge them
 		//TODO is this meaningful?
@@ -171,7 +171,7 @@ void graph::flattenReach(string flatten_label) {
 
 
 		//add new layer
-		cout<<"adding new layer"<<endl;
+		//cout<<"adding new layer"<<endl;
 
 		auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
 			graph* g = (graph*)extra[0];
@@ -340,7 +340,7 @@ void graph::printGraphAsTikz(){
 		//graph is not flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<v->id<<", 0) {"<<v->name<<"};"<<endl;
+			cout<<"\\node ("<<v->id<<") at ("<<v->id<<", 0) {"<<v->id<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -679,7 +679,7 @@ void graph::printDetailReach(){
 	cout<<"Printing detailed reachability for ";
 	if(isFlattened) cout<<"flattened";
 	else cout<<"non-flattened";
-	cout<<" graph"<<endl;
+	cout<<" graph\\\\"<<endl;
 
 	map<int,set<int>> scc;
 	for(int i=0;i<this->N;i++){
@@ -698,7 +698,7 @@ void graph::printDetailReach(){
 		if(zero_elems>=1){
 			cout<<"scc: \\{";
 			for(int elem : it->second){
-				if(vertices[elem]->layer >= 0){ //TODO disabled for test
+				if(vertices[elem]->layer == 0){ //TODO disabled for test
 					cout<<"("<<vertices[elem]->name<<","<<vertices[elem]->layer<<"), ";
 					//cout<<tokens[0]<<"\n";
 				}
