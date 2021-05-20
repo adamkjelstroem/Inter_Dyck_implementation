@@ -71,7 +71,6 @@ graph graph::flatten(string field_name, int depth){
 		};
 
 		iterateOverEdges(cop, &g);*/
-
 		for (auto vertex : vertices){
 			auto fit = vertex->edgesbegin();
 			while(fit!=vertex->edgesend()){   // iterating over field
@@ -178,8 +177,6 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"building reduced graph"<<endl;
 		graph g2;
 
-		/*
-		
 		//TODO refactor here
 		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 			auto g =  (graph*)extra[0];
@@ -187,7 +184,13 @@ void graph::flattenReach(string flatten_label) {
 
 
 			auto start_root = g->vertices[g->dsu.root(a.id)];
-			auto end_root = g->vertices[g->dsu.root(*fedgeit)];
+			auto end_root = g->vertices[g->dsu.root(b.id)];
+
+			g2->addedge(
+				g2->getVertex(start_root->name, start_root->layer),
+				g2->getVertex(end_root->name, end_root->layer), //end node
+				g2->getfield(f.field_name)
+			);
 		};
 
 		void* w[] = {&g, &g2};
@@ -195,8 +198,8 @@ void graph::flattenReach(string flatten_label) {
 		iterateOverEdges(cop, w);
 		
 		//TODO maybe use 'removeRepeatedEdges after this??
-		*/
-
+		
+		/*
 		for(int j=0;j<g.N;j++){
 			auto vertex = g.vertices[j];
 			auto fit = vertex->edgesbegin();
@@ -225,7 +228,7 @@ void graph::flattenReach(string flatten_label) {
 				}
 				fit++;
 			}
-		}
+		}*/
 
 		//add new layer
 		cout<<"adding new layer"<<endl;
@@ -686,14 +689,14 @@ bool graph::query(int uid,int vid){
 
 
 Vertex* graph::getVertex(const string &s, int layer){
-	auto it = str2vtx.find(s);
+	auto it = str2vtx.find(s + ": " + to_string(layer));
 	if(it==str2vtx.end()){
 		Vertex* vtx = new Vertex(this->N, layer,s);
 		//cout<<"adding new edge with id \""<<vtx->id<<"\" and name \""<<vtx->name<<"\""<<endl;
 		vertices.push_back(vtx);
 		vtx->addedge(EPS,vtx->id);
 		this->N++;
-		str2vtx[s]=vtx;
+		str2vtx[s + ": " + to_string(layer)]=vtx;
 		return vtx;
 	}
 	return it->second;

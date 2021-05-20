@@ -12,7 +12,7 @@ int main(int argc, const char * argv[]){
 	}
 	
 
-	while(true){
+	while(false){
 
 		graph g1;
 		g1 = g1.makeRandomGraph(10, 10, 10);
@@ -24,7 +24,7 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
-	while (true){
+	while (false){
 
 		//compute number of reachable pairs for many graphs using
 		//1) flatten on parenthesis, then compute
@@ -99,7 +99,6 @@ int main(int argc, const char * argv[]){
 
 	}
 	
-	if(true)return 0;
 	
 	// Bidirected Reach Algorithm
 	graph g2, g;
@@ -109,7 +108,7 @@ int main(int argc, const char * argv[]){
 
 	//true -> construct form input
 	//false -> generate
-	if(false){
+	if(true){
 		g.construct2(argv[1]); //NOTE using construct2 uses the new format
 		g2 = g.copy();
 		cout<<"Graph loaded from file"<<endl;
@@ -136,6 +135,9 @@ int main(int argc, const char * argv[]){
 		g = g.flatten("[", 8);
 		g2 = g2.flatten("(", 8);
 
+		g.printGraphAsTikz();
+		g2.printGraphAsTikz();
+
 		g.bidirectedReach();
 		g2.bidirectedReach();
 	}
@@ -148,8 +150,10 @@ int main(int argc, const char * argv[]){
 
 	cout<<"flattened on '[':\\\\"<<endl;
 	cout<<"Number of reachable pairs: "<<g.calcNumReachablePairs()<<endl;
+	g.printDetailReach();
 	cout<<"flattened on '(':\\\\"<<endl;
 	cout<<"Number of reachable pairs: "<<g2.calcNumReachablePairs()<<endl;
+	g2.printDetailReach();
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;
