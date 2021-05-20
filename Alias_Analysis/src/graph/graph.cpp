@@ -127,7 +127,7 @@ void graph::flattenReach(string flatten_label) {
 			for(int elem : it->second){
 				if(g.vertices[elem]->layer == 0){
 					zero_elems++;
-					first_zero = (g.vertices[elem]->id);
+					first_zero = getVertex(g.vertices[elem]->name, 0)->id;
 					if(zero_elems>=2) break;
 				}
 			}
@@ -135,7 +135,7 @@ void graph::flattenReach(string flatten_label) {
 				for(int elem : it->second){
 					if(g.vertices[elem]->layer == 0){
 						dsu.merge(
-							dsu.root((g.vertices[elem]->id)),
+							dsu.root(getVertex(g.vertices[elem]->name, 0)->id),
 							dsu.root(first_zero)
 							);
 					}
@@ -145,7 +145,7 @@ void graph::flattenReach(string flatten_label) {
 		}
 
 		//build new graph
-		cout<<"building reduced graph"<<endl;
+		//cout<<"building reduced graph"<<endl;
 		graph g2;
 
 		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -155,62 +155,20 @@ void graph::flattenReach(string flatten_label) {
 
 			auto start_root = g->vertices[g->dsu.root(a.id)];
 			auto end_root =   g->vertices[g->dsu.root(b.id)];
+			
+			//cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
 
-			if(start_root->layer != end_root->layer){ //don't know why this needs to be flipped
-				g2->addEdge(
-					end_root->name,end_root->layer, 
-					start_root->name, start_root->layer, 
-					f.field_name);
-			}else{
-				g2->addEdge(
-					start_root->name, start_root->layer, 
-					end_root->name,end_root->layer, 
-					f.field_name);
-			}
+			g2->addEdge(
+				start_root->name, start_root->layer, 
+				end_root->name,end_root->layer, 
+				f.field_name);
+			
 		};
 
 		void* w[] = {&g, &g2};
 
 		g.iterateOverEdges(cop, w);
 
-		/*
-		cout<<"*********\\\\"<<endl;
-		g2.printGraphAsTikz();
-		cout<<"*********\\\\"<<endl;
-		*/
-
-		//TODO maybe use 'removeRepeatedEdges after this??
-		
-		/*
-		for(int j=0;j<g.N;j++){
-			auto vertex = g.vertices[j];
-			auto fit = vertex->edgesbegin();
-
-			auto start_root = g.vertices[g.dsu.root(j)];
-			while(fit!=vertex->edgesend()){   // iterating over field
-				field f = fit->first;
-				//f.field_name is edge label name
-				auto fedgeit = vertex->edgesbegin(f);
-				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
-					auto end_root = g.vertices[g.dsu.root(*fedgeit)];
-			
-					
-					//"vertices[*fedgeit]" is end vertex
-					//"vertex" is start vertex
-					
-					//cout<<"adding edge from "<<start_root<<" to "<<end_root<<" with field "<<f.field_name<<"\\\\"<<endl;
-
-					g2.addedge(
-						g2.getVertex(start_root->name, start_root->layer),
-						g2.getVertex(end_root->name, end_root->layer), //end node
-						g2.getfield(f.field_name)
-					);
-					
-					fedgeit++;
-				}
-				fit++;
-			}
-		}*/
 
 		//add new layer
 		cout<<"adding new layer"<<endl;
@@ -227,16 +185,21 @@ void graph::flattenReach(string flatten_label) {
 
 				//a is vertex in original graph
 
+				auto a_in_layer_i_minus_1_in_g =  g->getVertex(to_string(a.id), i-1); //TOD name here??
+
+				
+				//TODO we're still not consisitent with coordinates ws ids
 				//get vertex in previous graph, g
-				auto root_of_a_in_g = g->vertices[g->dsu.root(a.id)]; 
+				auto root_of_a_in_g = g->vertices[g->dsu.root(a_in_layer_i_minus_1_in_g->id)]; 
 
-				cout<<a.to_string()<<" has root "<<root_of_a_in_g->to_string()<<endl;
+				//cout<<"adding link from "<<a.to_string()<<" to "<<b.to_string()<<endl;
 
-				//TODO needs print statement like "a has root x"
+				//cout<<a.to_string()<<" is represented by "<<a_in_layer_i_minus_1_in_g->to_string()<<" which has root "<<root_of_a_in_g->to_string()<<"\\\\"<<endl;
+
 
 				//add new edge in g2
 				g2->addEdge(
-					to_string(root_of_a_in_g->id), root_of_a_in_g->layer,
+					root_of_a_in_g->name, root_of_a_in_g->layer,
 					to_string(b.id), i,
 					g2->EPS.field_name
 				);
@@ -255,57 +218,7 @@ void graph::flattenReach(string flatten_label) {
 		void* q[] = {&g, &g2, &i, &flatten_label};
 
 		iterateOverEdges(addL, q);
-		/*
-
-		for (int k = 0; k < vertices.size(); k++){
-			auto vertex = vertices[k];
-			auto fit = vertex->edgesbegin();
-			while(fit!=vertex->edgesend()){   // iterating over field
-				field f = fit->first;
-				//f.field_name is edge label name
-				auto fedgeit = vertex->edgesbegin(f);
-				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
-					//"vertices[*fedgeit]" is end vertex
-					//"vertex" is start vertex
-					if(f.field_name == flatten_label){ //TODO cache id of "[" field and do comparison on
-						//flatten on brackets
-						//if(i+1!=c)
-						
-						auto start_vtx = vertices[*fedgeit];
-
-						auto start_root = g.vertices[g.dsu.root(g.getVertex(start_vtx->name, i-1)->id)];
-						
-						//auto end_root = g.vertices[g.dsu.root(*fedgeit)]->name;
-						//auto start_root = g.vertices[g.dsu.root(k)]->name;
-						
-						//if(*fedgeit == k) break;
-						
-						//cout<<"adding edge from "<<start_name<<" to "<<(vertex->name + ": " + to_string(i))<<" with label "<<f.field_name<<"\\\\"<<endl;
-						//cout<<"\\\\"<<endl;
-
-					
-						//flattened edges connect between layers
-						// note: order should not matter here
-						g2.addEdge(vertex->name, i, start_root->name, start_root->layer, g2.EPS.field_name);
-						
-					}else{
-						//non-flattened edges connect 'inside' layers
-						//TODO verify no flipping is going on here
-						//TODO write code here!
-						/*
-						g2.addedge(
-							g2.getVertex(vertex->name, i),
-							g2.getVertex(vertices[*fedgeit]->name, i), //end node
-							g2.getfield(f.field_name)
-						);
-					}
-
-					fedgeit++;
-				}
-				fit++;
-			}
-		}*/	
-
+		
 		//before using new graph:
 		g2.dsu.init(g2.vertices.size());
 
