@@ -45,12 +45,7 @@ void graph::construct2(string infile_name){
 //performs graph flattening on 'field_name' to depth 'depth'
 graph graph::flatten(string field_name, int depth){
 	graph g;
-
-
-
-	for (int i = 0; i < depth; i++){ 
-		
-		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 			graph* g = (graph*)extra[0];
 			int i = *((int*)extra[1]);
 			int depth = *(int*)extra[2];
@@ -73,45 +68,13 @@ graph graph::flatten(string field_name, int depth){
 					
 			}
 		};
+
+	for (int i = 0; i < depth; i++){ 
 		void* w[] = {&g, &i, &depth, &field_name};
-
 		iterateOverEdges(cop, w);
-		/*
-		for (auto vertex : vertices){
-			auto fit = vertex->edgesbegin();
-			while(fit!=vertex->edgesend()){   // iterating over field
-				field f = fit->first;
-				//f.field_name is edge label name
-				auto fedgeit = vertex->edgesbegin(f);
-				while(fedgeit != vertex->edgesend(f)){   // iterating over edges
-					//"vertices[*fedgeit]" is end vertex
-					//"vertex" is start vertex
-
-					/*
-					if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
-						//flatten on brackets
-						if(i+1!=depth)
-							g.addedge(
-								g.getVertex(to_string(vertex->id), i),
-								g.getVertex(to_string(vertices[*fedgeit]->id),i+1), //end node
-								g.EPS
-							);
-					}else{
-						g.addedge(
-							g.getVertex(to_string(vertex->id), i),
-							g.getVertex(to_string(vertices[*fedgeit]->id), i), //end node
-							g.getfield(f.field_name)
-						);
-					}*/ //TODO uncomment and fix
-				/*
-					fedgeit++;
-				}
-				fit++;
-			}
-		}*/
 	}
-	g.dsu.init(g.vertices.size());
 
+	g.dsu.init(g.vertices.size());
 	g.initWorklist();
 
 	return g;
@@ -152,6 +115,7 @@ void graph::flattenReach(string flatten_label) {
 		g.printDetailReach();
 
 		//find layer zero items that have been joined, and merge them
+		//TODO is this meaningful?
 		map<int,set<int>> scc;
 		for(int i=0;i<g.N;i++){
 			scc[g.dsu.root(i)].insert(i);
@@ -163,7 +127,7 @@ void graph::flattenReach(string flatten_label) {
 			for(int elem : it->second){
 				if(g.vertices[elem]->layer == 0){
 					zero_elems++;
-					first_zero = std::stoi(g.vertices[elem]->name);
+					first_zero = (g.vertices[elem]->id);
 					if(zero_elems>=2) break;
 				}
 			}
@@ -171,7 +135,7 @@ void graph::flattenReach(string flatten_label) {
 				for(int elem : it->second){
 					if(g.vertices[elem]->layer == 0){
 						dsu.merge(
-							dsu.root(std::stoi(g.vertices[elem]->name)),
+							dsu.root((g.vertices[elem]->id)),
 							dsu.root(first_zero)
 							);
 					}
@@ -184,27 +148,37 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"building reduced graph"<<endl;
 		graph g2;
 
-		//TODO refactor here
 		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 			auto g =  (graph*)extra[0];
 			auto g2 = (graph*)extra[1];
 
 
 			auto start_root = g->vertices[g->dsu.root(a.id)];
-			auto end_root = g->vertices[g->dsu.root(b.id)];
+			auto end_root =   g->vertices[g->dsu.root(b.id)];
 
-			g2->addEdge(start_root->name, start_root->layer, end_root->name,end_root->layer, f.field_name);
-			/*g2->addedge(
-				g2->getVertex(start_root->name, start_root->layer),
-				g2->getVertex(end_root->name, end_root->layer), //end node
-				g2->getfield(f.field_name)
-			);*/
+			if(start_root->layer != end_root->layer){ //don't know why this needs to be flipped
+				g2->addEdge(
+					end_root->name,end_root->layer, 
+					start_root->name, start_root->layer, 
+					f.field_name);
+			}else{
+				g2->addEdge(
+					start_root->name, start_root->layer, 
+					end_root->name,end_root->layer, 
+					f.field_name);
+			}
 		};
 
 		void* w[] = {&g, &g2};
 
-		iterateOverEdges(cop, w);
-		
+		g.iterateOverEdges(cop, w);
+
+		/*
+		cout<<"*********\\\\"<<endl;
+		g2.printGraphAsTikz();
+		cout<<"*********\\\\"<<endl;
+		*/
+
 		//TODO maybe use 'removeRepeatedEdges after this??
 		
 		/*
@@ -240,6 +214,49 @@ void graph::flattenReach(string flatten_label) {
 
 		//add new layer
 		cout<<"adding new layer"<<endl;
+
+		auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
+			graph* g = (graph*)extra[0];
+			graph* g2 = (graph*)extra[1];
+			int i = *((int*)extra[2]);
+			string field_name = *(string*)extra[3];
+
+			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+				//add 'epsilon' edge from node-set in lower layers to node in new layer
+				//we don't care about order, as epsilon edges are undirected.
+
+				//a is vertex in original graph
+
+				//get vertex in previous graph, g
+				auto root_of_a_in_g = g->vertices[g->dsu.root(a.id)]; 
+
+				cout<<a.to_string()<<" has root "<<root_of_a_in_g->to_string()<<endl;
+
+				//TODO needs print statement like "a has root x"
+
+				//add new edge in g2
+				g2->addEdge(
+					to_string(root_of_a_in_g->id), root_of_a_in_g->layer,
+					to_string(b.id), i,
+					g2->EPS.field_name
+				);
+
+			}else{
+				//add edges that go inside new layer
+				g2->addEdge(
+					to_string(a.id), i,
+					to_string(b.id), i,
+					f.field_name
+				);
+			}
+
+		};
+
+		void* q[] = {&g, &g2, &i, &flatten_label};
+
+		iterateOverEdges(addL, q);
+		/*
+
 		for (int k = 0; k < vertices.size(); k++){
 			auto vertex = vertices[k];
 			auto fit = vertex->edgesbegin();
@@ -280,14 +297,14 @@ void graph::flattenReach(string flatten_label) {
 							g2.getVertex(vertex->name, i),
 							g2.getVertex(vertices[*fedgeit]->name, i), //end node
 							g2.getfield(f.field_name)
-						);*/ 
+						);
 					}
 
 					fedgeit++;
 				}
 				fit++;
 			}
-		}
+		}*/	
 
 		//before using new graph:
 		g2.dsu.init(g2.vertices.size());
@@ -410,7 +427,7 @@ void graph::printGraphAsTikz(){
 		//graph is not flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<v->id * 2<<", 0) {"<<v->name<<"};"<<endl;
+			cout<<"\\node ("<<v->id<<") at ("<<v->id<<", 0) {"<<v->name<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -768,8 +785,8 @@ void graph::printDetailReach(){
 		if(zero_elems>=1){
 			cout<<"scc: \\{";
 			for(int elem : it->second){
-				if(vertices[elem]->layer == 0){ //TODO disabled for test
-					cout<<vertices[elem]->name<<", ";
+				if(vertices[elem]->layer >= 0){ //TODO disabled for test
+					cout<<"("<<vertices[elem]->name<<","<<vertices[elem]->layer<<"), ";
 					//cout<<tokens[0]<<"\n";
 				}
 			}
