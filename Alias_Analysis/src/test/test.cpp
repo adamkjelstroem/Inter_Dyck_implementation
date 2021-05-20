@@ -95,6 +95,7 @@ bool Test::test(){
 
     }
 
+    //generates random graphs and verifies that different flattening techniques produce same result
     {
         for(int seed = 0; seed < 10; seed++){
 
@@ -110,10 +111,83 @@ bool Test::test(){
             original = Test::makeRandomGraph(seed, 10, 7);
 
             
+            g1 = original.copy();
+            g2 = original.copy();
+            g3 = original.copy();
+            g4 = original.copy();
+
+            g1 = g1.flatten("(", 20);
+            g1.bidirectedReach();
+            int g1Pairs = g1.calcNumReachablePairs();
+            
+            g2 = g2.flatten("[", 20);
+            g2.bidirectedReach();
+            int g2Pairs = g2.calcNumReachablePairs();
+            
+
+            /*
+            g3.flattenReach("(");
+            int g3Pairs = g3.calcNumReachablePairs();
+            cout<<"g3 done"<<endl;
+
+            g4.flattenReach("[");
+            int g4Pairs = g4.calcNumReachablePairs();
+            cout<<"g4 done"<<endl;
+            */
+            if(!(g1Pairs == g2Pairs)){
+                cout<<endl<<endl;
+
+                original.printGraphAsTikz();
+
+                cout<<endl<<endl;
+
+                cout<<"Reachability details for flattenReach on (:"<<endl;
+                g3.printDetailReach();
+
+                cout<<"Reachability details for flattenReach on [:"<<endl;
+                g4.printDetailReach();
+
+                graph g5 = original.copy();
+                g5.flattenReach("(");
+                graph g6 = original.copy();
+                g6.flattenReach("[");
+
+                cout<<"Found an exception example!"<<endl;
+                cout<<"flatten on (: "<<g1Pairs<<endl;
+                cout<<"flatten on [: "<<g2Pairs<<endl;
+                original.printAsDot();
+                
+
+                return false;
+            }
 
         }
     }
 
+
+    //testing that flattenReach on brackets and parentheses should be the same for this simple case
+    {
+        int height = 3;
+        graph g = buildSimple(height);
+        graph g2 = g.copy();
+        graph g3 = g.copy();
+
+        g.flattenReach("(");
+        //g2.flattenReach("[");
+
+        int numg = g.calcNumReachablePairs();
+        int numg2 = 0; //g2.calcNumReachablePairs();
+
+        g3 = g3.flatten("(", height+1);
+        g3.bidirectedReach();
+
+        if(numg != numg2){
+            cout<<"Number of reachable pairs should be the same when flattening on either";
+            cout<<" parenthesis or bracket, but they're not! For parenthesis: "<<numg<<". for brackets: "<<numg2<<endl;
+            cout<<"result should be: "<<g3.calcNumReachablePairs()<<endl;
+            return false;
+        }
+    }
 
     return true;
 }
