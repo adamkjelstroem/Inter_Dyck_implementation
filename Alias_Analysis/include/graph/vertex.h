@@ -82,7 +82,7 @@ public:
 	}
 
 	string to_string(){
-		return "(" + std::to_string(id) + "," + std::to_string(layer) + ")";
+		return "(" + (name) + "," + std::to_string(layer) + ")";
 	}
 
 	void printvtxid(){

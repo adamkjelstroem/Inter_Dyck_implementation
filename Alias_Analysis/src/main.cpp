@@ -12,8 +12,7 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-	if(true){
-		
+	{	
 		Test t;
 		bool res = t.test();
 
@@ -22,18 +21,6 @@ int main(int argc, const char * argv[]){
 		}
 		return 0;
 	}	
-
-	while(false){
-
-		graph g1;
-		g1 = Test::makeRandomGraph(10, 10, 10);
-		graph g2 = g1.copy();
-
-		g1.printGraphAsTikz();
-		g2.printGraphAsTikz();
-
-		return 0;
-	}
 
 	while (false){
 
