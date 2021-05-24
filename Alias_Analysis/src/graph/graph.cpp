@@ -160,6 +160,24 @@ void graph::flattenReach(string flatten_label) {
 			auto start_root = g->vertices[g->dsu.root(a.id)];
 			auto end_root =   g->vertices[g->dsu.root(b.id)];
 
+			cout<<a.to_string()<<", "<<b.to_string()<<", "<<start_root->to_string()<<", "<<end_root->to_string()<<endl;
+
+			map<int,set<int>> scc;
+			for(int i=0;i<g->N;i++){
+				scc[g->dsu.root(i)].insert(i);
+			}
+
+			auto it = scc.begin();
+			while(it!=scc.end()){
+				int zero_elems = 0;
+				cout<<"scc with root "<<it->first<<": ";
+				for(int elem : it->second){
+					cout<<// g-> vertex to_string //TODODOODODODODODDO
+					//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
+				}
+				it++;
+			}
+
 			if(a.x == 7 && a.y == 1 && false){
 				cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
 				exit(0);
