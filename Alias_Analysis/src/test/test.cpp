@@ -244,9 +244,6 @@ bool all4WaysGiveSameResultForRandomGraphs(){
 
             cout<<"original number of vertices: "<<orig.vertices.size()<<"\\\\"<<endl;
 
-            orig = orig.flatten("[", 8);
-            orig.printGraphAsTikz();
-
             cout<<"seed is "<<seed<<endl;
             return false;
         }else{
@@ -259,7 +256,72 @@ bool all4WaysGiveSameResultForRandomGraphs(){
     return true;
 }
 
+bool all4GiveSameForSimpleInterdyck(){
+    //testing for simple graphs that all 4 different techniques produce same results
+    for(int height = 1; height < 10; height++){
+        graph orig = buildSimple(height);
+
+        graph g1 = orig.copy();
+        graph g2 = orig.copy();
+        graph g3 = orig.copy();
+        graph g4 = orig.copy();
+
+        g1.flattenReach("(");
+
+        int num1 = g1.calcNumReachablePairs();
+
+        g2.flattenReach("[");
+        int num2 = g2.calcNumReachablePairs();
+
+        g3 = g3.flatten("(", height+1);
+        g3.bidirectedReach();
+        int num3 = g3.calcNumReachablePairs();
+
+        g4 = g4.flatten("[", height+1);
+        g4.bidirectedReach();
+        int num4 = g4.calcNumReachablePairs();
+
+        if(!(num1 == num2 && num2 == num3 && num3 == num4)){
+            orig.printGraphAsTikz();
+            cout<<"all4GiveSameForSimpleInterdyck\\\\"<<endl;
+            cout<<"Number of reachable pairs should be the same for all 4 methods!\\\\"<<endl;
+            cout<<"flattenReach on parenthesis: "<<num1<<"\\\\"<<endl;
+            g1.printDetailReach();
+            cout<<"flattenReach on bracket: "<<num2<<"\\\\"<<endl;
+            g2.printDetailReach();
+            cout<<"flatten, then reach on parenthesis up to height "<<(height+1)<<": "<<num3<<"\\\\"<<endl;
+            g3.printDetailReach();
+            cout<<"flatten, then reach on brackets up to height "<<(height+1)<<": "<<num3<<"\\\\"<<endl;
+            g4.printDetailReach();
+
+            cout<<"height = "<<height<<endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+void printContradictionExample(){
+    int edges = 20;
+    int vertices = edges * 7 / 10;
+    graph orig = Test::makeRandomGraph(8, edges, vertices);
+
+    graph g1 = orig.copy();
+    graph g2 = orig.copy();
+
+
+    g1.flattenReach("(");
+
+    int num1 = g1.calcNumReachablePairs();
+
+    g1.printDetailReach();
+}
+
 bool Test::test(){
+
+    //printContradictionExample();
+
+    if(!all4GiveSameForSimpleInterdyck()) return false;
 
     if(!iterateOverEdgesGivesCorrectOrder()) return false;
     
