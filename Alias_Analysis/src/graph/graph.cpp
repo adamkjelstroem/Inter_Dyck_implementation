@@ -82,6 +82,7 @@ graph graph::flatten(string field_name, int depth){
 
 //flattens on 'flatten_label' 
 void graph::flattenReach(string flatten_label) {
+	
 	//construct 2 layer graph
 	initWorklist(); // simplifies test code
 	
@@ -94,19 +95,20 @@ void graph::flattenReach(string flatten_label) {
 	long long n = vertices.size();
 	long long c = 18*n*n + 6*n;
 	
-	cout<<"n="<<n<<" and c="<<c<<endl;
+	if(print){
+		cout<<"Doing flattenReach on '"<<flatten_label<<"'"<<endl;
+		cout<<"n="<<n<<" and c="<<c<<endl;
+	}
 	
-	
-	c = 6; //TODO hardcoded
+	//c = 9; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
-		
 		if(print){
 			cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 			cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 			cout<<"\\\\"<<endl;
 			cout<<"\\\\"<<endl;
 			cout<<""<<i<<" layers\\\\"<<endl;
-			cout<<"starting graph for iteration:\\\\"<<endl;
+			cout<<"starting graph for iteration / after adding new top layer:\\\\"<<endl;
 			g.printGraphAsTikz();
 		}
 
@@ -114,41 +116,53 @@ void graph::flattenReach(string flatten_label) {
 		//compute SCCs
 		g.bidirectedReach();
 
-		//g.printDetailReach();
-
-		//find layer zero items that have been joined, and merge them
-		//TODO is this meaningful?
+		
 		if(print){
 			cout<<"DETAIL REACH\\\\"<<endl;
 			g.printDetailReach();
 		}	
 		
+		
+		//I think 'dsu.exchange' swaps two nodes, meaning we can swap which is a root, and, if necessary, force a node to be the root.
+		//so force layer zero nodes to be roots. If two layer-zero nodes are roots, keep the first one
+		//we do this in g, the constructed graph
+		for(int i = 0; i < g.N; i++){
+			if(g.vertices[i]->y == 0){
+				if(g.vertices[g.dsu.root(i)]->y != 0){
+					g.dsu.exchange(i, g.dsu.root(i));
+				}
+			}
+		}
+
+		bool stillConnectingToNewLayer = false;
 		map<int,set<int>> scc;
 		for(int i=0;i<g.N;i++){
 			scc[g.dsu.root(i)].insert(i);
 		}
+
 		auto it = scc.begin();
 		while(it!=scc.end()){
-			int zero_elems = 0;
-			int first_zero = -1;
-			for(int elem : it->second){
-				if(g.vertices[elem]->y == 0){
-					zero_elems++;
-					first_zero = getVertex(g.vertices[elem]->x, 0, "")->id;
-					if(zero_elems>=2) break;
-				}
-			}
-			if(zero_elems>=2){
+			//we only care about sccs where the root has y=0
+			if(g.vertices[it->first]->y == 0){
+				
+				int root_id_in_this=getVertex(g.vertices[it->first]->x, 0, "")->id;
 				for(int elem : it->second){
 					if(g.vertices[elem]->y == 0){
+						//Hardmerge(root, a) forces first parameter to be root. TODO is this necessary?
 						dsu.merge(
-							dsu.root(getVertex(g.vertices[elem]->x, 0, "")->id),
-							dsu.root(first_zero)
+							root_id_in_this,
+							getVertex(g.vertices[elem]->x, 0, "")->id
 							);
+					}else if(g.vertices[elem]->y == i-1){
+						cout<<g.vertices[it->first]->to_string()<<" is connecting to "<<g.vertices[elem]->to_string()<<endl;
+						stillConnectingToNewLayer = true;
 					}
 				}
 			}
 			it++;
+		}
+		if(!stillConnectingToNewLayer){
+			break;
 		}
 
 		//build new graph
@@ -252,10 +266,6 @@ void graph::flattenReach(string flatten_label) {
 
 		iterateOverEdges(addL, q);
 
-		if(print){
-			cout<<"after adding new top layer:\\\\"<<endl;
-			g2.printGraphAsTikz();
-		}
 		//before using new graph:
 		g2.dsu.init(g2.vertices.size());
 
