@@ -272,6 +272,18 @@ void graph::flattenReach(string flatten_label) {
 
 		//overwrite old graph with new
 		g = g2;
+
+
+		//update n and c based on graph shrinkage
+		//TODO test this:
+		n = 0;
+		map<int,int> scc3;
+		for(int i=0;i<this->N;i++){
+			scc3[dsu.root(i)]++;
+		}	
+		n = scc3.size();
+
+		c = 18*n*n + 6*n;
 	}
 
 
