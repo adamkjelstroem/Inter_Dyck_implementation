@@ -320,7 +320,7 @@ bool Test::test(){
         return false;
     }
     
-    if(false){
+    if(true){
         int height = 3;
         graph g = buildSimple(height);
 
