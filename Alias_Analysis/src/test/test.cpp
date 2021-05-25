@@ -205,7 +205,7 @@ bool all4WaysGiveSameResultForRandomGraphs(){
     int flattenHeight = 100;
     int edges = 20;
     int vertices = edges * 7 / 10;
-    int repetitions = 20;
+    int repetitions = 6;
     for(int seed = 0; seed < repetitions; seed++){
         graph orig = Test::makeRandomGraph(seed, edges, vertices);
 
@@ -215,7 +215,6 @@ bool all4WaysGiveSameResultForRandomGraphs(){
         graph g4 = orig.copy();
 
         g1.flattenReach("(");
-
         int num1 = g1.calcNumReachablePairs();
 
         g2.flattenReach("[");
@@ -242,9 +241,7 @@ bool all4WaysGiveSameResultForRandomGraphs(){
             cout<<"flatten, then reach on brackets up to height "<<flattenHeight<<": "<<num3<<"\\\\"<<endl;
             g4.printDetailReach();
 
-            cout<<"original number of vertices: "<<orig.vertices.size()<<"\\\\"<<endl;
-
-            cout<<"seed is "<<seed<<endl;
+            cout<<"graph was generated with Test::makeRandomGraph("<<seed<<", "<<edges<<", "<<vertices<<")\\\\"<<endl;
             return false;
         }else{
             /*cout<<"we did it?? nums all = "<<num1<<endl;
@@ -302,13 +299,12 @@ bool all4GiveSameForSimpleInterdyck(){
 }
 
 void printContradictionExample(){
-    int edges = 20;
-    int vertices = edges * 7 / 10;
-    graph orig = Test::makeRandomGraph(8, edges, vertices);
+    graph orig = Test::makeRandomGraph(2, 20, 14);
 
     graph g1 = orig.copy();
     graph g2 = orig.copy();
 
+    g1.printGraphAsTikz();
 
     g1.flattenReach("(");
 
@@ -319,30 +315,56 @@ void printContradictionExample(){
 
 bool Test::test(){
 
-    //printContradictionExample();
-
-    if(!all4GiveSameForSimpleInterdyck()) return false;
-
-    if(!iterateOverEdgesGivesCorrectOrder()) return false;
+    if(false){
+        printContradictionExample();
+        return false;
+    }
     
-    if(!oneOpenOneCloseParenthesisHas1pair()) return false;
+    if(false){
+        int height = 3;
+        graph g = buildSimple(height);
 
-    if(!smallInterDyckWorksForFlattenThenReach()) return false;
-    
-    if(!copyMakesIdenticalGraph()) return false;
-    
-    if(!simpleInterDyckOnFlattenThenReachForBothIsSame()) return false;
+        g.printGraphAsTikz();
 
-    if(!noEdgesMeansNoPairs()) return false;
+        g.flattenReach("(");
+        g.printDetailReach();
+        return false;
+    }
 
-    if(!fullyConnectedEpsEdgeGraphHasMaxPairs()) return false;
-    
-    if(!flattenReachAndFlattenThenReachOnBracketIsSame()) return false;
+    if(false){
+        graph g = Test::makeRandomGraph(3, 10, 7);
 
-    if(!flattenReachOnBracketOrParentheisIsSameForSimpleInterDyck()) return false;
+        g.printGraphAsTikz();
 
-    if(!all4WaysGiveSameResultForRandomGraphs()) return false;
+        g.flattenReach("(");
+        g.printDetailReach();
+        return false;
+    }
 
+    std::vector<std::function<bool()>> data = {
+        all4GiveSameForSimpleInterdyck,
+        iterateOverEdgesGivesCorrectOrder,
+        oneOpenOneCloseParenthesisHas1pair,
+        smallInterDyckWorksForFlattenThenReach,
+        copyMakesIdenticalGraph,
+        simpleInterDyckOnFlattenThenReachForBothIsSame,
+        noEdgesMeansNoPairs,
+        fullyConnectedEpsEdgeGraphHasMaxPairs,
+        flattenReachAndFlattenThenReachOnBracketIsSame,
+        flattenReachOnBracketOrParentheisIsSameForSimpleInterDyck,
+        all4WaysGiveSameResultForRandomGraphs,
+    };
+
+    for(int i = 0; i < data.size(); i++){
+        cout<<"doing test nr "<<i<<""<<endl;
+        
+        if(!(data[i]())){
+            cout<<"Test nr "<<i<<" failed!"<<endl;
+            return false;
+        }else{
+            cout<<"passed test nr "<<i<<endl;
+        }
+    }
     return true;
 }
 
