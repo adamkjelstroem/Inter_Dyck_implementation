@@ -12,7 +12,7 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-	{	
+	if(true){	
 		Test t;
 		bool res = t.test();
 
@@ -132,14 +132,14 @@ int main(int argc, const char * argv[]){
 		g.flattenReach("[");
 		g2.flattenReach("(");
 	}else{
-		g = g.flatten("[", 8);
-		g2 = g2.flatten("(", 8);
+		g = g.flatten("[", 80);
+		//g2 = g2.flatten("(", 8);
 
-		g.printGraphAsTikz();
-		g2.printGraphAsTikz();
+		//g.printGraphAsTikz();
+		//g2.printGraphAsTikz();
 
 		g.bidirectedReach();
-		g2.bidirectedReach();
+		//g2.bidirectedReach();
 	}
 	
 
@@ -150,10 +150,10 @@ int main(int argc, const char * argv[]){
 
 	cout<<"flattened on '[':\\\\"<<endl;
 	cout<<"Number of reachable pairs: "<<g.calcNumReachablePairs()<<endl;
-	g.printDetailReach();
+	//g.printDetailReach();
 	cout<<"flattened on '(':\\\\"<<endl;
 	cout<<"Number of reachable pairs: "<<g2.calcNumReachablePairs()<<endl;
-	g2.printDetailReach();
+	//g2.printDetailReach();
 
 	// time required for bidirectedReach
 	cout<<"\nBidirected Reach Algorithm"<<endl;

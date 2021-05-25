@@ -70,6 +70,7 @@ graph graph::flatten(string field_name, int depth){
 		};
 
 	for (int i = 0; i < depth; i++){ 
+		cout<<"doing iteration "<<i<<" of "<<depth<<endl;
 		void* w[] = {&g, &i, &depth, &field_name};
 		iterateOverEdges(cop, w);
 	}
@@ -86,8 +87,6 @@ void graph::flattenReach(string flatten_label) {
 	//construct 2 layer graph
 	initWorklist(); // simplifies test code
 	
-
-	
 	graph g = flatten(flatten_label, 2);
 
 	bool print = false;
@@ -96,12 +95,14 @@ void graph::flattenReach(string flatten_label) {
 	long long c = 18*n*n + 6*n;
 	
 	if(print){
-		cout<<"Doing flattenReach on '"<<flatten_label<<"'"<<endl;
-		cout<<"n="<<n<<" and c="<<c<<endl;
+		cout<<"Doing flattenReach on '"<<flatten_label<<"'\\\\"<<endl;
+		cout<<"n="<<n<<" and c="<<c<<"\\\\"<<endl;
 	}
 	
-	//c = 9; //TODO hardcoded
+	//c = 20; //TODO hardcoded
 	for(long long i = 2; i < c; i++){
+		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
+		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 		if(print){
 			cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 			cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
@@ -116,11 +117,11 @@ void graph::flattenReach(string flatten_label) {
 		//compute SCCs
 		g.bidirectedReach();
 
-		
+		/*
 		if(print){
 			cout<<"DETAIL REACH\\\\"<<endl;
 			g.printDetailReach();
-		}	
+		}*/	
 		
 		
 		//I think 'dsu.exchange' swaps two nodes, meaning we can swap which is a root, and, if necessary, force a node to be the root.
@@ -140,6 +141,8 @@ void graph::flattenReach(string flatten_label) {
 			scc[g.dsu.root(i)].insert(i);
 		}
 
+
+		//merge vertices in graph
 		auto it = scc.begin();
 		while(it!=scc.end()){
 			//we only care about sccs where the root has y=0
@@ -154,7 +157,7 @@ void graph::flattenReach(string flatten_label) {
 							getVertex(g.vertices[elem]->x, 0, "")->id
 							);
 					}else if(g.vertices[elem]->y == i-1){
-						cout<<g.vertices[it->first]->to_string()<<" is connecting to "<<g.vertices[elem]->to_string()<<endl;
+						//cout<<g.vertices[it->first]->to_string()<<" is connecting to "<<g.vertices[elem]->to_string()<<endl;
 						stillConnectingToNewLayer = true;
 					}
 				}
@@ -162,12 +165,16 @@ void graph::flattenReach(string flatten_label) {
 			it++;
 		}
 		if(!stillConnectingToNewLayer){
+			if(print){
+				cout<<"there is no connection between the bottom layer and the new top layer, so no further flattening gives additional information. Terminating.\\\\"<<endl;
+			}
 			break;
 		}
 
 		//build new graph
 		//cout<<"building reduced graph"<<endl;
 		graph g2;
+
 
 		auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
 			auto g =  (graph*)extra[0];
@@ -176,6 +183,8 @@ void graph::flattenReach(string flatten_label) {
 
 			auto start_root = g->vertices[g->dsu.root(a.id)];
 			auto end_root =   g->vertices[g->dsu.root(b.id)];
+			
+
 			//cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<". when converted to roots, we add edge from "<<start_root->to_string()<<" to "<<end_root->to_string()<<"\\\\"<<endl;
 			
 			g2->addEdge(
@@ -183,14 +192,9 @@ void graph::flattenReach(string flatten_label) {
 				end_root->x,end_root->y, 
 				f.field_name);
 			
-			/*cout<<"edges to (7,1): ";
-			for (auto a :g2->getVertex(7,1,"")->edges){
-				for(auto b : a.second){
-					cout<<g2->vertices[b]->to_string()<<"\\\\"<<endl;
-				}
-			}*/
 		};
 
+		/*
 		if(print){
 			map<int,set<int>> scc2;
 			for(int i=0;i<g.N;i++){
@@ -206,7 +210,7 @@ void graph::flattenReach(string flatten_label) {
 				cout<<"\\\\"<<endl;
 				it++;
 			}
-		}
+		}*/
 
 		void* w[] = {&g, &g2};
 
@@ -217,73 +221,126 @@ void graph::flattenReach(string flatten_label) {
 			g2.printGraphAsTikz();
 		}	
 
-		//add new layer
-		//cout<<"adding new layer"<<endl;
+		
+		//Keep this code around as backup:
+		if(true){
+			auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
+				graph* g = (graph*)extra[0];
+				graph* g2 = (graph*)extra[1];
+				int i = *((int*)extra[2]);
+				string field_name = *(string*)extra[3];
 
-		auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
-			graph* g = (graph*)extra[0];
-			graph* g2 = (graph*)extra[1];
-			int i = *((int*)extra[2]);
-			string field_name = *(string*)extra[3];
+				if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+					//add 'epsilon' edge from node-set in lower layers to node in new layer
+					//we don't care about order, as epsilon edges are undirected.
+
+					//a is vertex in original graph
+
+					auto a_in_layer_i_minus_1_in_g =  g->getVertex(a.x, i-1, ""); //TOD name here??
+
+					auto root_of_a_in_g = g->vertices[g->dsu.root(a_in_layer_i_minus_1_in_g->id)]; 
+
+					//add new edge in g2
+					g2->addEdge(
+						root_of_a_in_g->x, root_of_a_in_g->y,
+						b.x, i,
+						g2->EPS.field_name
+					);
+				}else{
+					//add edges that go inside new layer
+					g2->addEdge(
+						a.x, i,
+						b.x, i,
+						f.field_name
+					);
+				}
+			};
+
+			void* q[] = {&g, &g2, &i, &flatten_label};
+
+			iterateOverEdges(addL, q);
+		}
+
+		
+		if(false){ //TODO does not work
+			auto addL2 = [](Vertex a, Vertex b, field f, void* extra[]) {
+			graph* original = (graph*)extra[0];
+			graph* current = (graph*)extra[1];
+			graph* next_iteration = (graph*)extra[2];
+			int i = *((int*)extra[3]);
+			string field_name = *(string*)extra[4];
+
+			//cout<<"adding edge from "<<a.to_string()<<" to "<<b.to_string()<<" with label "<<f.field_name<<endl;
+
+			//a is vertex in original graph
+			auto root_of_b_in_original = original->vertices[original->dsu.root(b.id)]; 
+
 
 			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+				
 				//add 'epsilon' edge from node-set in lower layers to node in new layer
 				//we don't care about order, as epsilon edges are undirected.
 
-				//a is vertex in original graph
 
-				auto a_in_layer_i_minus_1_in_g =  g->getVertex(a.x, i-1, ""); //TOD name here??
+				//auto a_in_layer_i_minus_1_in_current = current->getVertex(a.x, i-1, "");
+				//auto root_of_a_in_current = current->vertices[current->dsu.root(a_in_layer_i_minus_1_in_current->id)];
 
-				
-				//TODO we're still not consisitent with coordinates ws ids
-				//get vertex in previous graph, g
-				auto root_of_a_in_g = g->vertices[g->dsu.root(a_in_layer_i_minus_1_in_g->id)]; 
-
-				//cout<<"adding link from "<<a.to_string()<<" to "<<b.to_string()<<endl;
-
-				//cout<<a.to_string()<<" is represented by "<<a_in_layer_i_minus_1_in_g->to_string()<<" which has root "<<root_of_a_in_g->to_string()<<"\\\\"<<endl;
+				auto a_in_original = original->getVertex(a.x, 0, "");
+				auto root_of_a_in_original = original->vertices[original->dsu.root(a_in_original->id)];
 
 
-				//add new edge in g2
-				g2->addEdge(
-					root_of_a_in_g->x, root_of_a_in_g->y,
-					b.x, i,
-					g2->EPS.field_name
+				auto a_in_layer_i_minus_1_in_current = current->getVertex(root_of_a_in_original->x, i-1, "");
+				auto root_of_a_in_current = current->vertices[current->dsu.root(a_in_layer_i_minus_1_in_current->id)];
+
+				next_iteration->addEdge(
+					root_of_a_in_current->x, root_of_a_in_current->y,
+					root_of_b_in_original->x, i,
+					next_iteration->EPS.field_name
 				);
-
 			}else{
+				//b is vertex in new graph
+				auto root_of_a_in_original = original->vertices[original->dsu.root(a.id)];
+
 				//add edges that go inside new layer
-				g2->addEdge(
-					a.x, i,
-					b.x, i,
+				next_iteration->addEdge(
+					root_of_a_in_original->x, i,
+					root_of_b_in_original->x, i,
 					f.field_name
 				);
 			}
-
 		};
 
-		void* q[] = {&g, &g2, &i, &flatten_label};
+		void* q[] = {this, &g, &g2, &i, &flatten_label};
 
-		iterateOverEdges(addL, q);
+		iterateOverEdges(addL2, q);
+		}
+
 
 		//before using new graph:
 		g2.dsu.init(g2.vertices.size());
 
-
 		//overwrite old graph with new
-		g = g2;
+		g = g2; //TODO maybe memory leak
 
 
 		//update n and c based on graph shrinkage
-		//TODO test this:
 		n = 0;
-		map<int,int> scc3;
+		set<int> scc3;
 		for(int i=0;i<this->N;i++){
-			scc3[dsu.root(i)]++;
+			scc3.insert(dsu.root(i));
 		}	
 		n = scc3.size();
+		
+		if(n == 1){
+			if(print)
+				cout<<"All vertices are in the same SCC, so no more information can be discovered. Terminating."<<endl;
+			break;
+		} 
 
 		c = 18*n*n + 6*n;
+
+		if(print)
+			cout<<"c has been updated to "<<c<<"\\\\"<<endl;
 	}
 
 

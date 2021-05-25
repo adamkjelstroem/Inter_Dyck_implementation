@@ -253,6 +253,41 @@ bool all4WaysGiveSameResultForRandomGraphs(){
     return true;
 }
 
+bool bothFlattenReachTechniquesGiveSameResultFor10000SizeGraphs(){
+    //testing for random graphs that all 4 different techniques produce same results
+    int edges = 100 / 2;
+    int vertices = edges * 10 / 10;
+    int repetitions = 30;
+    for(int seed = 0; seed < repetitions; seed++){
+        graph orig = Test::makeRandomGraph(seed, edges, vertices);
+        cout<<"running test "<<seed<<" of "<<repetitions<<endl;
+
+        graph g1 = orig.copy();
+        graph g2 = orig.copy();
+    
+        g1.flattenReach("(");
+        int num1 = g1.calcNumReachablePairs();
+
+        g2.flattenReach("[");
+        int num2 = g2.calcNumReachablePairs();
+
+    
+        if(!(num1 == num2)){
+            orig.printGraphAsTikz();
+
+            cout<<"Number of reachable pairs should be the same for all 4 methods!\\\\"<<endl;
+            cout<<"flattenReach on parenthesis: "<<num1<<"\\\\"<<endl;
+            //g1.printDetailReach();
+            cout<<"flattenReach on bracket: "<<num2<<"\\\\"<<endl;
+            //g2.printDetailReach();
+    
+            cout<<"graph was generated with Test::makeRandomGraph("<<seed<<", "<<edges<<", "<<vertices<<")\\\\"<<endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 bool all4GiveSameForSimpleInterdyck(){
     //testing for simple graphs that all 4 different techniques produce same results
     for(int height = 1; height < 10; height++){
@@ -320,7 +355,7 @@ bool Test::test(){
         return false;
     }
     
-    if(true){
+    if(false){
         int height = 3;
         graph g = buildSimple(height);
 
@@ -342,6 +377,7 @@ bool Test::test(){
     }
 
     std::vector<std::function<bool()>> data = {
+        //bothFlattenReachTechniquesGiveSameResultFor10000SizeGraphs,
         all4GiveSameForSimpleInterdyck,
         iterateOverEdgesGivesCorrectOrder,
         oneOpenOneCloseParenthesisHas1pair,
