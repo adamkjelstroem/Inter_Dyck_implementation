@@ -81,6 +81,37 @@ graph graph::flatten(string field_name, int depth){
 	return g;
 }
 
+//Similar to flattenReach: 
+//We flatten on 2
+void graph::flattenReach2(string flatten_label){
+
+	//construct 2 layer graph
+	initWorklist(); // simplifies test code
+	
+	graph g = flatten(flatten_label, 2);
+
+	bool print = false;
+	
+	long long n = vertices.size();
+	long long c = 18*n*n + 6*n;
+
+	if(print){
+		cout<<"Doing flattenReach on '"<<flatten_label<<"'\\\\"<<endl;
+		cout<<"n="<<n<<" and c="<<c<<"\\\\"<<endl;
+	}
+}
+
+//forces the roots of an SCC to be in some layer, if the SCC has a member in that layer.
+void graph::forceRootsToLayer(int layer){
+	for(int i = 0; i < N; i++){
+		if(vertices[i]->y == 0){
+			if(vertices[dsu.root(i)]->y != layer){
+				dsu.exchange(i, dsu.root(i));
+			}
+		}
+	}
+}
+
 //flattens on 'flatten_label' 
 void graph::flattenReach(string flatten_label) {
 	
