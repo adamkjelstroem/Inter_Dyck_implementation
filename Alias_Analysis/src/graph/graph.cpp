@@ -225,8 +225,8 @@ void graph::flattenReach(string flatten_label) {
 		//Keep this code around as backup:
 		if(true){
 			auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
-				graph* g = (graph*)extra[0];
-				graph* g2 = (graph*)extra[1];
+				graph* current = (graph*)extra[0];
+				graph* next_iteration = (graph*)extra[1];
 				int i = *((int*)extra[2]);
 				string field_name = *(string*)extra[3];
 
@@ -236,19 +236,19 @@ void graph::flattenReach(string flatten_label) {
 
 					//a is vertex in original graph
 
-					auto a_in_layer_i_minus_1_in_g =  g->getVertex(a.x, i-1, ""); //TOD name here??
+					auto a_in_layer_i_minus_1_in_current =  current->getVertex(a.x, i-1, ""); //TOD name here??
 
-					auto root_of_a_in_g = g->vertices[g->dsu.root(a_in_layer_i_minus_1_in_g->id)]; 
+					auto root_of_a_in_current = current->vertices[current->dsu.root(a_in_layer_i_minus_1_in_current->id)]; 
 
 					//add new edge in g2
-					g2->addEdge(
-						root_of_a_in_g->x, root_of_a_in_g->y,
+					next_iteration->addEdge(
+						root_of_a_in_current->x, root_of_a_in_current->y,
 						b.x, i,
-						g2->EPS.field_name
+						next_iteration->EPS.field_name
 					);
 				}else{
 					//add edges that go inside new layer
-					g2->addEdge(
+					next_iteration->addEdge(
 						a.x, i,
 						b.x, i,
 						f.field_name
