@@ -85,7 +85,6 @@ graph graph::flatten(string field_name, int depth){
 void graph::flattenReach2(string flatten_label){
 	initWorklist();
 
-	long long n = vertices.size();
 
 	//every edge in the graph costs about 500 bytes.
 	//let's say we have 2 gb to build this new graph.
@@ -95,14 +94,15 @@ void graph::flattenReach2(string flatten_label){
 	long long k = max_memory_mb * 10000 / 5 / numedges;
 	//k is number of layers
 
-	cout<<"k is "<<k<<endl;
-
+	
 	//we don't need to build anything bigger than this, as it's the theoretical bound
+
+	long long n = N; //casts to long long
 	long long c = 18*n*n + 6*n;
 	if (k > c) k = c;
 
 
-	cout<<"k is "<<k<<endl;
+	cout<<"k is "<<k<<". c is "<<c<<endl;
 
 	graph g = flatten(flatten_label, k);
 
@@ -114,9 +114,20 @@ void graph::flattenReach2(string flatten_label){
 	//put newly joined vertices together in original graph
 	g.forceRootsToLayer(0);
 
-	int new_n = g.dsu.getN();
+	//count number of sccs in bottom layer
+	map<int,set<int>> scc;
+	for(int i=0;i<2*n;i++){
+		if(g.vertices[g.dsu.root(i)]->y == 0)
+			scc[g.dsu.root(i)].insert(i);
+	}
+	long long new_n = scc.size();
 
-	cout<<"graph of size "<<n<<" reduced to "<<new_n<<", a reduction of "<<(100 * new_n / n)<<"%"<<endl;
+	cout<<"graph of size "<<n<<" reduced to "<<new_n<<", a reduction to "<<(100 * new_n / n)<<"%"<<endl;
+
+	long long new_c = 18*new_n*new_n + 6*new_n;
+
+	cout<<"c reduced from "<<c<<" to "<<new_c<<", a reduction to "<<(100 * new_c / c)<<"%"<<endl;
+
 	/*
 	graph g2;
 
