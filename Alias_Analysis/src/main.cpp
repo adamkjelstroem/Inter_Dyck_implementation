@@ -17,6 +17,10 @@ int main(int argc, const char * argv[]){
 		g.construct2(argv[1]); //NOTE using construct2 uses the new format
 		
 		g.flattenReach2("(");
+		g.flattenReach2("(");
+		g.flattenReach2("(");
+		g.flattenReach2("(");
+		g.flattenReach2("(");
 
 		return 0;
 	}

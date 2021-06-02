@@ -86,17 +86,17 @@ void graph::flattenReach2(string flatten_label){
 	initWorklist();
 
 
+	long long n = dsu.getN(); //casts to long long
 	//every edge in the graph costs about 500 bytes.
 	//let's say we have 2 gb to build this new graph.
 	// k * n * 500 b = 2 000 000 000 b
 	// k = 2000000000 / 500 / n
 	long long max_memory_mb = 2000; // 2 GB
-	long long k = max_memory_mb * 10000 / 5 / numedges;
+	long long k = max_memory_mb * 10000 / 5 / n; //should have been numedges, but I suppose this will work. 
 	//k is number of layers
 
 	
 	//we don't need to build anything bigger than this c, as it's the theoretical bound
-	long long n = N; //casts to long long
 	long long c = 18*n*n + 6*n;
 	if (k > c) k = c;
 
@@ -145,6 +145,8 @@ void graph::flattenReach2(string flatten_label){
 		cout<<"c reduced from "<<c<<" to "<<new_c<<", a reduction to "<<(100 * new_c / c)<<"% of original."<<endl;
 	}
 	
+	//TODO we're done with g now, so deallocate
+
 	//todo construct new graph based on edges in original graph
 	//something like this->iterateOverEdges(...)
 
