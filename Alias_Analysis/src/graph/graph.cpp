@@ -157,13 +157,8 @@ void graph::flattenReach(string flatten_label) {
 		//I think 'dsu.exchange' swaps two nodes, meaning we can swap which is a root, and, if necessary, force a node to be the root.
 		//so force layer zero nodes to be roots. If two layer-zero nodes are roots, keep the first one
 		//we do this in g, the constructed graph
-		for(int i = 0; i < g.N; i++){
-			if(g.vertices[i]->y == 0){
-				if(g.vertices[g.dsu.root(i)]->y != 0){
-					g.dsu.exchange(i, g.dsu.root(i));
-				}
-			}
-		}
+		g.forceRootsToLayer(0);
+		
 
 		bool stillConnectingToNewLayer = false;
 		map<int,set<int>> scc;
@@ -401,7 +396,16 @@ void graph::flattenReach(string flatten_label) {
 	}*/
 }
 
-
+//forces roots of the sets in the DSU to be in layer 'layer'
+void graph::forceRootsToLayer(int layer){
+	for(int i = 0; i < N; i++){
+		if(vertices[i]->y == layer){
+			if(vertices[dsu.root(i)]->y != layer){
+				dsu.exchange(i, dsu.root(i));
+			}
+		}
+	}
+}
 
 void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
 	for(int j=0;j<N;j++){
