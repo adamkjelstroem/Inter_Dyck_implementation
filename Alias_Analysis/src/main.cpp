@@ -12,6 +12,15 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
+	if(true){
+		graph g;
+		g.construct2(argv[1]); //NOTE using construct2 uses the new format
+		
+		g.flattenReach2("(");
+
+		return 0;
+	}
+
 	if(true){	
 		Test t;
 		bool res = t.test();

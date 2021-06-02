@@ -255,7 +255,7 @@ bool all4WaysGiveSameResultForRandomGraphs(){
 
 bool bothFlattenReachTechniquesGiveSameResultFor10000SizeGraphs(){
     //testing for random graphs that all 4 different techniques produce same results
-    int edges = 100 / 2;
+    int edges = 100 / 8;
     int vertices = edges * 10 / 10;
     int repetitions = 30;
     for(int seed = 0; seed < repetitions; seed++){
