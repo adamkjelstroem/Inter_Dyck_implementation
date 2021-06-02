@@ -73,6 +73,9 @@ public:
 	graph flatten(string field_name, int depth);
 	void flattenReach(string flatten_label);
 	int calcNumReachablePairs();
+
+	void forceRootsToLayer(int layer);
+	void flattenReach2(string flatten_label);
 	
 
 	//helper functions

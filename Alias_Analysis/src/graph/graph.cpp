@@ -81,6 +81,11 @@ graph graph::flatten(string field_name, int depth){
 	return g;
 }
 
+//Here, we flatten up to some counter, then collapse nodes and reconstruct graph
+void graph::flattenReach2(string flatten_label){
+	
+}
+
 //flattens on 'flatten_label' 
 void graph::flattenReach(string flatten_label) {
 	
@@ -370,6 +375,7 @@ void graph::flattenReach(string flatten_label) {
 		it++;
 	}*/
 }
+
 
 
 void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
