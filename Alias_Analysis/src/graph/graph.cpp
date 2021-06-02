@@ -95,8 +95,7 @@ void graph::flattenReach2(string flatten_label){
 	//k is number of layers
 
 	
-	//we don't need to build anything bigger than this, as it's the theoretical bound
-
+	//we don't need to build anything bigger than this c, as it's the theoretical bound
 	long long n = N; //casts to long long
 	long long c = 18*n*n + 6*n;
 	if (k > c) k = c;
@@ -470,15 +469,15 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 	for(int j=0;j<N;j++){
 		auto vertex = vertices[j];
 		auto fit = vertex->edgesbegin();
-
 		while(fit!=vertex->edgesend()){   // iterating over field
 			field fi = fit->first;
-			//f.field_name is edge label name
 			auto fedgeit = vertex->edgesbegin(fi);
 			while(fedgeit != vertex->edgesend(fi)){   // iterating over edges
 				
-				(*f)(*vertices[*fedgeit], *vertices[j], fi, extra);
-				
+				//(*f)(*vertices[*fedgeit], *vertices[j], fi, extra);
+				(*f)(*vertices[dsu.root(*fedgeit)], *vertices[dsu.root(j)], fi, extra);
+				//TODO optimize so dsu.root() calls are not inside the nested kiio 
+
 				fedgeit++;
 			}
 			fit++;
