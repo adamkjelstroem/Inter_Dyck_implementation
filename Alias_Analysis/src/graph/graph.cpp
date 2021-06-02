@@ -68,9 +68,12 @@ graph graph::flatten(string field_name, int depth){
 					
 			}
 		};
-
+	cout<<"Flattening on "<<field_name<<" up to height "<<depth<<endl;
+	
 	for (int i = 0; i < depth; i++){ 
-		cout<<"doing iteration "<<i<<" of "<<depth<<endl;
+		if(i % (depth / 10) == 0)
+			cout<<"doing iteration "<<i<<" of "<<depth<<endl;
+		
 		void* w[] = {&g, &i, &depth, &field_name};
 		iterateOverEdges(cop, w);
 	}
