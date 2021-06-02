@@ -108,7 +108,25 @@ void graph::flattenReach2(string flatten_label){
 	//compute SCCs
 	g.bidirectedReach();
 
-	//todo put newly joined vertices together in original graph
+	//put newly joined vertices together in original graph
+	g.forceRootsToLayer(0);
+
+	graph g2;
+
+	for(int id = 0; id < n * 2; id++){
+		// we only need to iterate over the first n * 2 edges, as these are guaranteed to
+		//contain the ones in layer 0
+		Vertex* v = g.vertices[id];
+		
+		
+		if(v->y == 0){
+			Vertex* root = g.vertices[g.dsu.root(v->id)];
+
+			//TODO add stuff to g2
+		}
+	}
+
+	//TODO init g2
 }
 
 //flattens on 'flatten_label' 
