@@ -83,7 +83,32 @@ graph graph::flatten(string field_name, int depth){
 
 //Here, we flatten up to some counter, then collapse nodes and reconstruct graph
 void graph::flattenReach2(string flatten_label){
-	
+	initWorklist();
+
+	//every edge in the graph costs about 500 bytes.
+	//let's say we have 2 gb to build this new graph.
+	// k * n * 500 b = 2 000 000 000 b
+	// k = 2000000000 / 500 / n
+	int max_memory_kb = 2000000; // 2 GB
+	int k = max_memory_kb * 10 / 5 / numedges;
+
+
+	//we don't need to build anything bigger than this, as it's the theoretical bound
+	int n = vertices.size();
+	int c = 18*n*n + 6*n;
+	if (k > c) k = c;
+
+
+	cout<<"k is "<<k<<endl;
+
+	graph g = flatten(flatten_label, k);
+
+
+	g.initWorklist();
+	//compute SCCs
+	g.bidirectedReach();
+
+	//todo put newly joined vertices together in original graph
 }
 
 //flattens on 'flatten_label' 
