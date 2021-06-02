@@ -118,20 +118,18 @@ void graph::flattenReach2(string flatten_label){
 	//merge vertices in original graph
 	map<int,set<int>> scc;
 	for(int i=0;i<g.N;i++){
-		scc[g.dsu.root(i)].insert(i);
+		if(g.vertices[g.dsu.root(i)]->y == 0)
+			scc[g.dsu.root(i)].insert(i);
 	}
 	auto it = scc.begin();
 	while(it!=scc.end()){
-		//we only care about sccs where the root has y=0
-		if(g.vertices[it->first]->y == 0){
-			int root_id_in_this=getVertex(g.vertices[it->first]->x, 0, "")->id;
-			for(int elem : it->second){
-				if(g.vertices[elem]->y == 0){
-					dsu.merge(
-						root_id_in_this,
-						getVertex(g.vertices[elem]->x, 0, "")->id
-						);
-				}
+		int root_id_in_this=getVertex(g.vertices[it->first]->x, 0, "")->id;
+		for(int elem : it->second){
+			if(g.vertices[elem]->y == 0){
+				dsu.merge(
+					root_id_in_this,
+					getVertex(g.vertices[elem]->x, 0, "")->id
+					);
 			}
 		}
 		it++;
@@ -139,11 +137,6 @@ void graph::flattenReach2(string flatten_label){
 
 	if(true){
 		//demonstrates advantage of this 'preprocessing'
-		map<int,set<int>> scc;
-		for(int i=0;i<2*n;i++){
-			if(g.vertices[g.dsu.root(i)]->y == 0)
-				scc[g.dsu.root(i)].insert(i);
-		}
 		long long new_n = scc.size();
 
 		cout<<"graph of size "<<n<<" reduced to "<<new_n<<", a reduction to "<<(100 * new_n / n)<<"% of original."<<endl;
