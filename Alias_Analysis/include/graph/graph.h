@@ -33,7 +33,6 @@ class graph {
 	void appendedges(std::set<int>& roots,Vertex *rootvtx,int uid,field mf);
 	void removeRepeatedges(list<int> &l);
 	void dsuUnion(int root,std::set<int>& roots);
-	string makeFlattenedName(Vertex* vertex, int layer);
 
 public:
 	
@@ -47,6 +46,11 @@ public:
 		numedges=0;
 		fields.push_back(EPS);
 		str2field["eps"] = EPS;
+	}
+	~graph(){
+		for(Vertex* v : vertices){
+			delete v;
+		}
 	}
 	void initWorklist();
 	void bidirectedReach();
