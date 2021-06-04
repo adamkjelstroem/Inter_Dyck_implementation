@@ -13,14 +13,23 @@ int main(int argc, const char * argv[]){
 	}
 
 	if(true){
+		{
+			graph g;
+			g.construct2(argv[1]); //NOTE using construct2 uses the new format
+			g.initWorklist();
+			g.bidirectedReach();
+			cout<<"D' reachability: "<<g.calcNumReachablePairs()<<endl;
+		}
+		
 		graph g;
 		g.construct2(argv[1]); //NOTE using construct2 uses the new format
 		
-		g.flattenReach2("(");
-		g.flattenReach2("(");
-		g.flattenReach2("(");
-		g.flattenReach2("(");
-		g.flattenReach2("(");
+
+		for(int i = 0; i < 5; i++){
+			cout<<"doing iteration "<<(i+1)<<" of 10"<<endl;
+			g.flattenReach2("(");
+			cout<<"resulting number of pairs: "<<g.calcNumReachablePairs()<<endl;
+		}
 
 		return 0;
 	}
