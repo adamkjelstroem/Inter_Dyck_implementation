@@ -23,19 +23,33 @@ void graph::construct2(string infile_name){
 			int b = std::stoi(tokens2[0]);
 			string label = tokens2[1];
 
+			std::vector<string> tokens3;
+			split(label, "-", tokens3);
+
+			string id = tokens3[1];
+			
+			std::vector<string> tokens4;
+			split(id, "\"", tokens4);
+			id = tokens4[0];
+			//id = ""; 
+			//TODO when id is "", we compute D1 dot D1, and when id isn't, we compute Dk dot Dk.
+			//this should be fleshed out in parameters for construct2() method.
+
+
 			//parse
 			//note the 'flipping' s.t. we "add an edge" from a to b by calling in order (b, a, label)
+			
 			if (label.find("op") != string::npos){
-				addEdge(a, 0, b, 0, "(");
+				addEdge(a, 0, b, 0, "(" + id);
 			}else if (label.find("cp") != string::npos){
-				addEdge(b, 0, a, 0, "(");
+				addEdge(b, 0, a, 0, "(" + id);
 			}else if (label.find("ob") != string::npos){
-				addEdge(a, 0, b, 0, "[");
+				addEdge(a, 0, b, 0, "[" + id);
 			}else if (label.find("cb") != string::npos){
-				addEdge(b, 0, a, 0, "[");
+				addEdge(b, 0, a, 0, "[" + id);
 			}else{
 				addEdge(a, 0, b, 0, EPS.field_name);
-			}
+			}	
 			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
 		}
 	}
@@ -520,7 +534,7 @@ int graph::calcNumReachablePairs(){
 			if(vertices[elem]->y == 0) zero_elems++;
 			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
 		}
-		n += zero_elems * (zero_elems-1) / 2;
+		n += zero_elems*zero_elems;//zero_elems * (zero_elems-1) / 2;
 		it++;
 	}
 
