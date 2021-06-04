@@ -12,6 +12,7 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
+	/*
 	if(true){
 		{
 			graph g;
@@ -32,7 +33,7 @@ int main(int argc, const char * argv[]){
 		}
 
 		return 0;
-	}
+	}*/
 
 	if(true){	
 		Test t;

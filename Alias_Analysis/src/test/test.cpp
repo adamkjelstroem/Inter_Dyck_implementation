@@ -333,6 +333,39 @@ bool all4GiveSameForSimpleInterdyck(){
     return true;
 }
 
+bool DprimeAntlrGives1516159(){
+    graph g;
+    g.construct2("./spg/antlr_full_dot.spg");
+
+    g.initWorklist();
+    g.bidirectedReach();
+
+    int correct = 1516159;
+    int res = g.calcNumReachablePairs();
+
+    if(res != correct){
+        cout<<"D' antlr failed. Result should have been:"<<endl;
+        cout<<correct<<" but was "<<endl;
+        cout<<res;
+        
+        if(res > correct){
+            cout<<" - too big by a difference of "<<(res-correct)<<endl;
+        }else{
+            cout<<" - too small by a difference of "<<(correct-res)<<endl;
+        }
+
+        //TODO I think the discrepancy if because some ids never get used?? they're not necessarily labeled 1,2,3,44.?
+
+        //why is it too small? why by a count of 2512?? what makes for that number?
+
+        //cout<<g.dsu.getN()<<endl;
+
+        return false;
+    }
+    
+    return true;
+}
+
 void printContradictionExample(){
     graph orig = Test::makeRandomGraph(2, 20, 14);
 
@@ -391,8 +424,12 @@ bool Test::test(){
         all4WaysGiveSameResultForRandomGraphs,
     };
 
+    data = {
+        DprimeAntlrGives1516159
+    };
+
     for(int i = 0; i < data.size(); i++){
-        cout<<"doing test nr "<<i<<""<<endl;
+        cout<<"doing test nr "<<(1+i)<<" of "<<data.size()<<endl;
         
         if(!(data[i]())){
             cout<<"Test nr "<<i<<" failed!"<<endl;
