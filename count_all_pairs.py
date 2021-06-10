@@ -5,6 +5,8 @@ nodes = set()
 vertices = set()
 q = queue.Queue()
 
+#TODO to make this work, just keep 'out-edges' for a node. If it has two out-edges labeled "(" (to node a and node b), then there's an epsilon between a and b.
+
 with open(sys.argv[1], 'r') as f:
     contents = f.read()
 
@@ -72,10 +74,10 @@ while not q.empty():
                 push((w[0], v[1], ""))
             elif v[2] == "":
                 push((w[0], v[1], w[2]))
-    
+
     for x in v2:
         vertices.add(x)
-    
+
     if q.qsize() % 1000 == 0:
         print(q.qsize())
 
