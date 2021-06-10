@@ -26,9 +26,9 @@ with open(sys.argv[1], 'r') as f:
             label = t[0]
 
             if not a in graph:
-                graph.put(a, set())
+                graph[a] = set()
             if not b in graph:
-                graph.put(b, set())
+                graph[b] = set()
 
             if label == "ob":
                 graph[b].add((a, "["))
@@ -56,16 +56,16 @@ def push(a, b, label):
 while not q.empty():
     (a, b, label) = q.get()
 
-    vertices = graph[a]
+    vertices = graph[a].copy()
 
     if label=="":
         for (c, label2) in vertices:
-            push((a, c, label2))
+            push(a, c, label2)
     else:
         for (c, label2) in vertices:
             if label == label2:
-                push((a, c, ""))
-                push((c, a, ""))
+                push(a, c, "")
+                push(c, a, "")
 
     if q.qsize() % 1000 == 0:
         print(q.qsize())
