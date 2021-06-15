@@ -335,7 +335,8 @@ bool all4GiveSameForSimpleInterdyck(){
 
 bool DprimeAntlrGives1516159(){
     graph g;
-    g.construct2("./spg/antlr_full_dot.spg");
+    //g.construct2("./spg/antlr_full_dot.spg");
+    g.construct2("./spg/eclipse.dot");
 
     g.initWorklist();
     g.bidirectedReach();

@@ -12,6 +12,32 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
+	if(true){
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(string s : data){
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			graph g;
+			g.construct2(s2); //NOTE using construct2 uses the new format
+			g.initWorklist();
+			g.bidirectedReach();
+			cout<<"D' reachability for "<<s<<"_reduced: "<<g.calcNumReachablePairs()<<endl;
+		}
+		return 0;
+	}
+
 	/*
 	if(true){
 		{

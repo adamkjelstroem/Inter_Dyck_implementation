@@ -24,48 +24,46 @@ with open(sys.argv[1], 'r') as f:
             b = int(t[0])
             t = t[1].split("\"")[0].split("--")
             label = t[0]
-
+            id = t[1]
+            
             if not a in graph:
                 graph[a] = set()
+                q.put(a)
             if not b in graph:
                 graph[b] = set()
+                q.put(b)
 
             if label == "ob":
                 graph[b].add((a, "["))
-                q.put((b, a, "["))
             elif label == "cb":
                 graph[a].add((b, "["))
-                q.put((a, b, "["))
             elif label == "op":
                 graph[b].add((a, "("))
-                q.put((b, a, "("))
             elif label == "cp":
                 graph[a].add((b, "("))
-                q.put((a, b, "("))
 
 
-            id = t[1]
 
 
 def push(a, b, label):
     if not (b, label) in graph[a]:
         graph[a].add((b,label))
-        q.put((a, b, label))
+        q.put(a)
 
 # Do parsing
 while not q.empty():
-    (a, b, label) = q.get()
+    a = q.get()
 
     vertices = graph[a].copy()
 
-    if label=="":
-        for (c, label2) in vertices:
-            push(a, c, label2)
-    else:
+    for (b, label) in vertices:
         for (c, label2) in vertices:
             if label == label2:
-                push(a, c, "")
-                push(c, a, "")
+                push(b, c, "")
+                push(c, b, "")
+            elif label == "":
+                push(b, c, label2)
+
 
     if q.qsize() % 1000 == 0:
         print(q.qsize())
@@ -78,4 +76,5 @@ for a in graph.keys():
         if a < b and label == "":
             res += 1
 print(res)
+
 #2923 is res for "antlr_reduced"
