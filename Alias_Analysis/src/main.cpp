@@ -30,10 +30,10 @@ int main(int argc, const char * argv[]){
 		for(string s : data){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
-			g.construct2(s2); //NOTE using construct2 uses the new format
+			g.construct2(s2); //Parses files in the ".dot" format
 			g.initWorklist();
 			g.bidirectedReach();
-			cout<<"D' reachability for "<<s<<"_reduced: "<<g.calcNumReachablePairs()<<endl;
+			cout<<"D' reachability for "<<s2<<": "<<g.calcNumReachablePairs()<<" - graph has "<<g.N<<" nodes."<<endl;
 		}
 		return 0;
 	}

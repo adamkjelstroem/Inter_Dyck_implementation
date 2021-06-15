@@ -31,7 +31,7 @@ void graph::construct2(string infile_name){
 			std::vector<string> tokens4;
 			split(id, "\"", tokens4);
 			id = tokens4[0];
-			//id = ""; 
+			id = ""; 
 			//TODO when id is "", we compute D1 dot D1, and when id isn't, we compute Dk dot Dk.
 			//this should be fleshed out in parameters for construct2() method.
 
@@ -534,7 +534,7 @@ int graph::calcNumReachablePairs(){
 			if(vertices[elem]->y == 0) zero_elems++;
 			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
 		}
-		n += zero_elems*zero_elems;//zero_elems * (zero_elems-1) / 2;
+		n += zero_elems*(zero_elems - 1) / 2;//zero_elems * (zero_elems-1) / 2;
 		it++;
 	}
 
