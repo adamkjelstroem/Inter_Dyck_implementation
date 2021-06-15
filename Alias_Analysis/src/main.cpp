@@ -30,10 +30,10 @@ int main(int argc, const char * argv[]){
 		for(string s : data){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
-			g.construct2(s2); //Parses files in the ".dot" format
+			g.construct2(s2, true, true); //Parses files in the ".dot" format
 			g.initWorklist();
 			g.bidirectedReach();
-			cout<<"D' reachability for "<<s2<<": "<<g.calcNumReachablePairs()<<" - graph has "<<g.N<<" nodes."<<endl;
+			cout<<"D' reachability for "<<s<<"_reduced: "<<g.calcNumReachablePairs()<<endl;
 		}
 		return 0;
 	}
@@ -158,7 +158,7 @@ int main(int argc, const char * argv[]){
 	//true -> construct form input
 	//false -> generate
 	if(true){
-		g.construct2(argv[1]); //NOTE using construct2 uses the new format
+		g.construct2(argv[1], true, true); //NOTE using construct2 uses the new format
 		g2 = g.copy();
 		cout<<"Graph loaded from file"<<endl;
 	}else{

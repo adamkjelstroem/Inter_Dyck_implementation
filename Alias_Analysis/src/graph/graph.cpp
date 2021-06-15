@@ -5,8 +5,9 @@
 #include <algorithm>
 
 
-//same as below, but uses a different file input format.
-void graph::construct2(string infile_name){
+//construct graph using the ".dot" format. 
+//d1_parenthesis flag relaxes on parentheses, and d1_bracket relaxes on brackets.
+void graph::construct2(string infile_name, bool d1_parenthesis, bool d1_bracket){
 	ifstream infile(infile_name);
 	string line;
 	while(std::getline(infile, line)){
@@ -31,14 +32,14 @@ void graph::construct2(string infile_name){
 			std::vector<string> tokens4;
 			split(id, "\"", tokens4);
 			id = tokens4[0];
-			id = ""; 
-			//TODO when id is "", we compute D1 dot D1, and when id isn't, we compute Dk dot Dk.
-			//this should be fleshed out in parameters for construct2() method.
 
+			//ignores ids to relax on parenthesis
+			if (d1_parenthesis && label.find("p") != string::npos)id = "";
+			//ignores ids to relax on brackets
+			if (d1_bracket && label.find("b") != string::npos) id = "";
 
 			//parse
 			//note the 'flipping' s.t. we "add an edge" from a to b by calling in order (b, a, label)
-			
 			if (label.find("op") != string::npos){
 				addEdge(a, 0, b, 0, "(" + id);
 			}else if (label.find("cp") != string::npos){
