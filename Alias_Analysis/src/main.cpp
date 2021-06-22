@@ -7,9 +7,37 @@
 
 
 int main(int argc, const char * argv[]){
+	if (false) //TODO remove
 	if(argc!=2){
 		cerr<<"the argument should be path to file containing spg graph"<<endl;
 		return 1;
+	}
+
+	if(false){
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(string s : data){
+			//string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			string s2 = "./spg/orig_bench/" + s + ".dot";
+			graph g;
+			g.construct2(s2, true, true); //Parses files in the ".dot" format
+			g.initWorklist();
+			g.bidirectedReach();
+			cout<<"D' reachability for original version of "<<s<<": "<<g.calcNumReachablePairs()<<endl;
+		}
+		return 0;
 	}
 
 	if(true){
@@ -26,14 +54,13 @@ int main(int argc, const char * argv[]){
 			"pmd",
 			"xalan"
 		};
-
+		string flatten_on = "[";
 		for(string s : data){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
 			g.construct2(s2, true, true); //Parses files in the ".dot" format
-			g.initWorklist();
-			g.bidirectedReach();
-			cout<<"D' reachability for "<<s<<"_reduced: "<<g.calcNumReachablePairs()<<endl;
+			g.flattenReach(flatten_on);
+			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on "<<flatten_on<<"): "<<g.calcNumReachablePairs()<<endl;
 		}
 		return 0;
 	}
