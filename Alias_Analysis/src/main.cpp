@@ -59,7 +59,7 @@ int main(int argc, const char * argv[]){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
 			g.construct2(s2, true, true); //Parses files in the ".dot" format
-			g.flattenReach(flatten_on);
+			g.flattenReachRemade(flatten_on);
 			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on "<<flatten_on<<"): "<<g.calcNumReachablePairs()<<endl;
 		}
 		return 0;

@@ -80,6 +80,8 @@ public:
 
 	void forceRootsToLayer(int layer);
 	void flattenReach2(string flatten_label);
+
+	void flattenReachRemade(string flatten_label);
 	
 
 	//helper functions

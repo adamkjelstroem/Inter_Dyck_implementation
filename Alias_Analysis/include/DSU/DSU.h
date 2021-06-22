@@ -8,7 +8,7 @@ class DSU {
 	vector<int> parent_pos;   // position of parent of vertex at position p
 	vector<int> vtxatpos;
 	vector<int> posofvtx;
-	int N;
+	int N = 0;
 public:
 	int getN();
 

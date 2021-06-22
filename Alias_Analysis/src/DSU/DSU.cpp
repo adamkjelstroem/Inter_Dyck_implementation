@@ -2,11 +2,14 @@
 // #include <cassert>
 
 void DSU::init(int n){
+	int old_n = this->N; //old_n lets us add new nodes without overwriting existing data
+	if(n < old_n) old_n = 0;
+	
 	this->N = n;
 	parent_pos.resize(this->N);
 	vtxatpos.resize(this->N);
 	posofvtx.resize(this->N);
-	for(int i=0;i<N;i++){
+	for(int i=old_n;i<N;i++){
 		parent_pos[i]=-1;
 		vtxatpos[i]=i;
 		posofvtx[i]=i;
