@@ -85,8 +85,8 @@ graph graph::flatten(string field_name, int depth){
 		};
 	cout<<"Flattening on "<<field_name<<" up to height "<<depth<<endl;
 	
-	for (int i = 0; i < depth; i++){ 
-		if(i % (depth / 10) == 0)
+	for (int i = 0; i < depth; i++){
+		if(depth >= 10 && i % (depth / 10) == 0)
 			cout<<"doing iteration "<<i<<" of "<<depth<<endl;
 		
 		void* w[] = {&g, &i, &depth, &field_name};
@@ -187,6 +187,10 @@ void graph::flattenReach2(string flatten_label){
 	//TODO init g2
 
 	*/
+}
+
+void graph::flattenReachRemade(string flatten_label){
+	
 }
 
 //flattens on 'flatten_label' 
