@@ -190,7 +190,112 @@ void graph::flattenReach2(string flatten_label){
 }
 
 void graph::flattenReachRemade(string flatten_label){
+	//do this for good measure
+	initWorklist();
+
+	//construct the graph with which we do ongoing flattening
+	graph flattened = flatten(flatten_label, 2);
+
+	//declare variables controlling the loop
+	long long n = vertices.size();
+	long long c = 18*n*n + 6*n;
 	
+	for(long long i = 2; i < c; i++){
+
+		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<flattened.N<<"\\\\"<<endl;
+		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
+		
+		//compute SCCs
+		flattened.bidirectedReach();
+
+		//force roots to be in layer 0 if possible
+		flattened.forceRootsToLayer(0);
+		
+		//compute sccs in new graph
+		bool stillConnectingToNewLayer = false;
+		map<int,set<int>> scc;
+		for(int i=0;i<flattened.N;i++){
+			scc[flattened.dsu.root(i)].insert(i);
+		}
+
+
+		//merge vertices in original graph based on sccs in flattened graph
+		auto it = scc.begin();
+		while(it!=scc.end()){
+			//Because we've forced the root to be in layer 0 if possible, we only care about sccs where the root has y=0
+			if(flattened.vertices[it->first]->y == 0){
+				int root_id_in_this=getVertex(flattened.vertices[it->first]->x, 0, "")->id;
+				for(int elem : it->second){
+					if(flattened.vertices[elem]->y == 0){
+						dsu.merge(
+							root_id_in_this,
+							getVertex(flattened.vertices[elem]->x, 0, "")->id
+							);
+					}else if(flattened.vertices[elem]->y == i-1){
+						//cout<<g.vertices[it->first]->to_string()<<" is connecting to "<<g.vertices[elem]->to_string()<<endl;
+						stillConnectingToNewLayer = true;
+					}
+				}
+			}
+			it++;
+		}
+
+		if(!stillConnectingToNewLayer){
+			// there is no connection between the bottom layer and the new top layer, 
+			// so no further flattening gives additional information. Terminating.
+			break;
+		}
+
+
+		//update variables controlling the loop
+		{
+			map<int,set<int>> scc;
+			for(int i=0;i<N;i++){
+				scc[dsu.root(i)].insert(i);
+			}
+			n = scc.size();
+			c = 18*n*n + 6*n;
+		}
+
+
+		//iterate over edges in original graph; add new layer to 'flattened'
+
+		auto addLayer = [](Vertex a, Vertex b, field f, void* extra[]) {
+				//TODO possibly move this definition outside the loop
+				graph* flattened = (graph*)extra[0];
+				int layer = *((int*)extra[1]);
+				string field_name = *(string*)extra[2];
+
+				if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+					//flatten on this field
+					flattened->addEdge(
+						a.x, layer-1, 
+						b.x, layer, 
+						flattened->EPS.field_name
+					);
+				}else{
+					flattened->addEdge(
+						a.x, layer,
+						b.x, layer,
+						f.field_name
+					);
+						
+				}
+			};
+		
+		void* w[] = {&flattened, &i, &flatten_label};
+		iterateOverEdges(addLayer, w);
+
+
+		//update data structure of 'flattened' so it's ready to compute sccs including new layer
+
+		//it's possible it's enough to call 'initWorklist'
+		//and some version of 'dsu.init()'
+		flattened.dsu.init(flattened.N); 
+
+		flattened.initWorklist();
+	}
+
 }
 
 //flattens on 'flatten_label' 
@@ -716,8 +821,9 @@ void graph::initWorklist(){
 		auto it = vtx->edgesbegin(); //pointer to pair<field,list<int>>
 		while(it!=vtx->edgesend()){
 			removeRepeatedges(it->second);
-			if(it->second.size()>=2)
+			if(it->second.size()>=2) {
 				worklist.push(pair<int,field>(vtx->id,it->first));
+			}
 			it++;
 		}
 	}
