@@ -197,7 +197,7 @@ void graph::flattenReach(string flatten_label) {
 	
 	graph g = flatten(flatten_label, 2);
 
-	bool print = false;
+	bool print = true;
 	
 	long long n = vertices.size();
 	long long c = 18*n*n + 6*n;
@@ -212,13 +212,9 @@ void graph::flattenReach(string flatten_label) {
 		cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
 		cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
 		if(print){
-			cout<<"computing ... "<<(i*100/c)<<"\\% ("<<i<<" layers out of "<<c<<"). Graph size: "<<g.N<<"\\\\"<<endl;
-			cout<<"Number of reachable pairs: "<<calcNumReachablePairs()<<endl;
-			cout<<"\\\\"<<endl;
-			cout<<"\\\\"<<endl;
-			cout<<""<<i<<" layers\\\\"<<endl;
-			cout<<"starting graph for iteration / after adding new top layer:\\\\"<<endl;
-			g.printGraphAsTikz();
+			//cout<<""<<i<<" layers\\\\"<<endl;
+			//cout<<"starting graph for iteration / after adding new top layer:\\\\"<<endl;
+			//g.printGraphAsTikz();
 		}
 
 		g.initWorklist();
