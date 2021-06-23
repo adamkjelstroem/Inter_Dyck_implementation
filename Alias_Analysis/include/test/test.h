@@ -29,7 +29,7 @@ public:
      }
 
 
-     static graph buildSimple(int k){
+     graph buildSimple(int k){
           graph g;
           
           for(int i = 0; i < k; i++){

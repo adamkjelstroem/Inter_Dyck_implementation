@@ -40,7 +40,141 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
+	if(false){
+		Test t;
+		graph g = t.buildSimple(3);
+
+		string flatten_label = "[";
+
+		graph flattened = g.flatten(flatten_label, 2);
+
+		flattened.printGraphAsTikz();
+
+		flattened.bidirectedReach();
+
+		flattened.printDetailReach();
+
+
+		auto addLayer = [](Vertex a, Vertex b, field f, void* extra[]) {
+				//TODO possibly move this definition outside the loop
+				graph* flattened = (graph*)extra[0];
+				int layer = *((int*)extra[1]);
+				string field_name = *(string*)extra[2];
+
+				if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+					//flatten on this field
+					flattened->addEdge(
+						a.x, layer-1, 
+						b.x, layer, 
+						"eps"
+					);
+				}else{
+					flattened->addEdge(
+						a.x, layer,
+						b.x, layer,
+						f.field_name
+					);
+						
+				}
+			};
+		
+		int i = 2;
+		void* w[] = {&flattened, &i, &flatten_label};
+		g.iterateOverEdges(addLayer, w);
+
+		flattened.dsu.init(flattened.N); 
+
+		flattened.initWorklist();
+
+		flattened.printGraphAsTikz();
+
+
+
+		flattened.bidirectedReach();
+
+		flattened.printDetailReach();
+
+		{
+			i = 3;
+			void* w[] = {&flattened, &i, &flatten_label};
+			g.iterateOverEdges(addLayer, w);
+		}
+
+		flattened.dsu.init(flattened.N); 
+
+		flattened.initWorklist();
+
+		flattened.printGraphAsTikz();
+
+
+		flattened.bidirectedReach();
+
+		flattened.printDetailReach();
+
+		return 0;
+	}
+
 	if(true){
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		string flatten_on = "[";
+		for(string s : data){
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			graph g;
+			
+			cout<<"running heuristicReductionBeforeFlattenReach on "<<s<<endl;
+
+			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+
+			g.heuristicReductionBeforeFlattenReach(flatten_on);
+
+			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"'): "<<g.calcNumReachablePairs()<<endl;
+			
+		}
+		return 0;
+	}
+
+	if(true){
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(string s : data){
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			graph g;
+			
+			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			long long n = g.N;
+			long long c = n*n*18 + 6*n;
+			cout<<"Nodes of graph "<<s<<"_reduced: "<<n<<". This yields "<<c<<" layers with a total of "<<c*n<<" nodes when flattened."<<endl;
+		}
+
+		return 0;
+	}
+
+	if(false){
 		string data[] = {
 			"antlr",
 			"bloat",
@@ -58,9 +192,19 @@ int main(int argc, const char * argv[]){
 		for(string s : data){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
-			g.construct2(s2, true, true); //Parses files in the ".dot" format
-			g.flattenReachRemade(flatten_on);
-			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on "<<flatten_on<<"): "<<g.calcNumReachablePairs()<<endl;
+			
+			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			//g.flattenReachRemade(flatten_on);
+			
+			int height = (int)(((long long) 1000*1000*5) / ((long long)g.N));
+
+			cout<<"flattening graph "<<s<<" up to height "<<height<<endl;
+
+			graph h = g.flatten(flatten_on, height);
+
+			h.bidirectedReach();
+
+			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"' up to height "<<height<<"): "<<h.calcNumReachablePairs()<<endl;
 		}
 		return 0;
 	}

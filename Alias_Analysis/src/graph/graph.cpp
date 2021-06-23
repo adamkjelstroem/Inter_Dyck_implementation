@@ -93,7 +93,7 @@ graph graph::flatten(string field_name, int depth){
 		iterateOverEdges(cop, w);
 	}
 
-	g.dsu.init(g.vertices.size());
+	g.dsu.init(g.N);
 	g.initWorklist();
 
 	return g;
@@ -187,6 +187,140 @@ void graph::flattenReach2(string flatten_label){
 	//TODO init g2
 
 	*/
+}
+
+
+//run this on a reduced graph
+void graph::heuristicReductionBeforeFlattenReach(string flatten_label){
+	
+	long long nodesAtBottom = 0;
+	{
+		//flatten up to some counter
+		//(I choose 200 for no reason at all)
+		graph flattened200 = flatten(flatten_label, 200);
+
+		//compute bidirected reachability
+		flattened200.bidirectedReach();
+	
+
+		flattened200.forceRootsToLayer(0);
+		
+		//TODO maybe check if we still reach top layer already here
+
+		map<int,set<int>> scc;
+		int root;
+		for(int i=0;i<flattened200.N;i++){
+			root = flattened200.dsu.root(i);
+			scc[root].insert(i);
+
+			if(root == i && flattened200.vertices[root]->y == 0){ 
+				//count number of SCCs with at least one node in the bottom layer
+				nodesAtBottom++;
+			}
+		}
+
+		//merge vertices in original graph based on sccs in flattened graph
+		auto it = scc.begin();
+		while(it!=scc.end()){
+			//Because we've forced the root to be in layer 0 if possible, we only care about sccs where the root has y=0
+			if(flattened200.vertices[it->first]->y == 0){
+				int root_id_in_this=getVertex(flattened200.vertices[it->first]->x, 0, "")->id;
+				for(int elem : it->second){
+					if(flattened200.vertices[elem]->y == 0){
+						dsu.merge(
+							root_id_in_this,
+							getVertex(flattened200.vertices[elem]->x, 0, "")->id
+							);
+					}
+				}
+			}
+			it++;
+		}
+		
+		
+	}//use scoping to make sure this flattened graph is deallocated
+
+	//height
+	long long c = 18*nodesAtBottom*nodesAtBottom+6*nodesAtBottom;
+	graph g;
+
+
+	cout<<"Graph reduced to "<<nodesAtBottom<<" nodes from an original of "<<N<<". Thus flattening to a height of "<<c<<" yielding a total of "<<(c*nodesAtBottom)<<" nodes."<<endl;
+
+
+	
+	//use scc information to construct a new graph which is flattened up to the 'true' counter
+	auto flat = [](Vertex a, Vertex b, field f, void* extra[]) {
+			graph* g = (graph*)extra[0];
+			int i = *((int*)extra[1]);
+			int depth = *(int*)extra[2];
+			string field_name = *(string*)extra[3];
+			graph* me = (graph*)extra[4];
+			
+			Vertex* a1 = me->vertices[me->dsu.root(a.id)];
+			Vertex* b1 = me->vertices[me->dsu.root(b.id)];
+
+			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
+				//flatten on this field
+				if(i+1!=depth)
+					g->addEdge(
+						a1->x, i, 
+						b1->x, i+1, 
+						g->EPS.field_name
+					);
+			}else{
+				g->addEdge(
+					a1->x, i,
+					b1->x, i,
+					f.field_name
+				);
+					
+			}
+		};
+	
+	for (int i = 0; i < c; i++){
+		if(c >= 10 && i % (c / 10) == 0)
+			cout<<"doing iteration "<<i<<" of "<<c<<endl;
+		
+		void* w[] = {&g, &i, &c, &flatten_label, this};
+		iterateOverEdges(flat, w);
+	}
+
+	g.dsu.init(g.N);
+	g.initWorklist();
+
+	
+	//(I added a 100gb swap file to extend the memory with - we should be good, even if it is slow)
+
+	//run reachability on this graph
+	g.bidirectedReach();
+
+	//find some way to map these results back into SCCs in the original graph
+	g.forceRootsToLayer(0);
+
+	map<int,set<int>> scc;
+	for(int i=0;i<g.N;i++){
+		scc[g.dsu.root(i)].insert(i);
+	}
+
+	//merge vertices in original graph based on sccs in flattened graph
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		//Because we've forced the root to be in layer 0 if possible, we only care about sccs where the root has y=0
+		if(g.vertices[it->first]->y == 0){
+			int root_id_in_this=getVertex(g.vertices[it->first]->x, 0, "")->id;
+			for(int elem : it->second){
+				if(g.vertices[elem]->y == 0){
+					dsu.merge(
+						root_id_in_this,
+						getVertex(g.vertices[elem]->x, 0, "")->id
+						);
+				}
+			}
+		}
+		it++;
+	}
+
 }
 
 void graph::flattenReachRemade(string flatten_label){
@@ -620,7 +754,7 @@ graph graph::copy(){
 	void* w[] = {&g};
 	iterateOverEdges(cop, w);
 
-	g.dsu.init(g.vertices.size());
+	g.dsu.init(g.N);
 
 	return g;
 }
@@ -1038,9 +1172,11 @@ void graph::printDetailReach(){
 		if(zero_elems>=1){
 			cout<<"scc: \\{";
 			for(int elem : it->second){
-				if(vertices[elem]->y == 0){ //TODO disabled for test
+				if(vertices[elem]->y == 0){ 
 					cout<<"("<<vertices[elem]->x<<"), ";
 					//cout<<tokens[0]<<"\n";
+				}else if(true){ //TODO disable this
+					cout<<"("<<vertices[elem]->x<<", "<<vertices[elem]->y<<"), ";
 				}
 			}
 			cout<<"\\}\\\\"<<endl;

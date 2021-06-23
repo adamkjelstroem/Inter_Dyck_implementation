@@ -83,6 +83,7 @@ public:
 
 	void flattenReachRemade(string flatten_label);
 	
+	void heuristicReductionBeforeFlattenReach(string flatten_label);
 
 	//helper functions
 	void setFlattened(bool v){
