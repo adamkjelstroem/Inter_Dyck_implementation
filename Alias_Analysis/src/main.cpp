@@ -138,9 +138,25 @@ int main(int argc, const char * argv[]){
 
 			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
 
+
+			clock_t time;
+			struct timeval tv1,tv2;
+
+
+			gettimeofday(&tv1, NULL);
+			time = clock();
+
 			g.heuristicReductionBeforeFlattenReach(flatten_on);
 
+
+			time = clock() - time;
+			gettimeofday(&tv2, NULL);
+
 			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"'): "<<g.calcNumReachablePairs()<<endl;
+
+
+			double bidir_reach_time_s = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec);
+			cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s<<"\n\n";
 			
 		}
 		return 0;
