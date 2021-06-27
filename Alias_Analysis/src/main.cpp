@@ -40,6 +40,100 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
+	if(true){
+		//tests early stopping by 'repeating scc patterns'
+
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(string s : data){
+			string flatten_on = "(";
+			
+			int height = 100;
+
+			
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			s2 = "./spg/orig_bench/" + s + ".dot"; 
+			graph g;
+			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			//g.flattenReachRemade(flatten_on);
+			
+			cout<<"flattening graph "<<s<<"_reduced up to height "<<height<<endl;
+
+			graph h = g.flatten(flatten_on, height);
+			h.bidirectedReach();
+			
+			int low_rep = -1, high_rep = -1;
+
+			bool possible = false;
+					
+			for (int hb = 0; hb < height-2; hb++){
+				for(int hb2 = hb+1; hb2 < height-2; hb2++){
+					possible = true;
+					for(int i = 0; i < g.N; i++){
+						int x = g.vertices[i]->x;
+						Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb, "")->id)];
+						Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb2, "")->id)];
+						if(h1_root_vertex->x != h2_root_vertex->x){
+							possible = false;
+						}
+					}
+					if(possible){
+						cout<<"We found an example: "<<hb<<", "<<hb2<<endl;
+						low_rep = hb;
+						high_rep = hb2;
+						break;
+					}
+				}
+				if(possible) break;
+			}
+
+			for(int j = 1; j < 10; j++){
+				possible = true;
+				for(int i = 0; i < g.N; i++){
+					int x = g.vertices[i]->x;
+					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, low_rep + 1, "")->id)];
+					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, high_rep + 1, "")->id)];
+					if(h1_root_vertex->x != h2_root_vertex->x){
+						possible = false;
+					}
+				}
+				cout<<"Layer "<<low_rep + i<<" and layer "<<high_rep + i<<" match, too : "<<possible<<endl;
+				if(!possible){
+					cout<<"ERROR"<<endl;
+					return 0;
+				}
+			}
+
+
+			graph h2 = g.flatten(flatten_on, high_rep + 1);
+
+			h2.bidirectedReach();
+
+			int a = h.calcNumReachablePairs();
+			int b = h2.calcNumReachablePairs();
+			cout<<"number of pairs when flattening up to "<<height<<": "<<a<<endl;
+			cout<<"number of pairs when flattening up to "<<(high_rep + 1)<<": "<<b<<endl;
+			if(a != b){
+				return 0;
+			}
+
+		}
+
+		return 0;
+	}
+
 	if(false){
 		Test t;
 		graph g = t.buildSimple(3);
