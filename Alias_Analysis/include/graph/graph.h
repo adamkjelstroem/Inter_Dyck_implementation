@@ -95,6 +95,8 @@ public:
 	graph copy();
 
 	map<int,set<int>> computeSCCs();
+
+	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height);
 };
 
 #endif

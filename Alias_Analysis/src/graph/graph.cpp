@@ -734,6 +734,34 @@ void graph::forceRootsToLayer(int layer){
 	}
 }
 
+//returns true iff top layer of h and bottom layer of h contract.
+//height denotes height of top layer of h
+bool graph::mergeNodesBasedOnSCCsInFlattened(graph h, int height){
+	map<int,set<int>> scc = h.computeSCCs();
+	bool stillCOnnectingToNewLayer = false;
+
+	//merge vertices in original graph
+	auto it = scc.begin();
+	while(it!=scc.end()){
+		//we only care about sccs where the root has y=0
+		if(h.vertices[it->first]->y == 0){
+			int root_id_in_this=dsu.root(getVertex(h.vertices[it->first]->x, 0, "")->id);
+			for(int elem : it->second){
+				if(h.vertices[elem]->y == 0){
+					dsu.merge(
+						root_id_in_this,
+						dsu.root(getVertex(h.vertices[elem]->x, 0, "")->id)
+						);
+				}else if(h.vertices[elem]->y == height-1){
+					stillCOnnectingToNewLayer = true;
+				}
+			}
+		}
+		it++;
+	}
+	return stillCOnnectingToNewLayer;
+}
+
 void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
 	int j_root;
 	for(int j=0;j<N;j++){
