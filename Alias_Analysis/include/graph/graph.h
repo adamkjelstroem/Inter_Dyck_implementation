@@ -93,6 +93,8 @@ public:
 	void printGraphAsTikz();
 	void printAsDot();
 	graph copy();
+
+	map<int,set<int>> computeSCCs();
 };
 
 #endif

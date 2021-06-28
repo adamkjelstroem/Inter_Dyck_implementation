@@ -187,6 +187,13 @@ void graph::flattenReach2(string flatten_label){
 	*/
 }
 
+map<int,set<int>> graph::computeSCCs(){
+	map<int,set<int>> scc;
+	for(int i=0;i<N;i++){
+		scc[dsu.root(i)].insert(i);
+	}
+	return scc;
+}
 
 //run this on a reduced graph
 void graph::heuristicReductionBeforeFlattenReach(string flatten_label){
@@ -728,16 +735,17 @@ void graph::forceRootsToLayer(int layer){
 }
 
 void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
+	int j_root;
 	for(int j=0;j<N;j++){
 		auto vertex = vertices[j];
 		auto fit = vertex->edgesbegin();
+		j_root = dsu.root(j); //optimization so call to dsu.root() won't happen every loop
 		while(fit!=vertex->edgesend()){   // iterating over field
 			field fi = fit->first;
 			auto fedgeit = vertex->edgesbegin(fi);
 			while(fedgeit != vertex->edgesend(fi)){   // iterating over edges
 				//(*f)(*vertices[*fedgeit], *vertices[j], fi, extra);
-				(*f)(*vertices[dsu.root(*fedgeit)], *vertices[dsu.root(j)], fi, extra);
-				//TODO optimize so dsu.root() calls are not inside the nested kiio 
+				(*f)(*vertices[dsu.root(*fedgeit)], *vertices[j_root], fi, extra);
 
 				fedgeit++;
 			}
