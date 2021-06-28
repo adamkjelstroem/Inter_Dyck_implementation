@@ -40,7 +40,134 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
-	
+	if(true){
+		//Procedure as of 28 june 2021
+		string benchmarks[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(string s : benchmarks){
+			graph* g;
+
+			g = new graph;
+
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			//s2 = "./spg/orig_bench/" + s + ".dot";
+
+			int height; //hyperparameter; height to which we flatten
+
+			if(true){
+				g->construct2(s2, true, true);
+			}else{
+				g->addEdge(0,0,1,0,"[");
+				g->addEdge(1,0,2,0,"(");
+				g->addEdge(3,0,2,0,"[");
+				g->addEdge(4,0,3,0,"(");
+				g->dsu.init(g->N);
+				g->initWorklist();
+			}	
+			
+			for(int i = 0; i < 3; i++){
+				height = 500 + i * 300; // we gradually increase height
+				cout<<"Doing iteration "<<i<<" of 3. flattening to height "<<height<<endl;
+
+				bool stillConnectingToNewLayer = true;
+
+				int sccs_before_iteration = g->computeSCCs().size();
+				int sccs_after_first_reduction = 0;
+				
+				//Timing logic
+				clock_t t;
+				t = clock();
+				
+
+				int d1, d2;
+				{	
+					graph g_ign_1 = g->copy_ignoring("[");
+
+					g_ign_1.initWorklist();
+
+					g_ign_1.bidirectedReach();
+					
+					d1 = g_ign_1.calcNumReachablePairs();
+				}
+				
+				{
+					graph g_ign_2 = g->copy_ignoring("(");
+
+					g_ign_2.initWorklist();
+
+					g_ign_2.bidirectedReach();
+
+					d2 = g_ign_2.calcNumReachablePairs();
+				}
+
+				{
+					graph h = g->flatten("[", height);
+
+					h.bidirectedReach();
+
+					h.forceRootsToLayer(0);
+
+					stillConnectingToNewLayer = g->mergeNodesBasedOnSCCsInFlattened(h, height);
+
+					sccs_after_first_reduction = g->computeSCCs().size();
+					
+					if(!stillConnectingToNewLayer){
+						cout<<"We're disjoint, so we can stop now"<<endl;
+					}
+				}
+
+				/////
+
+				{
+					graph h = g->flatten("(", height);
+
+					h.bidirectedReach();
+
+					h.forceRootsToLayer(0);
+
+					stillConnectingToNewLayer = g->mergeNodesBasedOnSCCsInFlattened(h, height);
+					
+					if(!stillConnectingToNewLayer){
+						cout<<"We're disjoint, so we can stop now"<<endl;
+					}
+				}
+
+
+				t = clock() - t;
+
+				cout<<endl;
+				cout<<"Results for g='"<<s<<"':"<<endl;
+				cout<<"Original size of g: "<<g->N<<endl;
+				cout<<endl;
+				cout<<"Number of sccs before reduction: "<<sccs_before_iteration<<endl;
+				cout<<"Number of sccs after first reduction on '[': "<<sccs_after_first_reduction<<endl;
+				cout<<"Number of sccs after also reducing on '(': "<<g->computeSCCs().size()<<endl;
+				cout<<"Number of D dot D sccs thus far: "<<g->computeSCCs().size()<<endl;
+				cout<<endl;
+				cout<<"Number of reachable pairs of g in D dot D: "<<g->calcNumReachablePairs()<<endl;
+				cout<<"Number of reachable pairs of g in D ignoring '[': "<<d1<<endl;
+				cout<<"Number of reachable pairs of g in D ignoring '(': "<<d2<<endl;
+				cout<<"Time for iteration: "<<(((float)t)/CLOCKS_PER_SEC)<<" s"<<endl;
+				cout<<endl;
+			}
+			delete g;
+
+		}
+
+		return 0;
+	}
 
 	//tests flattenReach w/ memory
 	if(false){
@@ -254,17 +381,17 @@ int main(int argc, const char * argv[]){
 			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
 
 
-			clock_t time;
+			//clock_t time;
 			struct timeval tv1,tv2;
 
 
 			gettimeofday(&tv1, NULL);
-			time = clock();
+			//time = clock();
 
 			g.heuristicReductionBeforeFlattenReach(flatten_on);
 
 
-			time = clock() - time;
+			//time = clock() - time;
 			gettimeofday(&tv2, NULL);
 
 			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"'): "<<g.calcNumReachablePairs()<<endl;
