@@ -65,7 +65,6 @@ graph graph::flatten(string field_name, int depth){
 			int i = *((int*)extra[1]);
 			int depth = *(int*)extra[2];
 			string field_name = *(string*)extra[3];
-
 			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
 				//flatten on this field
 				if(i+1!=depth)
@@ -115,7 +114,7 @@ void graph::flattenReach2(string flatten_label){
 
 	
 	//we don't need to build anything bigger than this c, as it's the theoretical bound
-	long long c = 18*n*n + 6*n;
+	long long c = 12*n*n + 6*n;
 	if (k > c) k = c;
 
 
@@ -158,12 +157,11 @@ void graph::flattenReach2(string flatten_label){
 
 		cout<<"graph of size "<<n<<" reduced to "<<new_n<<", a reduction to "<<(100 * new_n / n)<<"% of original."<<endl;
 
-		long long new_c = 18*new_n*new_n + 6*new_n;
+		long long new_c = 12*new_n*new_n + 6*new_n;
 
 		cout<<"c reduced from "<<c<<" to "<<new_c<<", a reduction to "<<(100 * new_c / c)<<"% of original."<<endl;
 	}
 	
-	//TODO we're done with g now, so deallocate
 
 	//todo construct new graph based on edges in original graph
 	//something like this->iterateOverEdges(...)
@@ -241,7 +239,7 @@ void graph::heuristicReductionBeforeFlattenReach(string flatten_label){
 	}//use scoping to make sure this flattened graph is deallocated
 
 	//height
-	long long c = 18*nodesAtBottom*nodesAtBottom+6*nodesAtBottom;
+	long long c = 12*nodesAtBottom*nodesAtBottom+6*nodesAtBottom;
 	graph g;
 
 
@@ -332,7 +330,7 @@ void graph::flattenReachRemade(string flatten_label){
 
 	//declare variables controlling the loop
 	long long n = vertices.size();
-	long long c = 18*n*n + 6*n;
+	long long c = 12*n*n + 6*n;
 	
 	for(long long i = 2; i < c; i++){
 
@@ -388,7 +386,7 @@ void graph::flattenReachRemade(string flatten_label){
 				scc[dsu.root(i)].insert(i);
 			}
 			n = scc.size();
-			c = 18*n*n + 6*n;
+			c = 12*n*n + 6*n;
 		}
 
 
@@ -435,6 +433,8 @@ void graph::flattenReachRemade(string flatten_label){
 //flattens on 'flatten_label' 
 void graph::flattenReach(string flatten_label) {
 	
+	//TODO remove redundant edges
+
 	//construct 2 layer graph
 	initWorklist(); // simplifies test code
 	
@@ -443,7 +443,7 @@ void graph::flattenReach(string flatten_label) {
 	bool print = true;
 	
 	long long n = vertices.size();
-	long long c = 18*n*n + 6*n;
+	long long c = 12*n*n + 6*n;
 	
 	if(print){
 		cout<<"Doing flattenReach on '"<<flatten_label<<"'\\\\"<<endl;
@@ -484,7 +484,7 @@ void graph::flattenReach(string flatten_label) {
 		}
 
 
-		//merge vertices in graph
+		//merge vertices in original graph
 		auto it = scc.begin();
 		while(it!=scc.end()){
 			//we only care about sccs where the root has y=0
@@ -558,14 +558,13 @@ void graph::flattenReach(string flatten_label) {
 
 		g.iterateOverEdges(cop, w);
 
-		if(print){
-			cout<<"reduced graph:\\\\"<<endl;
-			g2.printGraphAsTikz();
-		}	
+		
 
 		
 		//Keep this code around as backup:
 		if(true){
+
+			//add new layer
 			auto addL = [](Vertex a, Vertex b, field f, void* extra[]) {
 				graph* current = (graph*)extra[0];
 				graph* next_iteration = (graph*)extra[1];
@@ -663,7 +662,11 @@ void graph::flattenReach(string flatten_label) {
 
 		//overwrite old graph with new
 		g = g2; //TODO maybe memory leak
-
+		
+		if(print){
+			cout<<"reduced graph:\\\\"<<endl;
+			g2.printGraphAsTikz();
+		}	
 
 		//update n and c based on graph shrinkage
 		n = 0;
@@ -679,7 +682,7 @@ void graph::flattenReach(string flatten_label) {
 			break;
 		} 
 
-		c = 18*n*n + 6*n;
+		c = 12*n*n + 6*n;
 
 		if(print)
 			cout<<"c has been updated to "<<c<<"\\\\"<<endl;
@@ -732,7 +735,6 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 			field fi = fit->first;
 			auto fedgeit = vertex->edgesbegin(fi);
 			while(fedgeit != vertex->edgesend(fi)){   // iterating over edges
-				
 				//(*f)(*vertices[*fedgeit], *vertices[j], fi, extra);
 				(*f)(*vertices[dsu.root(*fedgeit)], *vertices[dsu.root(j)], fi, extra);
 				//TODO optimize so dsu.root() calls are not inside the nested kiio 

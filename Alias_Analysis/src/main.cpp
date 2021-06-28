@@ -40,6 +40,26 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
+	
+
+	//tests flattenReach w/ memory
+	if(false){
+		//TODO broken??
+		graph g;
+		string s = 
+			"antlr";
+		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+
+		g.construct2(s2, true, true);
+
+		g.flattenReach("[");
+
+		
+		cout<<"d1 dot d1 reachability for reduced version of "<<s<<": "<<g.calcNumReachablePairs()<<endl;
+
+		return 0;
+	}
+
 	if(true){
 		//tests early stopping by 'repeating scc patterns'
 
@@ -71,6 +91,7 @@ int main(int argc, const char * argv[]){
 			
 			cout<<"flattening graph "<<s<<"_reduced up to height "<<height<<endl;
 
+			
 			graph h = g.flatten(flatten_on, height);
 			h.bidirectedReach();
 			
@@ -103,13 +124,13 @@ int main(int argc, const char * argv[]){
 				possible = true;
 				for(int i = 0; i < g.N; i++){
 					int x = g.vertices[i]->x;
-					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, low_rep + 1, "")->id)];
+					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x,  low_rep + 1, "")->id)];
 					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, high_rep + 1, "")->id)];
 					if(h1_root_vertex->x != h2_root_vertex->x){
 						possible = false;
 					}
 				}
-				cout<<"Layer "<<low_rep + i<<" and layer "<<high_rep + i<<" match, too : "<<possible<<endl;
+				cout<<"Layer "<<low_rep + j<<" and layer "<<high_rep + j<<" match, too : "<<possible<<endl;
 				if(!possible){
 					cout<<"ERROR"<<endl;
 					return 0;

@@ -37,7 +37,7 @@ class graph {
 public:
 	
 	std::vector<Vertex*> vertices;
-	DSU dsu; //TODO make these private again
+	DSU dsu; 
 	
 	int N = 0;
 	double numedges;
