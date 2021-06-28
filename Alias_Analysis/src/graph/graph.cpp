@@ -797,6 +797,27 @@ graph graph::copy(){
 	return g;
 }
 
+//copies the graph, replacing edges with 'label' with 'eps'
+graph graph::copy_ignoring(string label){
+	graph g;
+
+	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+		graph* g = (graph*)extra[0];
+		string label = *(string*)extra[1];
+		if(f.field_name == label){
+			g->addEdge(a.x, a.y, b.x, b.y, "eps");
+		}else{
+			g->addEdge(a.x, a.y, b.x, b.y, f.field_name);
+		}
+	};
+	void* w[] = {&g, &label};
+	iterateOverEdges(cop, w);
+
+	g.dsu.init(g.N);
+
+	return g;
+}
+
 int graph::calcNumReachablePairs(){
 	int n = 0;
 

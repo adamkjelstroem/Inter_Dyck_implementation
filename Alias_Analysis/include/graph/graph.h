@@ -49,7 +49,8 @@ public:
 	}
 	~graph(){
 		for(Vertex* v : vertices){
-			delete v;
+			//TODO might have to reactivate
+			//delete v;
 		}
 	}
 	void initWorklist();
@@ -97,6 +98,8 @@ public:
 	map<int,set<int>> computeSCCs();
 
 	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height);
+
+	graph copy_ignoring(string label);
 };
 
 #endif
