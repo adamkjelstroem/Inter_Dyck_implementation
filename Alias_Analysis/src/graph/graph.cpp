@@ -82,11 +82,19 @@ graph graph::flatten(string field_name, int depth){
 					
 			}
 		};
-	cout<<"Flattening on "<<field_name<<" up to height "<<depth<<endl;
+	//cout<<"Flattening on "<<field_name<<" up to height "<<depth<<endl;
 	
+
+	clock_t t;
+	t = clock();
+
 	for (int i = 0; i < depth; i++){
-		if(depth >= 10 && i % (depth / 10) == 0)
-			cout<<"doing iteration "<<i<<" of "<<depth<<endl;
+		if(clock() - t > 2*CLOCKS_PER_SEC){
+			t = clock();
+			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)t)/CLOCKS_PER_SEC<<")"<<endl;
+		}
+		
+		//if(depth >= 10 && i % (depth / 10) == 0) cout<<"doing iteration "<<i<<" of "<<depth<<endl;
 		
 		void* w[] = {&g, &i, &depth, &field_name};
 		iterateOverEdges(cop, w);
