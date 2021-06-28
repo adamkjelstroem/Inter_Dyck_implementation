@@ -874,8 +874,10 @@ void graph::printGraphAsTikz(){
 			if(a.id != b.id){
 				if (f.field_name == "["){
 					cout<< "\\path [->, blue] ("<<b.id<<") edge [bend left=20] node {$ $} ("<<a.id<<");"<<endl;
-				}else{
+				}else if(f.field_name == "("){
 					cout<< "\\path [->, red] ("<<b.id<<") edge [bend right=20] node {$ $} ("<<a.id<<");"<<endl;
+				}else{
+					cout<< "\\path ("<<b.id<<") edge [bend right=10] node {$ $} ("<<a.id<<");"<<endl;
 				}
 			}
 		};
