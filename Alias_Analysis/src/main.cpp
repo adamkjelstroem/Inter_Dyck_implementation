@@ -125,8 +125,31 @@ int main(int argc, const char * argv[]){
 					g_ign_1.initWorklist();
 
 					g_ign_1.bidirectedReach();
-					
-					d1 = g_ign_1.calcNumReachablePairs();
+
+
+					//must consider mapping here in order to make 'calcNumReachablePairs' produce meaningful number
+					//take initial graph, g, and get its sccs
+					auto sccs = g->computeSCCs();
+					auto scc_ign = g_ign_1.computeSCCs();
+
+					//the roots of these sccs will always be in g_ign_1
+					//they will have same x values, but they might not have the same ids
+					for (auto s : sccs){
+						auto a = g->vertices[s.first];
+						auto root_in_ign = g_ign_1.getVertex(a->x, 0, "")->id;
+						for (auto k : s.second){
+							auto b = g_ign_1.getVertex(g->vertices[k]->x, 0, "")->id;
+							scc_ign[root_in_ign].insert(b);
+						}
+					}
+					int n = 0;
+					for(auto scc : scc_ign){
+						int k = scc.second.size();
+						n += k * (k-1) / 2;
+					}
+
+					//TODO this code is not very pretty. 
+					d1 = n;
 				}
 				
 				{
@@ -136,7 +159,29 @@ int main(int argc, const char * argv[]){
 
 					g_ign_2.bidirectedReach();
 
-					d2 = g_ign_2.calcNumReachablePairs();
+					//must consider mapping here in order to make 'calcNumReachablePairs' produce meaningful number
+					//take initial graph, g, and get its sccs
+					auto sccs = g->computeSCCs();
+					auto scc_ign = g_ign_2.computeSCCs();
+
+					//the roots of these sccs will always be in g_ign_1
+					//they will have same x values, but they might not have the same ids
+					for (auto s : sccs){
+						auto a = g->vertices[s.first];
+						auto root_in_ign = g_ign_2.getVertex(a->x, 0, "")->id;
+						for (auto k : s.second){
+							auto b = g_ign_2.getVertex(g->vertices[k]->x, 0, "")->id;
+							scc_ign[root_in_ign].insert(b);
+						}
+					}
+					int n = 0;
+					for(auto scc : scc_ign){
+						int k = scc.second.size();
+						n += k * (k-1) / 2;
+					}
+
+					//TODO this code is not very pretty. 
+					d2 = n;
 				}
 
 				int reachable_pairs_after_first_reduction = 0;
