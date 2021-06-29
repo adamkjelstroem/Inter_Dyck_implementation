@@ -174,6 +174,29 @@ int main(int argc, const char * argv[]){
 					}
 				}
 
+				//TODO "count how many d1 dot d1 sccs have a +1 self loop on the first counter"
+				//TODO "same for the second counter"
+
+				//"for every vertex in g, does it have an edge labeled [ or ( to a node in the same DSCC?"
+				int bracket_self_loops = 0;
+				int parenthesis_self_loops = 0;
+				for(Vertex* v : g->vertices){
+					int root_id = g->dsu.root(v->id);
+					for (auto edge : v->edges){
+						for(auto vid : edge.second){
+							if(root_id == g->dsu.root(vid)){
+								//edge between two nodes in same DSCC
+								if(edge.first.field_name == "["){
+									bracket_self_loops = bracket_self_loops + 1;
+								}else if(edge.first.field_name == "("){
+									parenthesis_self_loops = parenthesis_self_loops + 1;
+								}
+							}
+						}
+					}
+				}
+
+
 
 				t = clock() - t;
 
