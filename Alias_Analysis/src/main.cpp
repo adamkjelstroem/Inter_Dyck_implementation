@@ -56,7 +56,13 @@ int main(int argc, const char * argv[]){
 			"xalan"
 		};
 
-		for(string s : benchmarks){
+		int offset = 4;
+		string subsection[] = {
+			benchmarks[offset],
+			benchmarks[offset+1]
+		};
+
+		for(string s : subsection){
 			graph* g;
 
 			g = new graph;
@@ -98,6 +104,7 @@ int main(int argc, const char * argv[]){
 
 			{
 				graph copy = g->copy();
+				copy.initWorklist();
 				copy.bidirectedReach();
 				cout<<"Number of reachable pairs wrt [ and ( (non-interleaved): "<<copy.calcNumReachablePairs()<<endl;
 			}
@@ -106,7 +113,7 @@ int main(int argc, const char * argv[]){
 
 			for(int i = 0; i < 3; i++){
 				height = 500 + i * 300; // we gradually increase height
-				cout<<"Doing iteration "<<(i+1)<<"flattening to height "<<height<<endl;
+				cout<<"Doing iteration "<<(i+1)<<" flattening to height "<<height<<endl;
 
 				bool stillConnectingToNewLayer = true;
 
@@ -219,8 +226,8 @@ int main(int argc, const char * argv[]){
 					}
 				}
 
-				//TODO "count how many d1 dot d1 sccs have a +1 self loop on the first counter"
-				//TODO "same for the second counter"
+				//counts how many d1 dot d1 sccs have a +1 self loop on the first counter
+				//same for the second counter
 
 				//"for every vertex in g, does it have an edge labeled [ or ( to a node in the same DSCC?"
 				int bracket_self_loops = 0;
@@ -245,8 +252,6 @@ int main(int argc, const char * argv[]){
 
 				t = clock() - t;
 
-				cout<<endl;
-				cout<<"Flattening up to a counter of "<<height<<", then reducing"<<endl;
 				cout<<"Number of sccs before reduction: "<<sccs_before_iteration<<endl;
 				cout<<endl;
 				cout<<"Number of sccs after first reducing on '[': "<<sccs_after_first_reduction<<endl;
