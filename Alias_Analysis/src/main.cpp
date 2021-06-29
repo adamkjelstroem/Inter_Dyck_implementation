@@ -61,11 +61,21 @@ int main(int argc, const char * argv[]){
 
 			g = new graph;
 
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			//s2 = "./spg/orig_bench/" + s + ".dot";
+			string s2;
+			
+			//hyperparameters
+			bool using_reduced = true;
+			int iterations = 3;
+			int height; //height to which we flatten
 
-			int height; //hyperparameter; height to which we flatten
 
+			if(using_reduced){
+				s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			} else {
+				s2 = "./spg/orig_bench/" + s + ".dot";
+			}
+
+			
 			if(true){
 				g->construct2(s2, true, true);
 			}else{
@@ -76,10 +86,27 @@ int main(int argc, const char * argv[]){
 				g->dsu.init(g->N);
 				g->initWorklist();
 			}	
-			
+
+			cout<<endl;
+			cout<<endl;
+			cout<<"-----------------"<<endl;
+			cout<<endl;
+			cout<<"computing on "<<s;
+			if (using_reduced) cout<<"_reduced";
+			cout<<endl;
+			cout<<"Original size of g: "<<g->N<<endl;
+
+			{
+				graph copy = g->copy();
+				copy.bidirectedReach();
+				cout<<"Number of reachable pairs wrt [ and ( (non-interleaved): "<<copy.calcNumReachablePairs()<<endl;
+			}
+
+			cout<<"Running "<<iterations<<" iterations."<<endl;
+
 			for(int i = 0; i < 3; i++){
 				height = 500 + i * 300; // we gradually increase height
-				cout<<"Doing iteration "<<i<<" of 3. flattening to height "<<height<<endl;
+				cout<<"Doing iteration "<<(i+1)<<"flattening to height "<<height<<endl;
 
 				bool stillConnectingToNewLayer = true;
 
@@ -112,6 +139,7 @@ int main(int argc, const char * argv[]){
 					d2 = g_ign_2.calcNumReachablePairs();
 				}
 
+				int reachable_pairs_after_first_reduction = 0;
 				{
 					graph h = g->flatten("[", height);
 
@@ -122,6 +150,8 @@ int main(int argc, const char * argv[]){
 					stillConnectingToNewLayer = g->mergeNodesBasedOnSCCsInFlattened(h, height);
 
 					sccs_after_first_reduction = g->computeSCCs().size();
+
+					reachable_pairs_after_first_reduction = g->calcNumReachablePairs();
 					
 					if(!stillConnectingToNewLayer){
 						cout<<"We're disjoint, so we can stop now"<<endl;
@@ -148,22 +178,33 @@ int main(int argc, const char * argv[]){
 				t = clock() - t;
 
 				cout<<endl;
-				cout<<"Results for g='"<<s<<"':"<<endl;
-				cout<<"Original size of g: "<<g->N<<endl;
-				cout<<endl;
+				cout<<"Flattening up to a counter of "<<height<<", then reducing"<<endl;
 				cout<<"Number of sccs before reduction: "<<sccs_before_iteration<<endl;
-				cout<<"Number of sccs after first reduction on '[': "<<sccs_after_first_reduction<<endl;
-				cout<<"Number of sccs after also reducing on '(': "<<g->computeSCCs().size()<<endl;
-				cout<<"Number of D dot D sccs thus far: "<<g->computeSCCs().size()<<endl;
 				cout<<endl;
+				cout<<"Number of sccs after first reducing on '[': "<<sccs_after_first_reduction<<endl;
+				cout<<"Number of reachable pairs after first reduction on '[': "<<reachable_pairs_after_first_reduction<<endl;
+				cout<<endl;
+				cout<<"Number of sccs after also reducing on '(': "<<g->computeSCCs().size()<<endl;
+				cout<<"Number of reachable pairs after also reducing on '(': "<<g->calcNumReachablePairs()<<endl;
+				cout<<endl;
+				
+				
+				cout<<"Number of D dot D sccs thus far: "<<g->computeSCCs().size()<<endl;
 				cout<<"Number of reachable pairs of g in D dot D: "<<g->calcNumReachablePairs()<<endl;
+				cout<<endl;
 				cout<<"Number of reachable pairs of g in D ignoring '[': "<<d1<<endl;
 				cout<<"Number of reachable pairs of g in D ignoring '(': "<<d2<<endl;
+				cout<<endl;
+				cout<<"Number of D1 dot D1 SCCs with a +1 self loop on [: "<<bracket_self_loops<<endl;
+				cout<<"Number of D1 dot D1 SCCs with a +1 self loop on (: "<<parenthesis_self_loops<<endl;
+				cout<<endl;
 				cout<<"Time for iteration: "<<(((float)t)/CLOCKS_PER_SEC)<<" s"<<endl;
 				cout<<endl;
+
+
+
 			}
 			delete g;
-
 		}
 
 		return 0;
