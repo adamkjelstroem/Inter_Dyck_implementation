@@ -56,7 +56,7 @@ int main(int argc, const char * argv[]){
 			"xalan"
 		};
 
-		//hyperparameters	
+		//hyperparameters
 		bool using_reduced = false;
 		int iterations = 3;
 		
@@ -108,7 +108,7 @@ int main(int argc, const char * argv[]){
 			cout<<"Running "<<iterations<<" iterations."<<endl;
 
 			for(int i = 0; i < 3; i++){
-				height = 100 + i * 10; // we gradually increase height
+				height = 10 + i * 5; // we gradually increase height
 				cout<<"Doing iteration "<<(i+1)<<" flattening to height "<<height<<endl;
 
 				bool stillConnectingToNewLayer = true;
@@ -122,76 +122,43 @@ int main(int argc, const char * argv[]){
 				
 
 				int d1, d2;
+				int reachable_pairs_in_intersection = 0;
 				{	
-					graph g_ign_1 = g->copy_ignoring("[");
-
-					g_ign_1.initWorklist();
-
-					g_ign_1.bidirectedReach();
-
-
-					//must consider mapping here in order to make 'calcNumReachablePairs' produce meaningful number
-					//take initial graph, g, and get its sccs
-					auto sccs = g->computeSCCs();
-					auto scc_ign = g_ign_1.computeSCCs();
-
-					//the roots of these sccs will always be in g_ign_1
-					//they will have same x values, but they might not have the same ids
-					for (auto s : sccs){
-						auto a = g->vertices[s.first];
-						auto root_in_ign = g_ign_1.getVertex(a->x, 0, "")->id;
-						for (auto k : s.second){
-							auto b = g_ign_1.getVertex(g->vertices[k]->x, 0, "")->id;
-							scc_ign[root_in_ign].insert(b);
-						}
-					}
-					int n = 0;
-					for(auto scc : scc_ign){
-						int k = scc.second.size();
-						n += k * (k-1) / 2;
-					}
-
-					//TODO this code is not very pretty. 
-					d1 = n;
-
-
-					g_ign_1.deleteVertices();
-				}
-				
-				{
+					graph g_ign_1 = g->copy_ignoring("[");	
 					graph g_ign_2 = g->copy_ignoring("(");
 
+					g_ign_1.initWorklist();
 					g_ign_2.initWorklist();
 
+					g_ign_1.bidirectedReach();
 					g_ign_2.bidirectedReach();
+ 
+					d1 = g_ign_1.calcNumReachablePairs();
+					d2 = g_ign_2.calcNumReachablePairs();
 
-					//must consider mapping here in order to make 'calcNumReachablePairs' produce meaningful number
-					//take initial graph, g, and get its sccs
-					auto sccs = g->computeSCCs();
-					auto scc_ign = g_ign_2.computeSCCs();
+					//Compute intersection of reachable pairs
+					auto scc_1 = g_ign_1.computeSCCs();
+					for(auto scc : scc_1){
+						for (auto v1 : scc.second){
+							for(auto v2 : scc.second){
+								if(v2 > v1){ 
+									//for every unique pair of vertices in the same scc:
 
-					//the roots of these sccs will always be in g_ign_1
-					//they will have same x values, but they might not have the same ids
-					for (auto s : sccs){
-						auto a = g->vertices[s.first];
-						auto root_in_ign = g_ign_2.getVertex(a->x, 0, "")->id;
-						for (auto k : s.second){
-							auto b = g_ign_2.getVertex(g->vertices[k]->x, 0, "")->id;
-							scc_ign[root_in_ign].insert(b);
+									//given how "copy_ignoring" works, we can safely assume that vertices have the same ids
+									//in g_ign_1 and g_ign_2
+									if(g_ign_2.dsu.root(v1) == g_ign_2.dsu.root(v2)){
+										//if they're also in the same scc in the other graph:
+										reachable_pairs_in_intersection++;
+									}
+								}
+							}
 						}
 					}
-					int n = 0;
-					for(auto scc : scc_ign){
-						int k = scc.second.size();
-						n += k * (k-1) / 2;
-					}
 
-					//TODO this code is not very pretty. 
-					d2 = n;
-
-
+					g_ign_1.deleteVertices();
 					g_ign_2.deleteVertices();
 				}
+				
 
 				int reachable_pairs_after_first_reduction = 0;
 				{
@@ -271,10 +238,11 @@ int main(int argc, const char * argv[]){
 				
 				
 				cout<<"Number of D1 dot D1 SCCs thus far: "<<g->computeSCCs().size()<<endl;
-				cout<<"Number of reachable pairs of g in D dot D: "<<g->calcNumReachablePairs()<<endl;
+				cout<<"Number of reachable pairs of g in D1 dot D1: "<<g->calcNumReachablePairs()<<endl;
 				cout<<endl;
 				cout<<"Number of reachable pairs of g in D ignoring '[': "<<d1<<endl;
 				cout<<"Number of reachable pairs of g in D ignoring '(': "<<d2<<endl;
+				cout<<"Number of reachable pairs reachable in both of these: "<<reachable_pairs_in_intersection<<endl;
 				cout<<endl;
 				cout<<"Number of D1 dot D1 SCCs with a +1 self loop on [: "<<bracket_self_loops<<endl;
 				cout<<"Number of D1 dot D1 SCCs with a +1 self loop on (: "<<parenthesis_self_loops<<endl;
