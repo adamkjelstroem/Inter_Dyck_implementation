@@ -56,22 +56,18 @@ int main(int argc, const char * argv[]){
 			"xalan"
 		};
 
-		int offset = 4;
-		string subsection[] = {
-			benchmarks[offset],
-			benchmarks[offset+1]
-		};
+		//hyperparameters	
+		bool using_reduced = false;
+		int iterations = 3;
+		
 
-		for(string s : subsection){
+		for(string s : benchmarks){
 			graph* g;
 
 			g = new graph;
 
 			string s2;
 			
-			//hyperparameters
-			bool using_reduced = true;
-			int iterations = 3;
 			int height; //height to which we flatten
 
 
@@ -112,7 +108,7 @@ int main(int argc, const char * argv[]){
 			cout<<"Running "<<iterations<<" iterations."<<endl;
 
 			for(int i = 0; i < 3; i++){
-				height = 500 + i * 300; // we gradually increase height
+				height = 100 + i * 10; // we gradually increase height
 				cout<<"Doing iteration "<<(i+1)<<" flattening to height "<<height<<endl;
 
 				bool stillConnectingToNewLayer = true;
@@ -157,6 +153,9 @@ int main(int argc, const char * argv[]){
 
 					//TODO this code is not very pretty. 
 					d1 = n;
+
+
+					g_ign_1.deleteVertices();
 				}
 				
 				{
@@ -189,6 +188,9 @@ int main(int argc, const char * argv[]){
 
 					//TODO this code is not very pretty. 
 					d2 = n;
+
+
+					g_ign_2.deleteVertices();
 				}
 
 				int reachable_pairs_after_first_reduction = 0;
@@ -208,6 +210,9 @@ int main(int argc, const char * argv[]){
 					if(!stillConnectingToNewLayer){
 						cout<<"We're disjoint, so we can stop now"<<endl;
 					}
+
+
+					h.deleteVertices();
 				}
 
 				/////
@@ -224,6 +229,9 @@ int main(int argc, const char * argv[]){
 					if(!stillConnectingToNewLayer){
 						cout<<"We're disjoint, so we can stop now"<<endl;
 					}
+
+
+					h.deleteVertices();
 				}
 
 				//counts how many d1 dot d1 sccs have a +1 self loop on the first counter
@@ -252,17 +260,17 @@ int main(int argc, const char * argv[]){
 
 				t = clock() - t;
 
-				cout<<"Number of sccs before reduction: "<<sccs_before_iteration<<endl;
+				cout<<"Number of D1 dot D1 SCCs before reduction: "<<sccs_before_iteration<<endl;
 				cout<<endl;
-				cout<<"Number of sccs after first reducing on '[': "<<sccs_after_first_reduction<<endl;
+				cout<<"Number of D1 dot D1 SCCs after first reducing on '[': "<<sccs_after_first_reduction<<endl;
 				cout<<"Number of reachable pairs after first reduction on '[': "<<reachable_pairs_after_first_reduction<<endl;
 				cout<<endl;
-				cout<<"Number of sccs after also reducing on '(': "<<g->computeSCCs().size()<<endl;
+				cout<<"Number of D1 dot D1 SCCs after also reducing on '(': "<<g->computeSCCs().size()<<endl;
 				cout<<"Number of reachable pairs after also reducing on '(': "<<g->calcNumReachablePairs()<<endl;
 				cout<<endl;
 				
 				
-				cout<<"Number of D dot D sccs thus far: "<<g->computeSCCs().size()<<endl;
+				cout<<"Number of D1 dot D1 SCCs thus far: "<<g->computeSCCs().size()<<endl;
 				cout<<"Number of reachable pairs of g in D dot D: "<<g->calcNumReachablePairs()<<endl;
 				cout<<endl;
 				cout<<"Number of reachable pairs of g in D ignoring '[': "<<d1<<endl;

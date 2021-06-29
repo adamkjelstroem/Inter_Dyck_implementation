@@ -100,6 +100,12 @@ public:
 	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height);
 
 	graph copy_ignoring(string label);
+
+	void deleteVertices(){
+		for(Vertex* v : vertices){
+			delete v;
+		}
+	}
 };
 
 #endif
