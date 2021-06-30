@@ -40,6 +40,481 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
+
+	if(true){
+		//Procedure as of 28 june 2021
+		string benchmarks[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		//hyperparameters
+		bool using_reduced = false;
+		int iterations = 3;
+
+		
+
+		for(string s : benchmarks){
+			
+			string s2;
+			if(using_reduced){
+				s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			} else {
+				s2 = "./spg/orig_bench/" + s + ".dot";
+			}
+
+			//Data to work on
+			graph* g = new graph;
+			set<int> singletons;
+
+
+			if(true){
+				g->construct2(s2, true, true);
+				g->dsu.init(g->N);
+				g->initWorklist();
+			}else{
+				g->addEdge(0,0,1,0,"[");
+				g->addEdge(1,0,2,0,"(");
+				g->addEdge(3,0,2,0,"[");
+				g->addEdge(4,0,3,0,"(");
+				g->dsu.init(g->N);
+				g->initWorklist();
+			}	
+
+			cout<<endl;
+			cout<<endl;
+			cout<<"-----------------"<<endl;
+			cout<<endl;
+			cout<<"computing on "<<s;
+			if (using_reduced) cout<<"_reduced";
+			cout<<endl;
+			cout<<"Original size of g: "<<g->N<<endl;
+
+
+			//flatten on either label to 2
+			for(string label : {"(","["}){
+				graph h = g->flatten("(", 2);
+
+				h.initWorklist();
+				h.bidirectedReach();
+				//find sccs and add information to g
+				for (Vertex* v : h.vertices){
+					if(v->y != 0) continue;
+					auto v_root_x = h.vertices[h.dsu.root(v->id)]->x;
+					auto v_in_g = g->getVertex(v->x, 0, "")->id;
+					auto v_root_in_g = g->getVertex(v_root_x, 0, "")->id;
+					auto r1 = g->dsu.root(v_in_g);
+					auto r2 = g->dsu.root(v_root_in_g);
+					if(r1 != r2){
+						g->dsu.merge(r1, r2);
+					}
+				}
+				h.deleteVertices();
+			}
+
+
+			AD AD AD FIND FEJL
+			//use g to construct g_working
+			graph* g_working = new graph;
+			for(Vertex* v : g->vertices){
+				auto v_root = g->vertices[g->dsu.root(v->id)];
+				auto v_root_w = g_working->getVertex(v_root->x, 0, "");
+				for(auto edge : v->edges){
+					for(int u_id : edge.second){
+						int u_root_id = g->dsu.root(u_id);
+						
+						auto e = v_root_w->edges[edge.first];
+
+						if (std::find(e.begin(), e.end(), u_root_id) == e.end()){
+							//we do not have an edge yet
+							auto u_root_w = g_working->getVertex(g->vertices[u_root_id]->x, 0, "");
+
+							v_root_w->addedge(g_working->getfield(edge.first.field_name), u_root_w->id);
+
+							g_working->numedges++;
+						}
+					}
+				}
+			}
+
+			//print whether g_working is sparse!
+			if(true){
+				int num = 0;
+				for(Vertex* u : g_working->vertices){
+					for(auto edge : u->edges){
+						if(edge.second.size() > 1){
+							num += edge.second.size();
+							//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+						}
+					}
+				}
+				cout<<"repeating edges: "<<num<<endl;
+			}
+			if(true){
+				int num = 0;
+				for(Vertex* u : g_working->vertices){
+					for(auto edge : u->edges){
+						num += edge.second.size();
+						
+					}
+				}
+				cout<<"edges: "<<num<<endl;
+			}
+			cout<<"Vertices: "<<g_working->N<<endl;
+
+
+
+
+			return 0;
+
+			g_working->deleteVertices();
+			delete g_working;
+
+			g->deleteVertices();
+			delete g;
+		}
+
+		return 0;
+	}
+
+
+
+
+	if(true){
+		//Procedure as of 28 june 2021
+		string benchmarks[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		//hyperparameters
+		bool using_reduced = false;
+		int iterations = 3;
+
+		
+
+		for(string s : benchmarks){
+			
+			string s2;
+			if(using_reduced){
+				s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+			} else {
+				s2 = "./spg/orig_bench/" + s + ".dot";
+			}
+
+			//Data to work on
+			graph* g = new graph;
+			set<int> singletons;
+
+
+			if(true){
+				g->construct2(s2, true, true);
+				g->dsu.init(g->N);
+				g->initWorklist();
+			}else{
+				g->addEdge(0,0,1,0,"[");
+				g->addEdge(1,0,2,0,"(");
+				g->addEdge(3,0,2,0,"[");
+				g->addEdge(4,0,3,0,"(");
+				g->dsu.init(g->N);
+				g->initWorklist();
+			}	
+
+			cout<<endl;
+			cout<<endl;
+			cout<<"-----------------"<<endl;
+			cout<<endl;
+			cout<<"computing on "<<s;
+			if (using_reduced) cout<<"_reduced";
+			cout<<endl;
+			cout<<"Original size of g: "<<g->N<<endl;
+			cout<<"Running "<<iterations<<" iterations of pre-processing."<<endl;
+
+			//dumb copy that works for pointers.
+			graph* g_working = new graph;
+			for(Vertex* v : g->vertices){
+				for(auto edge : v->edges){
+					for(auto u : edge.second){
+						g_working->addEdge(
+							g->vertices[u]->x, 0,
+							v->x, 0,
+							edge.first.field_name
+						);
+					}
+				}
+			}
+			g_working->dsu.init(g_working->N);
+			g_working->initWorklist();
+
+			for(int i = 0; i < iterations; i++){
+				cout<<endl;
+				cout<<"Doing iteration "<<(i+1)<<endl;
+
+				graph h = g->flatten("[", 10);
+				h.initWorklist();
+				h.bidirectedReach();
+
+				//TODO calculate number of reachable pairs by constructing sccs
+				if(true){
+					//make copy of dsu in g
+
+					//merge with new information from h
+
+					//compute sccs
+
+					//count reachable pairs
+
+					//print reachable pairs
+				}
+				
+				//cout<<"Number of reachable pairs thus far when flattening to 10: "<<h.calcNumReachablePairs()<<endl;
+
+				//Timing logic
+				clock_t t;
+				t = clock();
+				
+				//this code deletes singletons
+				int d1, d2;
+				if(false){	
+					graph g_ign_1 = g_working->copy_ignoring("[");	
+					graph g_ign_2 = g_working->copy_ignoring("(");
+
+					g_ign_1.initWorklist();
+					g_ign_2.initWorklist();
+
+					g_ign_1.bidirectedReach();
+					g_ign_2.bidirectedReach();
+ 
+					d1 = g_ign_1.calcNumReachablePairs();
+					d2 = g_ign_2.calcNumReachablePairs();
+
+
+					{
+						set<int> singletons_x;
+
+						auto scc_1 = g_ign_1.computeSCCs();
+						for(auto scc : scc_1){
+							if(scc.second.size() == 1) singletons_x.insert(g_ign_1.vertices[scc.first]->x);
+						}
+						auto scc_2 = g_ign_2.computeSCCs();
+						for(auto scc : scc_2){
+							if(scc.second.size() == 1) singletons_x.insert(g_ign_2.vertices[scc.first]->x);
+						}
+						//'singletons' now contains the ids in g of any node that is a singleton in at least one
+						//of the 'ignore' graphs
+						for (auto x : singletons_x){
+							singletons.insert(g->getVertex(x, 0, "")->id);	
+						}
+					}
+
+					g_ign_1.deleteVertices();
+					g_ign_2.deleteVertices();
+
+					graph* g_working_2 = new graph;
+
+					//build working copy of g without the deleted singles edges
+					for (Vertex* u : g_working->vertices){
+						if(singletons.find(u->id) == singletons.end()){
+							//u is not a singleton
+							for (auto edge : u->edges){
+								for(auto v_id : edge.second){
+									if(singletons.find(v_id) == singletons.end()){
+										//if v is not a singleton, either
+										//then add an edge between them
+
+										//(actually add it between their respective roots)
+										g_working_2->addEdge(
+											g_working->vertices[g_working->dsu.root(u->id)]->x, 
+											0, 
+											g_working->vertices[g_working->dsu.root(v_id)]->x, 
+											0, edge.first.field_name);
+									}
+								}
+							}
+						}
+						
+					}
+
+
+					g_working_2->dsu.init(g_working_2->N);
+					g_working_2->initWorklist();
+
+					//overwrite g_working with g_working_2
+					g_working->deleteVertices();
+					delete g_working;
+
+					g_working = g_working_2;
+				}
+
+
+				cout<<"Size of g with singletons deleted: "<<g_working->N<<endl;
+
+				if(true){
+					int num = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() > 1){
+								num += edge.second.size();
+								//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+							}
+						}
+					}
+					cout<<"repeating edges before: "<<num<<endl;
+				}
+
+				//construct replacement for g_working that is actually sparse
+				{
+					//do 2 loop-overs. the first time around, just find nodes with too many
+					//outgoing edges, and merge them in g. 
+					//Then in the second iteration, add the first edge whenever there are too many (and do so from the root in g to the root in g)
+					for (Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() >= 2){
+								//found example of vertex with too many edges
+								
+								//find id of first element in list
+								int to_merge = g->getVertex(g_working->vertices[edge.second.front()]->x, 0, "")->id; 
+								
+								auto it = edge.second.begin();
+								it++; //start at 2nd value of list
+								while(it!=edge.second.end()){
+									//find all others in g and make sure they're added to the same scc in g
+									int other_to_merge = g->getVertex(g_working->vertices[*it]->x, 0, "")->id;
+									if(g->dsu.root(other_to_merge) != g->dsu.root(to_merge)){
+										//only merge if new information
+										g->dsu.merge(
+											g->dsu.root(to_merge),
+											g->dsu.root(other_to_merge) //calling dsu.root() respects precondition on merge()
+										);
+									}
+
+									it++;
+								}
+							}
+						}
+					}
+					
+					graph* g_working_2 = new graph;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() >= 2){
+								//just add the first edge to g_working_2
+								int g_working_v_x = g_working->vertices[edge.second.front()]->x;
+								auto v_in_g = g->getVertex(g_working_v_x, 0, "")->id;
+								auto root_of_v_in_g = g->dsu.root(v_in_g);
+								auto x_of_root_of_v_in_g = g->vertices[root_of_v_in_g]->x;
+					
+								g_working_2->addEdge(
+									//awkward edge flip here; add them in opposite order
+									x_of_root_of_v_in_g, 0,
+									g->vertices[g->dsu.root(g->getVertex(u->x, 0, "")->id)]->x, 0,
+									edge.first.field_name
+								);
+							}
+						}
+					}
+					g_working_2->dsu.init(g_working_2->N);
+					g_working_2->initWorklist();
+
+					//overwrite g_working with g_working_2
+					g_working->deleteVertices();
+					delete g_working;
+
+					g_working = g_working_2;
+				}
+
+				//For now, just print if it is sparse
+				if(true){
+					int num = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() > 1){
+								num++;
+								//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+							}
+						}
+					}
+					cout<<"repeating edges after: "<<num<<endl;
+				}
+				cout<<"size of g after merging for sparseness: "<<g_working->N<<endl;
+
+				{
+					int vertices = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							vertices += edge.second.size();
+						}
+					}
+					cout<<"total vertices in graph: "<<vertices<<endl;
+				}
+
+				
+				//TODO output if g_working contains more than 1 scc wrt plain reachability
+				int max = 0;
+				{
+					DSU dsu;
+					dsu.init(g_working->N);
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							for (auto v_id : edge.second){
+								if(dsu.root(u->id) != g->dsu.root(v_id)){
+									dsu.merge(dsu.root(u->id), dsu.root(v_id));
+								}
+							}
+						}
+					}
+					map<int,set<int>> scc;
+					for(int i=0;i<g_working->N;i++){
+						scc[dsu.root(i)].insert(i);
+					}
+					cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
+					for(auto el : scc){
+						int alt = el.second.size();
+						if(alt > max){
+							max = alt;
+						}
+					}
+					cout<<"Size of biggest such component: "<<max<<endl;
+					
+				}
+
+				
+			}
+			
+
+			cout<<"NUMBER: "<<g->calcNumReachablePairs()<<endl;
+
+			return 0;
+
+			g_working->deleteVertices();
+			delete g_working;
+
+			g->deleteVertices();
+			delete g;
+		}
+
+		return 0;
+	}
+
+
 	if(true){
 		//Procedure as of 28 june 2021
 		string benchmarks[] = {
