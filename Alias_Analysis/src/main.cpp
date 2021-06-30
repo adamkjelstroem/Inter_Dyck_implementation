@@ -62,22 +62,17 @@ int main(int argc, const char * argv[]){
 		
 
 		for(string s : benchmarks){
-			graph* g;
-
-			g = new graph;
+			//Data to work on
+			graph* g = new graph;
+			set<int> singletons;
 
 			string s2;
-			
-			int height; //height to which we flatten
-
-
 			if(using_reduced){
 				s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			} else {
 				s2 = "./spg/orig_bench/" + s + ".dot";
 			}
 
-			
 			if(true){
 				g->construct2(s2, true, true);
 			}else{
@@ -103,12 +98,14 @@ int main(int argc, const char * argv[]){
 				copy.initWorklist();
 				copy.bidirectedReach();
 				cout<<"Number of reachable pairs wrt [ and ( (non-interleaved): "<<copy.calcNumReachablePairs()<<endl;
+
+				copy.deleteVertices();
 			}
 
 			cout<<"Running "<<iterations<<" iterations."<<endl;
 
 			for(int i = 0; i < 3; i++){
-				height = 10 + i * 5; // we gradually increase height
+				int height = 10 + i * 5; // we gradually increase height
 				cout<<"Doing iteration "<<(i+1)<<" flattening to height "<<height<<endl;
 
 				bool stillConnectingToNewLayer = true;
@@ -142,9 +139,9 @@ int main(int argc, const char * argv[]){
 						for (auto v1 : scc.second){
 							for(auto v2 : scc.second){
 								if(v2 > v1){ 
-									//for every unique pair of vertices in the same scc:
+									//for every unique pair of vertices in the same scc in g_ign_1:
 
-									//given how "copy_ignoring" works, we can safely assume that vertices have the same ids
+									//note: given how "copy_ignoring" works, we can safely assume that vertices have the same ids
 									//in g_ign_1 and g_ign_2
 									if(g_ign_2.dsu.root(v1) == g_ign_2.dsu.root(v2)){
 										//if they're also in the same scc in the other graph:
@@ -155,14 +152,60 @@ int main(int argc, const char * argv[]){
 						}
 					}
 
+					{
+						set<int> singletons_x;
+						for(auto scc : scc_1){
+							if(scc.second.size() == 1) singletons_x.insert(g_ign_1.vertices[scc.first]->x);
+						}
+						auto scc_2 = g_ign_2.computeSCCs();
+						for(auto scc : scc_2){
+							if(scc.second.size() == 1) singletons_x.insert(g_ign_2.vertices[scc.first]->x);
+						}
+						//'singletons' now contains the ids in g of any node that is a singleton in at least one
+						//of the 'ignore' graphs
+						for (auto x : singletons_x){
+							singletons.insert(g->getVertex(x, 0, "")->id);
+						}
+					}
+
 					g_ign_1.deleteVertices();
 					g_ign_2.deleteVertices();
 				}
+
+				//build this graph without the deleted singles, working from their x values
+				graph* g_singles_deleted = new graph;
+				for (Vertex* u : g->vertices){
+					if(singletons.find(u->id) == singletons.end()){
+						//u is not a singleton
+						for (auto edge : u->edges){
+							for(auto v_id : edge.second){
+								if(singletons.find(v_id) == singletons.end()){
+									//if v is not a singleton, either
+									//then add an edge between them
+
+									//(actually add it between their respective roots)
+									g_singles_deleted->addEdge(
+										g->vertices[g->dsu.root(u->id)]->x, 
+										0, 
+										g->vertices[g->dsu.root(v_id)]->x, 
+										0, edge.first.field_name);
+								}
+							}
+						}
+					}
+					
+				}
+				g_singles_deleted->dsu.init(g_singles_deleted->N);
+				g_singles_deleted->initWorklist();
+
+				cout<<"Size of g with singletons deleted: "<<g_singles_deleted->N<<endl;
 				
+				//TODO output if g_singles_deleted contains more than 1 scc wrt plain reachability
+
 
 				int reachable_pairs_after_first_reduction = 0;
 				{
-					graph h = g->flatten("[", height);
+					graph h = g_singles_deleted->flatten("[", height); 
 
 					h.bidirectedReach();
 
@@ -185,7 +228,7 @@ int main(int argc, const char * argv[]){
 				/////
 
 				{
-					graph h = g->flatten("(", height);
+					graph h = g_singles_deleted->flatten("(", height);
 
 					h.bidirectedReach();
 
@@ -200,6 +243,9 @@ int main(int argc, const char * argv[]){
 
 					h.deleteVertices();
 				}
+
+				g_singles_deleted->deleteVertices();
+				delete g_singles_deleted;
 
 				//counts how many d1 dot d1 sccs have a +1 self loop on the first counter
 				//same for the second counter
