@@ -59,6 +59,7 @@ int main(int argc, const char * argv[]){
 		//hyperparameters
 		bool using_reduced = false;
 		int iterations = 3;
+
 		
 
 		for(string s : benchmarks){
@@ -75,6 +76,8 @@ int main(int argc, const char * argv[]){
 
 			if(true){
 				g->construct2(s2, true, true);
+				g->dsu.init(g->N);
+				g->initWorklist();
 			}else{
 				g->addEdge(0,0,1,0,"[");
 				g->addEdge(1,0,2,0,"(");
@@ -164,7 +167,7 @@ int main(int argc, const char * argv[]){
 						//'singletons' now contains the ids in g of any node that is a singleton in at least one
 						//of the 'ignore' graphs
 						for (auto x : singletons_x){
-							singletons.insert(g->getVertex(x, 0, "")->id);
+							singletons.insert(g->getVertex(x, 0, "")->id);	
 						}
 					}
 
@@ -172,8 +175,9 @@ int main(int argc, const char * argv[]){
 					g_ign_2.deleteVertices();
 				}
 
-				//build this graph without the deleted singles, working from their x values
-				graph* g_singles_deleted = new graph;
+				graph* g_working = new graph;
+
+				//build working copy of g without the deleted singles edges
 				for (Vertex* u : g->vertices){
 					if(singletons.find(u->id) == singletons.end()){
 						//u is not a singleton
@@ -184,7 +188,7 @@ int main(int argc, const char * argv[]){
 									//then add an edge between them
 
 									//(actually add it between their respective roots)
-									g_singles_deleted->addEdge(
+									g_working->addEdge(
 										g->vertices[g->dsu.root(u->id)]->x, 
 										0, 
 										g->vertices[g->dsu.root(v_id)]->x, 
@@ -195,17 +199,145 @@ int main(int argc, const char * argv[]){
 					}
 					
 				}
-				g_singles_deleted->dsu.init(g_singles_deleted->N);
-				g_singles_deleted->initWorklist();
 
-				cout<<"Size of g with singletons deleted: "<<g_singles_deleted->N<<endl;
+				g_working->dsu.init(g_working->N);
+				g_working->initWorklist();
+
+				cout<<"Size of g with singletons deleted: "<<g_working->N<<endl;
+
+				{
+					int num = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() > 1){
+								num++;
+								//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+							}
+						}
+					}
+					cout<<"repeating edges before: "<<num<<endl;
+				}
+
+				//construct replacement for g_working that is actually sparse
+				{
+					//do 2 loop-overs. the first time around, just find nodes with too many
+					//outgoing edges, and merge them in g. 
+					//Then in the second iteration, add the first edge whenever there are too many (and do so from the root in g to the root in g)
+					for (Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() >= 2){
+								//found example of vertex with too many edges
+								
+								//find id of first element in list
+								int to_merge = g->getVertex(g_working->vertices[edge.second.front()]->x, 0, "")->id; 
+								
+								auto it = edge.second.begin();
+								it++; //start at 2nd value of list
+								while(it!=edge.second.end()){
+									//find all others in g and make sure they're added to the same scc in g
+									int other_to_merge = g->getVertex(g_working->vertices[*it]->x, 0, "")->id;
+									if(g->dsu.root(other_to_merge) != g->dsu.root(to_merge)){
+										//only merge if new information
+										g->dsu.merge(
+											g->dsu.root(to_merge),
+											g->dsu.root(other_to_merge) //calling dsu.root() respects precondition on merge()
+										);
+									}
+
+									it++;
+								}
+							}
+						}
+					}
+					
+					graph* g_working_2 = new graph;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() >= 2){
+								//just add the first edge to g_working_2
+								int g_working_v_x = g_working->vertices[edge.second.front()]->x;
+								auto v_in_g = g->getVertex(g_working_v_x, 0, "")->id;
+								auto root_of_v_in_g = g->dsu.root(v_in_g);
+								auto x_of_root_of_v_in_g = g->vertices[root_of_v_in_g]->x;
+					
+								g_working_2->addEdge(
+									//awkward edge flip here; add them in opposite order
+									x_of_root_of_v_in_g, 0,
+									g->vertices[g->dsu.root(g->getVertex(u->x, 0, "")->id)]->x, 0,
+									edge.first.field_name
+								);
+							}
+						}
+					}
+					g_working_2->dsu.init(g_working_2->N);
+					g_working_2->initWorklist();
+
+					//overwrite g_working with g_working_2
+					g_working->deleteVertices();
+					delete g_working;
+
+					g_working = g_working_2;
+				}
+
+				//For now, just print if it is sparse
+				if(true){
+					int num = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							if(edge.second.size() > 1){
+								num++;
+								//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+							}
+						}
+					}
+					cout<<"repeating edges after: "<<num<<endl;
+				}
+				cout<<"size of g after merging for sparseness: "<<g_working->N<<endl;
+
+				{
+					int vertices = 0;
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							vertices += edge.second.size();
+						}
+					}
+					cout<<"total vertices in graph: "<<vertices<<endl;
+				}
+
 				
-				//TODO output if g_singles_deleted contains more than 1 scc wrt plain reachability
+				//TODO output if g_working contains more than 1 scc wrt plain reachability
+				{
+					DSU dsu;
+					dsu.init(g_working->N);
+					for(Vertex* u : g_working->vertices){
+						for(auto edge : u->edges){
+							for (auto v_id : edge.second){
+								if(dsu.root(u->id) != g->dsu.root(v_id)){
+									dsu.merge(dsu.root(u->id), dsu.root(v_id));
+								}
+							}
+						}
+					}
+					map<int,set<int>> scc;
+					for(int i=0;i<g_working->N;i++){
+						scc[dsu.root(i)].insert(i);
+					}
+					cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
+					int max = -1;
+					for(auto el : scc){
+						int alt = el.second.size();
+						if(alt > max){
+							max = alt;
+						}
+					}
+					cout<<"Size of biggest such component: "<<max<<endl;
+					
+				}
 
 
 				int reachable_pairs_after_first_reduction = 0;
 				{
-					graph h = g_singles_deleted->flatten("[", height); 
+					graph h = g_working->flatten("[", height); 
 
 					h.bidirectedReach();
 
@@ -228,7 +360,7 @@ int main(int argc, const char * argv[]){
 				/////
 
 				{
-					graph h = g_singles_deleted->flatten("(", height);
+					graph h = g_working->flatten("(", height);
 
 					h.bidirectedReach();
 
@@ -244,8 +376,8 @@ int main(int argc, const char * argv[]){
 					h.deleteVertices();
 				}
 
-				g_singles_deleted->deleteVertices();
-				delete g_singles_deleted;
+				g_working->deleteVertices();
+				delete g_working; //TODO we're actually supposed to keep working on g_working from here
 
 				//counts how many d1 dot d1 sccs have a +1 self loop on the first counter
 				//same for the second counter
