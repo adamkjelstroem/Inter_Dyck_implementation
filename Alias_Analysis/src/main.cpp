@@ -98,8 +98,18 @@ int main(int argc, const char * argv[]){
 			if (using_reduced) cout<<"_reduced";
 			cout<<endl;
 			cout<<"Original size of g: "<<g->N<<endl;
+			if(true){
+				int num = 0;
+				for(Vertex* u : g->vertices){
+					for(auto edge : u->edges){
+						num += edge.second.size();
+						
+					}
+				}
+				cout<<"original edges of g: "<<num<<endl;
+			}
 
-
+			/*
 			//flatten on either label to 2
 			for(string label : {"(","["}){
 				graph h = g->flatten("(", 2);
@@ -119,25 +129,26 @@ int main(int argc, const char * argv[]){
 					}
 				}
 				h.deleteVertices();
-			}
+			}*/
 
+			
+			g->bidirectedReach();
+			cout<<"Number of reachable pairs via un-interleaved bidirected reachability: "<<g->calcNumReachablePairs()<<endl;
 
-			AD AD AD FIND FEJL
-			//use g to construct g_working
+			//use g to construct g_working, which is a copy without duplicate edges
 			graph* g_working = new graph;
 			for(Vertex* v : g->vertices){
-				auto v_root = g->vertices[g->dsu.root(v->id)];
-				auto v_root_w = g_working->getVertex(v_root->x, 0, "");
+				auto v_root = g->vertices[g->dsu.root(v->id)]; //find v's root vertex in g
+				auto v_root_w = g_working->getVertex(v_root->x, 0, ""); //find the vertex with the corresponding x value in g_working
 				for(auto edge : v->edges){
 					for(int u_id : edge.second){
 						int u_root_id = g->dsu.root(u_id);
+						auto u_root_w = g_working->getVertex(g->vertices[u_root_id]->x, 0, "");
 						
 						auto e = v_root_w->edges[edge.first];
 
-						if (std::find(e.begin(), e.end(), u_root_id) == e.end()){
+						if (std::find(e.begin(), e.end(), u_root_w->id) == e.end()){
 							//we do not have an edge yet
-							auto u_root_w = g_working->getVertex(g->vertices[u_root_id]->x, 0, "");
-
 							v_root_w->addedge(g_working->getfield(edge.first.field_name), u_root_w->id);
 
 							g_working->numedges++;
@@ -146,35 +157,136 @@ int main(int argc, const char * argv[]){
 				}
 			}
 
-			//print whether g_working is sparse!
-			if(true){
-				int num = 0;
-				for(Vertex* u : g_working->vertices){
-					for(auto edge : u->edges){
-						if(edge.second.size() > 1){
-							num += edge.second.size();
-							//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+
+			g_working->printSparsenessFacts();
+
+			//TODO guarantee that repeating edges is zero
+			cout<<"Since repeating edges is zero, we can start deleting singleton vertices"<<endl;
+
+			if(false){	
+				graph g_ign_1 = g_working->copy_ignoring("[");	
+				graph g_ign_2 = g_working->copy_ignoring("(");
+
+				g_ign_1.initWorklist();
+				g_ign_2.initWorklist();
+
+				g_ign_1.bidirectedReach();
+				g_ign_2.bidirectedReach();
+
+				//d1 = g_ign_1.calcNumReachablePairs();
+				//d2 = g_ign_2.calcNumReachablePairs();
+
+
+				{
+					set<int> singletons_x;
+
+					auto scc_1 = g_ign_1.computeSCCs();
+					for(auto scc : scc_1){
+						if(scc.second.size() == 1) singletons_x.insert(g_ign_1.vertices[scc.first]->x);
+					}
+					auto scc_2 = g_ign_2.computeSCCs();
+					for(auto scc : scc_2){
+						if(scc.second.size() == 1) singletons_x.insert(g_ign_2.vertices[scc.first]->x);
+					}
+					//'singletons' now contains the ids in g of any node that is a singleton in at least one
+					//of the 'ignore' graphs
+					for (auto x : singletons_x){
+						singletons.insert(g->getVertex(x, 0, "")->id);	
+					}
+				}
+
+				g_ign_1.deleteVertices();
+				g_ign_2.deleteVertices();
+
+				graph* g_working_2 = new graph;
+
+				//build working copy of g without the deleted singles edges
+				for (Vertex* u : g_working->vertices){
+					if(singletons.find(u->id) == singletons.end()){
+						//u is not a singleton
+						for (auto edge : u->edges){
+							for(auto v_id : edge.second){
+								if(singletons.find(v_id) == singletons.end()){
+									//if v is not a singleton, either
+									//then add an edge between them
+
+									//(actually add it between their respective roots)
+									g_working_2->addEdge(
+										g_working->vertices[g_working->dsu.root(u->id)]->x, 
+										0, 
+										g_working->vertices[g_working->dsu.root(v_id)]->x, 
+										0, edge.first.field_name);
+								}
+							}
 						}
 					}
 				}
-				cout<<"repeating edges: "<<num<<endl;
+
+
+				g_working_2->dsu.init(g_working_2->N);
+				g_working_2->initWorklist();
+
+				//overwrite g_working with g_working_2
+				g_working->deleteVertices();
+				delete g_working;
+
+				g_working = g_working_2;
 			}
-			if(true){
-				int num = 0;
+
+			
+			g_working->printSparsenessFacts();
+
+			//output if g_working contains more than 1 scc wrt plain reachability
+			int max = 0;
+			int root_of_max = -1;
+			{
+				DSU dsu;
+				dsu.init(g_working->N);
 				for(Vertex* u : g_working->vertices){
 					for(auto edge : u->edges){
-						num += edge.second.size();
-						
+						for (auto v_id : edge.second){
+							if(dsu.root(u->id) != dsu.root(v_id)){
+								dsu.merge(dsu.root(u->id), dsu.root(v_id));
+							}
+						}
 					}
 				}
-				cout<<"edges: "<<num<<endl;
+				map<int,set<int>> scc;
+				for(int i=0;i<g_working->N;i++){
+					scc[dsu.root(i)].insert(i);
+				}
+				cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
+				for(auto el : scc){
+					int alt = el.second.size();
+					if(alt > max){
+						max = alt;
+						root_of_max = el.first;
+					}
+				}
+				cout<<"Size of biggest such component: "<<max<<endl;	
+
+				//extract 'biggest such component' into separate graph
+
+				graph g_big;
+				for (auto id_in_g_working : scc[root_of_max]){
+					Vertex* v = g_working->vertices[id_in_g_working];
+					for(auto edge : v->edges){
+						for(auto u_id : edge.second){
+							g_big.addEdge(
+								g_working->vertices[u_id]->x, 0,
+								v->x, 0,
+								edge.first.field_name
+							);
+						}
+					}
+				}
+				g_big.dsu.init(g_big.N);
+				g_big.initWorklist();
+
+				cout<<"G_big: "<<endl;
+				g_big.printSparsenessFacts();
 			}
-			cout<<"Vertices: "<<g_working->N<<endl;
 
-
-
-
-			return 0;
 
 			g_working->deleteVertices();
 			delete g_working;
@@ -467,7 +579,7 @@ int main(int argc, const char * argv[]){
 				}
 
 				
-				//TODO output if g_working contains more than 1 scc wrt plain reachability
+				//output if g_working contains more than 1 scc wrt plain reachability
 				int max = 0;
 				{
 					DSU dsu;
@@ -492,11 +604,8 @@ int main(int argc, const char * argv[]){
 							max = alt;
 						}
 					}
-					cout<<"Size of biggest such component: "<<max<<endl;
-					
+					cout<<"Size of biggest such component: "<<max<<endl;	
 				}
-
-				
 			}
 			
 

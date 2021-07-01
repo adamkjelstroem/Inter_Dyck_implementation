@@ -101,6 +101,8 @@ public:
 
 	graph copy_ignoring(string label);
 
+	void printSparsenessFacts();
+
 	void deleteVertices(){
 		for(Vertex* v : vertices){
 			delete v;
