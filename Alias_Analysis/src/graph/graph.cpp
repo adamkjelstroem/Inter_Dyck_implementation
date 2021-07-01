@@ -41,13 +41,13 @@ void graph::construct2(string infile_name, bool d1_parenthesis, bool d1_bracket)
 			//parse
 			//note the 'flipping' s.t. we "add an edge" from a to b by calling in order (b, a, label)
 			if (label.find("op") != string::npos){
-				addEdge(a, 0, b, 0, "(" + id);
-			}else if (label.find("cp") != string::npos){
 				addEdge(b, 0, a, 0, "(" + id);
+			}else if (label.find("cp") != string::npos){
+				addEdge(a, 0, b, 0, "(" + id);
 			}else if (label.find("ob") != string::npos){
-				addEdge(a, 0, b, 0, "[" + id);
-			}else if (label.find("cb") != string::npos){
 				addEdge(b, 0, a, 0, "[" + id);
+			}else if (label.find("cb") != string::npos){
+				addEdge(a, 0, b, 0, "[" + id);
 			}else{
 				addEdge(a, 0, b, 0, EPS.field_name);
 			}	
@@ -87,11 +87,12 @@ graph graph::flatten(string field_name, int depth){
 
 	clock_t t;
 	t = clock();
+	bool print = false;
 
 	for (int i = 0; i < depth; i++){
-		if(clock() - t > 2*CLOCKS_PER_SEC){
+		if(print && clock() - t > 2*CLOCKS_PER_SEC){
+			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)clock()-t)/CLOCKS_PER_SEC<<")"<<endl;
 			t = clock();
-			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)t)/CLOCKS_PER_SEC<<")"<<endl;
 		}
 		
 		//if(depth >= 10 && i % (depth / 10) == 0) cout<<"doing iteration "<<i<<" of "<<depth<<endl;
@@ -826,6 +827,34 @@ graph graph::copy_ignoring(string label){
 	return g;
 }
 
+//makes copy without duplicates, adding edges between roots.
+graph graph::makeCopyWithoutDuplicates(){
+	graph g_working;
+	for(Vertex* v : vertices){
+		auto v_root = vertices[dsu.root(v->id)]; //find v's root vertex in g
+		auto v_root_w = g_working.getVertex(v_root->x, 0, ""); //find the vertex with the corresponding x value in g_working
+		for(auto edge : v->edges){
+			for(int u_id : edge.second){
+				int u_root_id = dsu.root(u_id);
+				auto u_root_w = g_working.getVertex(vertices[u_root_id]->x, 0, "");
+				
+				auto e = v_root_w->edges[edge.first];
+
+				if (std::find(e.begin(), e.end(), u_root_w->id) == e.end()){
+					//we do not have an edge yet
+					v_root_w->addedge(g_working.getfield(edge.first.field_name), u_root_w->id);
+
+					g_working.numedges++;
+				}
+			}
+		}
+	}
+
+	g_working.dsu.init(g_working.N);
+	g_working.initWorklist();
+	return g_working;
+}
+
 int graph::calcNumReachablePairs(){
 	int n = 0;
 
@@ -1190,6 +1219,30 @@ void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label
 
 	setFlattened(end_y != 0 | start_y != 0);
 	numedges++;
+}
+
+
+void graph::printSparsenessFacts(){
+	int num = 0;
+	for(Vertex* u : vertices){
+		for(auto edge : u->edges){
+			if(edge.second.size() > 1){
+				num += edge.second.size();
+				//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
+			}
+		}
+	}
+	cout<<"repeating edges: "<<num<<endl;
+
+	num = 0;
+	for(Vertex* u : vertices){
+		for(auto edge : u->edges){
+			num += edge.second.size();
+			
+		}
+	}
+	cout<<"edges: "<<num<<endl;
+	cout<<"Vertices: "<<N<<endl;
 }
 
 /*

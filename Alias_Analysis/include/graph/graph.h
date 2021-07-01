@@ -101,6 +101,8 @@ public:
 
 	graph copy_ignoring(string label);
 
+	graph makeCopyWithoutDuplicates();
+
 	void printSparsenessFacts();
 
 	void deleteVertices(){

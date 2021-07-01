@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]){
 
 
 	if(true){
-		//Procedure as of 28 june 2021
+		//Procedure as of 28 june 2021 2
 		string benchmarks[] = {
 			"antlr",
 			"bloat",
@@ -94,24 +94,34 @@ int main(int argc, const char * argv[]){
 			cout<<endl;
 			cout<<"-----------------"<<endl;
 			cout<<endl;
-			cout<<"computing on "<<s;
+			cout<<"Computing on "<<s;
 			if (using_reduced) cout<<"_reduced";
 			cout<<endl;
-			cout<<"Original size of g: "<<g->N<<endl;
-			if(true){
-				int num = 0;
-				for(Vertex* u : g->vertices){
-					for(auto edge : u->edges){
-						num += edge.second.size();
-						
-					}
-				}
-				cout<<"original edges of g: "<<num<<endl;
-			}
+			g->printSparsenessFacts();
+			
+			//Compute bidirected reach, as it is a sound under-approximation
+			g->bidirectedReach();
+			cout<<"Number of reachable pairs via D' reachability: "<<g->calcNumReachablePairs()<<endl;
 
+
+			
 			/*
-			//flatten on either label to 2
-			for(string label : {"(","["}){
+			for(string l : {"[", "("}){
+				graph g_ign_1 = g->copy_ignoring(l);	
+				g_ign_1.initWorklist();
+
+				g_ign_1.bidirectedReach();
+
+				cout<<"Number of reachable pairs when ignoring '"<<l<<"':   "<<g_ign_1.calcNumReachablePairs()<<endl;
+			}*/
+
+
+			//use g to construct g_working, which is a copy without duplicate edges
+			graph g_working = g->makeCopyWithoutDuplicates();
+
+
+			//flatten on either label to 2, collapse nodes into 
+			/*for(string label : {"(","["}){
 				graph h = g->flatten("(", 2);
 
 				h.initWorklist();
@@ -131,41 +141,70 @@ int main(int argc, const char * argv[]){
 				h.deleteVertices();
 			}*/
 
-			
-			g->bidirectedReach();
-			cout<<"Number of reachable pairs via un-interleaved bidirected reachability: "<<g->calcNumReachablePairs()<<endl;
-
-			//use g to construct g_working, which is a copy without duplicate edges
-			graph* g_working = new graph;
-			for(Vertex* v : g->vertices){
-				auto v_root = g->vertices[g->dsu.root(v->id)]; //find v's root vertex in g
-				auto v_root_w = g_working->getVertex(v_root->x, 0, ""); //find the vertex with the corresponding x value in g_working
-				for(auto edge : v->edges){
-					for(int u_id : edge.second){
-						int u_root_id = g->dsu.root(u_id);
-						auto u_root_w = g_working->getVertex(g->vertices[u_root_id]->x, 0, "");
-						
-						auto e = v_root_w->edges[edge.first];
-
-						if (std::find(e.begin(), e.end(), u_root_w->id) == e.end()){
-							//we do not have an edge yet
-							v_root_w->addedge(g_working->getfield(edge.first.field_name), u_root_w->id);
-
-							g_working->numedges++;
+			cout<<"G_working: "<<endl;
+			g_working.printSparsenessFacts();
+			{
+				graph g_2;
+				for(Vertex* v : g_working.vertices){
+					for(auto edge : v->edges){
+						for(int u_id : edge.second){
+							int u_x = g_working.vertices[u_id]->x;
+							g_2.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
+							g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
 						}
 					}
 				}
+				//every vertex in g_2 has an ingoing edge of label 'l' iff the corresponding vertex
+				//in g_working has an in or an out edge of label 'l'.
+				
+				//count the number of these
+				int num = 0;
+				for(Vertex* v : g_2.vertices){
+					if(v->edges.size() == 2){ //It has to be 2 here, as all graphs have an 'eps' edge to itself
+						num++; //TODO lookinto this.
+					}
+				}
+				cout<<"Number of vertices that can be removed: "<<num<<endl;
+
+
+				g_2.deleteVertices();
 			}
 
+			if(true){
+				graph g_2;
+				
+				for(Vertex* v : g_working.vertices){
+					for(auto edge : v->edges){
+						for(int u_id : edge.second){
+							int u_x = g_working.vertices[u_id]->x;
+							g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
+						}
+					}
+				}
+				
+				//g_2 is now g_working, but with edges flipped
+				for(Vertex* v : g_2.vertices){
+					if(v->edges.size() == 2){
+						//v has exactly 2 types of edges; the mandatory 'eps' self-edge
+						//and some other type, either "[" or "("
+						for(auto edge : v->edges){
+							if(edge.first.field_name == "eps") continue; //skip eps
+							if(edge.second.size() == 1){
+								int skip_this = edge.second.front();
+								//TODO build new g_working without this vertex
+							}
+						}
+					}
+				}
 
-			g_working->printSparsenessFacts();
+			}
 
 			//TODO guarantee that repeating edges is zero
-			cout<<"Since repeating edges is zero, we can start deleting singleton vertices"<<endl;
 
 			if(false){	
-				graph g_ign_1 = g_working->copy_ignoring("[");	
-				graph g_ign_2 = g_working->copy_ignoring("(");
+				cout<<"Since repeating edges is zero, we can start deleting singleton vertices"<<endl;
+				graph g_ign_1 = g_working.copy_ignoring("[");	
+				graph g_ign_2 = g_working.copy_ignoring("(");
 
 				g_ign_1.initWorklist();
 				g_ign_2.initWorklist();
@@ -195,13 +234,15 @@ int main(int argc, const char * argv[]){
 					}
 				}
 
+				cout<<"Found "<<singletons.size()<<" singletons"<<endl;
+
 				g_ign_1.deleteVertices();
 				g_ign_2.deleteVertices();
 
 				graph* g_working_2 = new graph;
 
 				//build working copy of g without the deleted singles edges
-				for (Vertex* u : g_working->vertices){
+				for (Vertex* u : g_working.vertices){
 					if(singletons.find(u->id) == singletons.end()){
 						//u is not a singleton
 						for (auto edge : u->edges){
@@ -211,11 +252,12 @@ int main(int argc, const char * argv[]){
 									//then add an edge between them
 
 									//(actually add it between their respective roots)
-									g_working_2->addEdge(
-										g_working->vertices[g_working->dsu.root(u->id)]->x, 
-										0, 
-										g_working->vertices[g_working->dsu.root(v_id)]->x, 
-										0, edge.first.field_name);
+									auto v_root_w_2 = g_working_2->getVertex(u->x, 0, "");
+									auto u_root_w_2 = g_working_2->getVertex(g_working.vertices[v_id]->x, 0, "");
+
+									v_root_w_2->addedge(g_working_2->getfield(edge.first.field_name), u_root_w_2->id);
+
+									g_working.numedges++;
 								}
 							}
 						}
@@ -227,22 +269,21 @@ int main(int argc, const char * argv[]){
 				g_working_2->initWorklist();
 
 				//overwrite g_working with g_working_2
-				g_working->deleteVertices();
-				delete g_working;
+				g_working.deleteVertices();
 
-				g_working = g_working_2;
+				g_working = *g_working_2;
 			}
 
 			
-			g_working->printSparsenessFacts();
+			g_working.printSparsenessFacts();
 
 			//output if g_working contains more than 1 scc wrt plain reachability
 			int max = 0;
 			int root_of_max = -1;
 			{
 				DSU dsu;
-				dsu.init(g_working->N);
-				for(Vertex* u : g_working->vertices){
+				dsu.init(g_working.N);
+				for(Vertex* u : g_working.vertices){
 					for(auto edge : u->edges){
 						for (auto v_id : edge.second){
 							if(dsu.root(u->id) != dsu.root(v_id)){
@@ -252,15 +293,35 @@ int main(int argc, const char * argv[]){
 					}
 				}
 				map<int,set<int>> scc;
-				for(int i=0;i<g_working->N;i++){
+				for(int i=0;i<g_working.N;i++){
 					scc[dsu.root(i)].insert(i);
 				}
 				cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
+				
+				int reasonable = -1;
 				for(auto el : scc){
 					int alt = el.second.size();
 					if(alt > max){
 						max = alt;
 						root_of_max = el.first;
+					}
+					
+
+					if(alt < 51 && alt > 20){
+						cout<<"digraph example {"<<endl;
+						for(int v_id : el.second){
+							Vertex* v = g_working.vertices[v_id];
+							for(auto edge : v->edges){
+								for(auto u_id : edge.second){
+									if(u_id != v_id)
+										cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
+									
+								}
+							}
+						}
+						cout<<"}"<<endl;
+
+						return 0;
 					}
 				}
 				cout<<"Size of biggest such component: "<<max<<endl;	
@@ -269,11 +330,11 @@ int main(int argc, const char * argv[]){
 
 				graph g_big;
 				for (auto id_in_g_working : scc[root_of_max]){
-					Vertex* v = g_working->vertices[id_in_g_working];
+					Vertex* v = g_working.vertices[id_in_g_working];
 					for(auto edge : v->edges){
 						for(auto u_id : edge.second){
 							g_big.addEdge(
-								g_working->vertices[u_id]->x, 0,
+								g_working.vertices[u_id]->x, 0,
 								v->x, 0,
 								edge.first.field_name
 							);
@@ -288,8 +349,7 @@ int main(int argc, const char * argv[]){
 			}
 
 
-			g_working->deleteVertices();
-			delete g_working;
+			g_working.deleteVertices();
 
 			g->deleteVertices();
 			delete g;
