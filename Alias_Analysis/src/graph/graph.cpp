@@ -1044,9 +1044,7 @@ void findRemovableVerticesViaFirstRule(graph& g_working, graph& g_flipped, set<i
 }
 
 void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
-
-	/*	
-	if b does not have outgoing edges to other nodes than itself;
+	/* if b does not have outgoing edges to other nodes than itself;
 
 	and b only has one neighbor
 
@@ -1062,7 +1060,6 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 
 	then, we can safely remove b
 	*/
-
 
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
@@ -1140,7 +1137,11 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 	}
 }
 
-void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
+void findRemovableVerticesViaThirdRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
+	
+}
+
+void findRemovableVertices(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);//g_flipped is g_working, but with edges flipped
 	
 	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);	
@@ -1155,7 +1156,7 @@ graph graph::trim(graph& g_working){
 	while(true){
 		set<int> to_delete;
 
-		discoverDeletableVertices(g_working, to_delete);
+		findRemovableVertices(g_working, to_delete);
 
 
 		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
