@@ -1244,63 +1244,6 @@ graph graph::trimViaSpecialRule(graph g_working){
 }
 
 
-
-//this also does flattening on one dyck language
-//TODO old code, should be removed?
-/*
-void graph::construct2flattenbracket(string infile_name){
-	//TODO old code; should be removed.
-	ifstream infile(infile_name);
-	string line;
-
-	int n = 5; //TODO hardcoded for now
-	int c = n*n*12+n*6; //expansion factor.
-	//c = 1;
-
-	while(std::getline(infile, line)){
-		// if this is a non-comment line
-		if(line.find("//") != string::npos){
-			continue; //skip commented lines
-		}
-		if(line.find("->") != string::npos){
-			std::vector<string> tokens;
-			split(line, "->", tokens);
-			string a = tokens[0];
-			std::vector<string> tokens2;
-			split(tokens[1], "[label=\"", tokens2);
-			string b = tokens2[0];
-			string label = tokens2[1];
-
-			//parse
-			//cout<<"adding edge from "<<a<<" to "<<b<<" with label= "<<label<<endl;
-			if (label.find("op") != string::npos){
-				//we're flattening on brackets, so parentesis edges are mostly left as-is
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					addEdge(a, i, b, i), getfield("("));
-				}
-			}else if (label.find("cp") != string::npos){
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					//reverse order of a and b because of closing parentheses
-					addedge(getVertex(b, i), getVertex(a, i), getfield("("));
-				}
-			}else if (label.find("ob") != string::npos){
-				for(int i = 0; i < c; i++){ //note the < operator
-					addedge(getVertex(a, i+1), getVertex(a, i), EPS);
-				}
-			}else if(label.find("cb") != string::npos){
-				for(int i = 0; i < c; i++){ //note the < operator
-					addedge(getVertex(b, i), getVertex(a, i+1), EPS);
-				}
-			}else{
-				for(int i = 0; i <= c; i++){ //note the <= operator
-					addedge(getVertex(b, i), getVertex(a, i), EPS);
-				}
-			}
-		}
-	}
-	dsu.init(vertices.size());
-}*/
-
 // takes the file name containing the edge information of the spg as arguement
 // and construct a Ngraph from it
 void graph::construct(string infile_name){
