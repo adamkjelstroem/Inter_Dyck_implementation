@@ -120,11 +120,10 @@ public:
 
 	//variout techniques to reduce graph sizes
 	graph makeCopyWithoutDuplicates();
-	graph trimLeafEdges(graph g_working);
 
-	//TODO needs better name
-	//Tecnique discovered at 2 july 2021
-	graph trimViaSpecialRule(graph g_working);
+	//removed provably unreachable nodes
+	graph trim(graph& g_working);
+	//Based on techniques discovered 2 july 2021 and 3 july 2021
 };
 
 #endif
