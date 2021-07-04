@@ -1018,6 +1018,18 @@ int countSelfLoops(Vertex* v){
 	return count - 1; //ignore mandatory self-edge
 }
 
+
+//counts the number of in-going edges of v
+int countIngoing(Vertex* v){
+	int count = 0;
+	for(auto edge : v->edges){
+		for(auto id : edge.second){
+			if(id != v->id) count++;
+		}
+	}
+	return count; 
+}
+
 //builds flipped version of g, meaning edges go in the other direction.
 graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
@@ -1149,7 +1161,8 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 }
 
 void findRemovableVerticesViaThirdRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
-	
+	//PRECONDITION: g_working has been collapsed via bidirectedReach()!
+	//if "a -- +1 --> b", "c -- +1 --> b", and there are no self-loops on a and b, and no other edges connect a or b
 }
 
 void findRemovableVertices(graph &g_working, set<int> &to_delete){
@@ -1157,6 +1170,7 @@ void findRemovableVertices(graph &g_working, set<int> &to_delete){
 	
 	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);	
 	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+	findRemovableVerticesViaThirdRule(g_working, g_flipped, to_delete);
 
 	g_flipped.deleteVertices();
 }
