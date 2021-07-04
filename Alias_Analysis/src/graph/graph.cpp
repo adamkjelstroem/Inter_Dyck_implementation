@@ -1017,13 +1017,15 @@ graph buildFlipped(graph &g){
 }
 
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
+	
+	graph g_flipped = buildFlipped(g_working);
+	//g_flipped is now g_working, but with edges flipped
+
+
 	//we're looking for cases of "a -- +1 --> b" where this is the only
 	//edge leading to b. also, b cannot have any out edges.
 	//thus, if we flip edges, b only has the eps edge, and if
 	//we don't it has an eps edge and an edge on exactly 1 counter
-
-	graph g_flipped = buildFlipped(g_working);
-	//g_2 is now g_working, but with edges flipped
 
 	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
@@ -1040,72 +1042,8 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 			}
 		}
 	}		
-	
-	g_flipped.deleteVertices();
-}
 
 
-graph graph::trimLeafEdges(graph g_working){
-	while(true){
-		set<int> to_delete;
-
-		discoverDeletableVertices(g_working, to_delete);
-
-
-		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
-
-		if(to_delete.size() == 0) break;
-
-
-		//make sure to_delete don't get carried over into new graph
-
-		graph g_working_2;
-
-		//build working copy of g without the deleted vertices
-		//basically, add an edge between 2 nodes if neither is to be deleted.
-		for (Vertex* u : g_working.vertices){
-			if(to_delete.find(u->id) == to_delete.end()){
-				//u is not a singleton
-				for (auto edge : u->edges){
-					for(auto v_id : edge.second){
-						if(to_delete.find(v_id) == to_delete.end()){
-							//if v is not a singleton, either
-							//then add an edge between them
-
-							//(actually add it between their respective roots)
-							auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
-							auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
-
-							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
-
-							g_working.numedges++;
-						}
-					}
-				}
-			}
-		}
-
-
-		g_working_2.dsu.init(g_working_2.N);
-		g_working_2.initWorklist();
-
-		//overwrite g_working with g_working_2
-		g_working.deleteVertices();
-		g_working = g_working_2;
-
-
-		cout<<"Newly reduced g, without the removable edges:"<<endl;
-		g_working.printSparsenessFacts();
-	}
-	return g_working;
-}
-
-
-graph graph::trimViaSpecialRule(graph g_working){
-	
-	graph g_outgoing = buildFlipped(g_working); //g_outgoing is g_working but with edges flipped
-	
-	set<int> to_delete;
 
 	/*	
 	if b does not have outgoing edges to other nodes than itself;
@@ -1129,7 +1067,7 @@ graph graph::trimViaSpecialRule(graph g_working){
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
 		//reach b are itself or one specific node:
-		auto b_outgoing = g_outgoing.getVertex(b->x, 0, "");
+		auto b_outgoing = g_flipped.getVertex(b->x, 0, "");
 		bool failed = false;
 
 		//check if b has outgoing edges only to itself
@@ -1201,11 +1139,80 @@ graph graph::trimViaSpecialRule(graph g_working){
 		}
 	}
 
+
+	
+	g_flipped.deleteVertices();
+}
+
+
+graph graph::trimLeafEdges(graph g_working){
+	while(true){
+		set<int> to_delete;
+
+		discoverDeletableVertices(g_working, to_delete);
+
+
+		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
+
+		if(to_delete.size() == 0) break;
+
+
+		//make sure to_delete don't get carried over into new graph
+
+		graph g_working_2;
+
+		//build working copy of g without the deleted vertices
+		//basically, add an edge between 2 nodes if neither is to be deleted.
+		for (Vertex* u : g_working.vertices){
+			if(to_delete.find(u->id) == to_delete.end()){
+				//u is not a singleton
+				for (auto edge : u->edges){
+					for(auto v_id : edge.second){
+						if(to_delete.find(v_id) == to_delete.end()){
+							//if v is not a singleton, either
+							//then add an edge between them
+
+							//(actually add it between their respective roots)
+							auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
+							auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
+
+							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+
+							g_working.numedges++;
+						}
+					}
+				}
+			}
+		}
+
+
+		g_working_2.dsu.init(g_working_2.N);
+		g_working_2.initWorklist();
+
+		//overwrite g_working with g_working_2
+		g_working.deleteVertices();
+		g_working = g_working_2;
+
+
+		cout<<"Newly reduced g, without the removable edges:"<<endl;
+		g_working.printSparsenessFacts();
+	}
+	return g_working;
+}
+
+
+graph graph::trimViaSpecialRule(graph g_working){
+	
+	graph g_flipped = buildFlipped(g_working); //g_outgoing is g_working but with edges flipped
+	
+	set<int> to_delete;
+
+
 	//TODO detect more cases as outlined in my email to A Pavlogiannis 3 july 2021
 
 		
 	cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
-	g_outgoing.deleteVertices();
+	g_flipped.deleteVertices();
 
 	//make sure to_delete don't get carried over into new graph
 
