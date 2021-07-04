@@ -101,7 +101,6 @@ public:
 
 	graph copy_ignoring(string label);
 
-	graph makeCopyWithoutDuplicates();
 
 	void printSparsenessFacts();
 
@@ -110,6 +109,22 @@ public:
 			delete v;
 		}
 	}
+
+	//upper bound for flattening height as described by A. Pavlogiannis
+	int bound(){
+		return 12*N*N + 6*N;
+	}
+
+	void transplantReachabilityInformationTo(graph other);
+	map<int,set<int>> computeDisjointSets();
+
+	//variout techniques to reduce graph sizes
+	graph makeCopyWithoutDuplicates();
+	graph trimLeafEdges(graph g_working);
+
+	//TODO needs better name
+	//Tecnique discovered at 2 july 2021
+	graph trimViaSpecialRule(graph g_working);
 };
 
 #endif

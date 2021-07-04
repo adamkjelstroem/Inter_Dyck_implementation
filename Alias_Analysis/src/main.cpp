@@ -44,9 +44,9 @@ int main(int argc, const char * argv[]){
 	if(true){
 		//Procedure as of 28 june 2021 2
 		string benchmarks[] = {
-			"antlr",
-			"bloat",
-			"chart",
+			//"antlr",
+			//"bloat",
+			//"chart",
 			"eclipse",
 			"fop",
 			"hsqldb",
@@ -143,7 +143,7 @@ int main(int argc, const char * argv[]){
 
 			cout<<"G_working: "<<endl;
 			g_working.printSparsenessFacts();
-			{
+			if(false){
 				graph g_2;
 				for(Vertex* v : g_working.vertices){
 					for(auto edge : v->edges){
@@ -170,35 +170,22 @@ int main(int argc, const char * argv[]){
 				g_2.deleteVertices();
 			}
 
-			if(true){
-				graph g_2;
-				
-				for(Vertex* v : g_working.vertices){
-					for(auto edge : v->edges){
-						for(int u_id : edge.second){
-							int u_x = g_working.vertices[u_id]->x;
-							g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
-						}
+			if(false){
+				auto edge = g_working.vertices[43]->edges;
+				cout<<"x of this "<<g_working.vertices[43]->x<<endl;
+				cout<<"edges: "<<edge.size()<<endl;
+				for(auto e : edge){
+					for(auto u : e.second){
+					cout<<e.first.field_name<<" with "<<u<<endl;
 					}
 				}
-				
-				//g_2 is now g_working, but with edges flipped
-				for(Vertex* v : g_2.vertices){
-					if(v->edges.size() == 2){
-						//v has exactly 2 types of edges; the mandatory 'eps' self-edge
-						//and some other type, either "[" or "("
-						for(auto edge : v->edges){
-							if(edge.first.field_name == "eps") continue; //skip eps
-							if(edge.second.size() == 1){
-								int skip_this = edge.second.front();
-								//TODO build new g_working without this vertex
-							}
-						}
-					}
-				}
-
 			}
 
+			{
+				graph m = g_working.trimLeafEdges(g_working);
+				g_working = m;	
+			}
+			
 			//TODO guarantee that repeating edges is zero
 
 			if(false){	
@@ -281,23 +268,8 @@ int main(int argc, const char * argv[]){
 			int max = 0;
 			int root_of_max = -1;
 			{
-				DSU dsu;
-				dsu.init(g_working.N);
-				for(Vertex* u : g_working.vertices){
-					for(auto edge : u->edges){
-						for (auto v_id : edge.second){
-							if(dsu.root(u->id) != dsu.root(v_id)){
-								dsu.merge(dsu.root(u->id), dsu.root(v_id));
-							}
-						}
-					}
-				}
-				map<int,set<int>> scc;
-				for(int i=0;i<g_working.N;i++){
-					scc[dsu.root(i)].insert(i);
-				}
+				map<int,set<int>> scc = g_working.computeDisjointSets();
 				cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
-				
 				int reasonable = -1;
 				for(auto el : scc){
 					int alt = el.second.size();
@@ -307,49 +279,121 @@ int main(int argc, const char * argv[]){
 					}
 					
 
-					if(alt < 51 && alt > 20){
-						cout<<"digraph example {"<<endl;
-						for(int v_id : el.second){
-							Vertex* v = g_working.vertices[v_id];
-							for(auto edge : v->edges){
-								for(auto u_id : edge.second){
-									if(u_id != v_id)
-										cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
-									
+					if(false){
+						if(alt < 51 && alt > 20){
+							cout<<"digraph example {"<<endl;
+							for(int v_id : el.second){
+								Vertex* v = g_working.vertices[v_id];
+								for(auto edge : v->edges){
+									for(auto u_id : edge.second){
+										if(u_id != v_id)
+											cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
+										
+									}
 								}
 							}
-						}
-						cout<<"}"<<endl;
+							cout<<"}"<<endl;
 
-						return 0;
+							return 0;
+						}
 					}
 				}
 				cout<<"Size of biggest such component: "<<max<<endl;	
-
-				//extract 'biggest such component' into separate graph
-
-				graph g_big;
-				for (auto id_in_g_working : scc[root_of_max]){
-					Vertex* v = g_working.vertices[id_in_g_working];
-					for(auto edge : v->edges){
-						for(auto u_id : edge.second){
-							g_big.addEdge(
-								g_working.vertices[u_id]->x, 0,
-								v->x, 0,
-								edge.first.field_name
-							);
+				{
+					graph g_part;
+					for (auto id_in_g_working : scc[root_of_max]){
+						Vertex* v = g_working.vertices[id_in_g_working];
+						for(auto edge : v->edges){
+							for(auto u_id : edge.second){
+								g_part.addEdge(
+									g_working.vertices[u_id]->x, 0,
+									v->x, 0,
+									edge.first.field_name
+								);
+							}
 						}
 					}
-				}
-				g_big.dsu.init(g_big.N);
-				g_big.initWorklist();
+					g_part.dsu.init(g_part.N);
+					g_part.initWorklist();
 
-				cout<<"G_big: "<<endl;
-				g_big.printSparsenessFacts();
+					//TODO do more trimming following this recipe:
+
+					g_part = g_part.trimViaSpecialRule(g_part);
+
+
+					//TODO move this trimming s.t. the entire graph gets trimmed, not just this disjoint subgraph.
+					g_part.printAsDot();
+					return 0;
+				}
+				if(false){
+					cout<<"digraph example {"<<endl;
+					for(int v_id : scc[root_of_max]){
+						Vertex* v = g_working.vertices[v_id];
+						for(auto edge : v->edges){
+							for(auto u_id : edge.second){
+								if(u_id != v_id)
+									cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
+								
+							}
+						}
+					}
+					cout<<"}"<<endl;
+					return 0;
+				}
+
+				//extract each component into separate graph
+				for(auto s : scc){
+					//we don't care about singleton sccs as no information can be discovered
+					if(s.second.size() == 1) continue;
+
+					cout<<"Analyzing component of size "<<s.second.size()<<endl;
+					
+					graph g_part;
+					for (auto id_in_g_working : s.second){
+						Vertex* v = g_working.vertices[id_in_g_working];
+						for(auto edge : v->edges){
+							for(auto u_id : edge.second){
+								g_part.addEdge(
+									g_working.vertices[u_id]->x, 0,
+									v->x, 0,
+									edge.first.field_name
+								);
+							}
+						}
+					}
+					g_part.dsu.init(g_part.N);
+					g_part.initWorklist();
+
+					if(false){
+						cout<<"Number of sccs: "<<g_part.computeSCCs().size()<<endl;
+						g_part.bidirectedReach();
+						cout<<"Number of sccs after reduction: "<<g_part.computeSCCs().size()<<endl;
+					}
+
+					cout<<"This should flatten to a total of "<<g_part.bound() * g_part.N<<" nodes."<<endl;
+
+					//compute flatten, then reach on each of these
+				
+					//graph h_part = g_part.flatten("(", g_part.bound());
+					graph h_part = g_part.flatten("(", 100);
+					
+					g_part.deleteVertices();
+
+					h_part.bidirectedReach();	
+					h_part.forceRootsToLayer(0);
+
+					//then merge info into g
+					h_part.transplantReachabilityInformationTo(*g);
+
+					h_part.deleteVertices();
+				}
+				
 			}
 
 
 			g_working.deleteVertices();
+
+			cout<<"Number of reachable pairs in g: "<<g->calcNumReachablePairs()<<endl;
 
 			g->deleteVertices();
 			delete g;

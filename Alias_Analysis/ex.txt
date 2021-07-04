@@ -1,0 +1,511 @@
+compiling the files
+CLASS_PATH = 
+BENCHMARK = 123
+MAIN_PROG = 
+Buildfile: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml
+
+clean:
+   [delete] Deleting directory /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+init:
+    [mkdir] Created dir: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+build:
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml:47: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 71 source files to /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:41: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				Integer newId = new Integer(id.intValue());
+    [javac] 				                ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:48: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				ind.add(new Integer(ex.expression.size() - 1));
+    [javac] 				        ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:63: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(conditions[j]));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:70: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				item.add(new Integer(conditions[j]));
+    [javac] 				         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:112: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set s = (Set) indices.get(new Integer(oldid));
+    [javac] 		                          ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:119: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.remove(new Integer(oldid));
+    [javac] 			            ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:120: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.add(new Integer(newid));
+    [javac] 			         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:132: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set in = (Set) indices.get(new Integer(id));
+    [javac] 		                           ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:144: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 					s.remove(new Integer(id));
+    [javac] 					         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:183: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(i));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:12: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(1));
+    [javac] 			              ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:13: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			return new Integer(0);
+    [javac] 			       ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:15: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(id.intValue() + 1));
+    [javac] 			              ^
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 13 warnings
+
+run.benchmark:
+     [java] May alias is spa   Debug is true   use_cache is false  use_summary is true
+     [java] [PARAMETER] SPA_BUDGET_NODES: 75000, SUMM_RATIO: 3, TIME_BUDGET: 2
+     [java] Soot called with main class : dacapo.123.Main
+     [java] Soot started on Fri Jul 02 12:15:02 CEST 2021
+     [java] Exception in thread "main" java.lang.NullPointerException
+     [java] 	at soot.JastAddJ.Program.initPaths(Program.java:329)
+     [java] 	at soot.SootResolver.<init>(SootResolver.java:86)
+     [java] 	at soot.Singletons.soot_SootResolver(Singletons.java:795)
+     [java] 	at soot.SootResolver.v(SootResolver.java:89)
+     [java] 	at soot.Scene.tryLoadClass(Scene.java:416)
+     [java] 	at soot.Scene.loadBasicClasses(Scene.java:990)
+     [java] 	at soot.Scene.loadNecessaryClasses(Scene.java:1061)
+     [java] 	at soot.Main.run(Main.java:167)
+     [java] 	at soot.Main.main(Main.java:141)
+     [java] 	at client.datarace.DataraceMain.main(DataraceMain.java:124)
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+
+
+
+-----------------
+
+Computing on eclipse
+repeating edges: 17205
+edges: 70495
+Vertices: 30981
+Number of reachable pairs via D' reachability: 1796452
+G_working: 
+repeating edges: 0
+edges: 51945
+Vertices: 27840
+Number of vertices that can be removed: 19005
+Newly reduced g, without the removable edges:
+repeating edges: 0
+edges: 12610
+Vertices: 8835
+Number of vertices that can be removed: 2963
+Newly reduced g, without the removable edges:
+repeating edges: 0
+edges: 6958
+Vertices: 5872
+Number of vertices that can be removed: 492
+Newly reduced g, without the removable edges:
+repeating edges: 0
+edges: 5974
+Vertices: 5380
+Number of vertices that can be removed: 37
+Newly reduced g, without the removable edges:
+repeating edges: 0
+edges: 5900
+Vertices: 5343
+Number of vertices that can be removed: 1
+Newly reduced g, without the removable edges:
+repeating edges: 0
+edges: 5898
+Vertices: 5342
+Number of vertices that can be removed: 0
+repeating edges: 0
+edges: 5898
+Vertices: 5342
+Found 4911 disjoint components w.r.t plain reachability
+Size of biggest such component: 313
+digraph example {
+	16 -> 15[label = "+1" color=blue];
+	14 -> 15[label = "+1" color=red];
+	17 -> 16[label = "+1" color=red];
+	39 -> 38[label = "+1" color=blue];
+	14 -> 38[label = "+1" color=red];
+	43 -> 44[label = "+1" color=blue];
+	14 -> 44[label = "+1" color=red];
+	56 -> 55[label = "+1" color=blue];
+	14 -> 55[label = "+1" color=red];
+	14 -> 56[label = "+1" color=red];
+	64 -> 63[label = "+1" color=blue];
+	14 -> 63[label = "+1" color=red];
+	78 -> 77[label = "+1" color=blue];
+	14 -> 77[label = "+1" color=red];
+	78 -> 79[label = "+1" color=blue];
+	14 -> 79[label = "+1" color=red];
+	81 -> 80[label = "+1" color=blue];
+	14 -> 80[label = "+1" color=red];
+	83 -> 82[label = "+1" color=blue];
+	14 -> 82[label = "+1" color=red];
+	83 -> 84[label = "+1" color=blue];
+	14 -> 84[label = "+1" color=red];
+	86 -> 85[label = "+1" color=blue];
+	14 -> 85[label = "+1" color=red];
+	88 -> 87[label = "+1" color=blue];
+	14 -> 87[label = "+1" color=red];
+	90 -> 89[label = "+1" color=blue];
+	14 -> 89[label = "+1" color=red];
+	14 -> 90[label = "+1" color=red];
+	90 -> 91[label = "+1" color=blue];
+	14 -> 91[label = "+1" color=red];
+	90 -> 92[label = "+1" color=blue];
+	14 -> 92[label = "+1" color=red];
+	95 -> 94[label = "+1" color=blue];
+	14 -> 94[label = "+1" color=red];
+	119 -> 118[label = "+1" color=blue];
+	14 -> 118[label = "+1" color=red];
+	120 -> 119[label = "+1" color=blue];
+	119 -> 121[label = "+1" color=blue];
+	14 -> 121[label = "+1" color=red];
+	123 -> 122[label = "+1" color=blue];
+	14 -> 122[label = "+1" color=red];
+	125 -> 124[label = "+1" color=blue];
+	14 -> 124[label = "+1" color=red];
+	14 -> 126[label = "+1" color=blue];
+	14 -> 126[label = "+1" color=red];
+	128 -> 127[label = "+1" color=blue];
+	14 -> 127[label = "+1" color=red];
+	131 -> 130[label = "+1" color=blue];
+	14 -> 130[label = "+1" color=red];
+	14 -> 132[label = "+1" color=red];
+	14 -> 133[label = "+1" color=red];
+	135 -> 134[label = "+1" color=blue];
+	14 -> 134[label = "+1" color=red];
+	14 -> 137[label = "+1" color=red];
+	14 -> 138[label = "+1" color=red];
+	199 -> 198[label = "+1" color=blue];
+	14 -> 198[label = "+1" color=red];
+	212 -> 211[label = "+1" color=blue];
+	14 -> 211[label = "+1" color=red];
+	214 -> 213[label = "+1" color=blue];
+	14 -> 213[label = "+1" color=red];
+	215 -> 214[label = "+1" color=red];
+	217 -> 216[label = "+1" color=blue];
+	14 -> 216[label = "+1" color=red];
+	219 -> 218[label = "+1" color=red];
+	289 -> 291[label = "+1" color=blue];
+	14 -> 291[label = "+1" color=red];
+	14 -> 292[label = "+1" color=blue];
+	14 -> 292[label = "+1" color=red];
+	296 -> 295[label = "+1" color=blue];
+	14 -> 295[label = "+1" color=red];
+	321 -> 320[label = "+1" color=blue];
+	14 -> 320[label = "+1" color=red];
+	323 -> 322[label = "+1" color=blue];
+	14 -> 322[label = "+1" color=red];
+	325 -> 324[label = "+1" color=blue];
+	14 -> 324[label = "+1" color=red];
+	327 -> 326[label = "+1" color=blue];
+	14 -> 326[label = "+1" color=red];
+	329 -> 328[label = "+1" color=blue];
+	14 -> 328[label = "+1" color=red];
+	331 -> 330[label = "+1" color=blue];
+	14 -> 330[label = "+1" color=red];
+	334 -> 333[label = "+1" color=blue];
+	14 -> 333[label = "+1" color=red];
+	336 -> 335[label = "+1" color=blue];
+	14 -> 335[label = "+1" color=red];
+	338 -> 337[label = "+1" color=blue];
+	14 -> 337[label = "+1" color=red];
+	340 -> 339[label = "+1" color=blue];
+	14 -> 339[label = "+1" color=red];
+	342 -> 341[label = "+1" color=blue];
+	14 -> 341[label = "+1" color=red];
+	344 -> 343[label = "+1" color=blue];
+	14 -> 343[label = "+1" color=red];
+	347 -> 346[label = "+1" color=blue];
+	14 -> 346[label = "+1" color=red];
+	348 -> 347[label = "+1" color=red];
+	78 -> 358[label = "+1" color=blue];
+	14 -> 358[label = "+1" color=red];
+	362 -> 363[label = "+1" color=blue];
+	14 -> 363[label = "+1" color=red];
+	14 -> 405[label = "+1" color=red];
+	405 -> 406[label = "+1" color=red];
+	406 -> 407[label = "+1" color=blue];
+	14 -> 407[label = "+1" color=red];
+	441 -> 440[label = "+1" color=blue];
+	14 -> 440[label = "+1" color=red];
+	441 -> 442[label = "+1" color=blue];
+	14 -> 442[label = "+1" color=red];
+	444 -> 443[label = "+1" color=blue];
+	14 -> 443[label = "+1" color=red];
+	446 -> 445[label = "+1" color=blue];
+	14 -> 445[label = "+1" color=red];
+	447 -> 448[label = "+1" color=blue];
+	14 -> 448[label = "+1" color=red];
+	450 -> 449[label = "+1" color=blue];
+	14 -> 449[label = "+1" color=red];
+	14 -> 471[label = "+1" color=blue];
+	14 -> 471[label = "+1" color=red];
+	473 -> 472[label = "+1" color=blue];
+	14 -> 472[label = "+1" color=red];
+	475 -> 474[label = "+1" color=blue];
+	14 -> 474[label = "+1" color=red];
+	14 -> 476[label = "+1" color=blue];
+	14 -> 476[label = "+1" color=red];
+	470 -> 477[label = "+1" color=blue];
+	14 -> 477[label = "+1" color=red];
+	36 -> 487[label = "+1" color=blue];
+	14 -> 487[label = "+1" color=red];
+	39 -> 488[label = "+1" color=blue];
+	14 -> 488[label = "+1" color=red];
+	490 -> 489[label = "+1" color=blue];
+	14 -> 489[label = "+1" color=red];
+	36 -> 579[label = "+1" color=blue];
+	578 -> 579[label = "+1" color=red];
+	581 -> 580[label = "+1" color=red];
+	36 -> 582[label = "+1" color=blue];
+	580 -> 582[label = "+1" color=red];
+	602 -> 603[label = "+1" color=blue];
+	14 -> 603[label = "+1" color=red];
+	602 -> 604[label = "+1" color=blue];
+	14 -> 604[label = "+1" color=red];
+	602 -> 605[label = "+1" color=blue];
+	14 -> 605[label = "+1" color=red];
+	602 -> 606[label = "+1" color=blue];
+	14 -> 606[label = "+1" color=red];
+	602 -> 607[label = "+1" color=blue];
+	14 -> 607[label = "+1" color=red];
+	602 -> 608[label = "+1" color=blue];
+	14 -> 608[label = "+1" color=red];
+	611 -> 610[label = "+1" color=blue];
+	14 -> 610[label = "+1" color=red];
+	715 -> 714[label = "+1" color=blue];
+	14 -> 714[label = "+1" color=red];
+	715 -> 716[label = "+1" color=blue];
+	14 -> 716[label = "+1" color=red];
+	318 -> 727[label = "+1" color=blue];
+	14 -> 727[label = "+1" color=red];
+	729 -> 728[label = "+1" color=blue];
+	14 -> 728[label = "+1" color=red];
+	14 -> 730[label = "+1" color=blue];
+	14 -> 730[label = "+1" color=red];
+	14 -> 731[label = "+1" color=blue];
+	14 -> 731[label = "+1" color=red];
+	762 -> 761[label = "+1" color=blue];
+	14 -> 761[label = "+1" color=red];
+	788 -> 787[label = "+1" color=blue];
+	786 -> 787[label = "+1" color=red];
+	14 -> 789[label = "+1" color=red];
+	788 -> 790[label = "+1" color=blue];
+	789 -> 790[label = "+1" color=red];
+	848 -> 849[label = "+1" color=blue];
+	14 -> 849[label = "+1" color=red];
+	14 -> 850[label = "+1" color=blue];
+	14 -> 850[label = "+1" color=red];
+	859 -> 860[label = "+1" color=blue];
+	14 -> 860[label = "+1" color=red];
+	14 -> 861[label = "+1" color=blue];
+	14 -> 861[label = "+1" color=red];
+	14 -> 953[label = "+1" color=blue];
+	14 -> 953[label = "+1" color=red];
+	14 -> 954[label = "+1" color=blue];
+	14 -> 954[label = "+1" color=red];
+	997 -> 998[label = "+1" color=blue];
+	14 -> 998[label = "+1" color=red];
+	1000 -> 1002[label = "+1" color=blue];
+	1001 -> 1002[label = "+1" color=red];
+	1000 -> 1003[label = "+1" color=blue];
+	1001 -> 1003[label = "+1" color=red];
+	1000 -> 1004[label = "+1" color=blue];
+	14 -> 1004[label = "+1" color=red];
+	1005 -> 1006[label = "+1" color=red];
+	1006 -> 1007[label = "+1" color=blue];
+	14 -> 1007[label = "+1" color=red];
+	1006 -> 1008[label = "+1" color=blue];
+	14 -> 1008[label = "+1" color=red];
+	1006 -> 1009[label = "+1" color=blue];
+	14 -> 1009[label = "+1" color=red];
+	1006 -> 1010[label = "+1" color=blue];
+	14 -> 1010[label = "+1" color=red];
+	1006 -> 1011[label = "+1" color=blue];
+	14 -> 1011[label = "+1" color=red];
+	1006 -> 1012[label = "+1" color=blue];
+	14 -> 1012[label = "+1" color=red];
+	218 -> 1014[label = "+1" color=blue];
+	14 -> 1014[label = "+1" color=red];
+	218 -> 1015[label = "+1" color=blue];
+	14 -> 1015[label = "+1" color=red];
+	218 -> 1017[label = "+1" color=blue];
+	1016 -> 1017[label = "+1" color=red];
+	14 -> 1067[label = "+1" color=blue];
+	14 -> 1107[label = "+1" color=blue];
+	14 -> 1107[label = "+1" color=red];
+	14 -> 1108[label = "+1" color=blue];
+	14 -> 1108[label = "+1" color=red];
+	1116 -> 1115[label = "+1" color=blue];
+	14 -> 1115[label = "+1" color=red];
+	1119 -> 1118[label = "+1" color=blue];
+	14 -> 1118[label = "+1" color=red];
+	1119 -> 1120[label = "+1" color=blue];
+	14 -> 1120[label = "+1" color=red];
+	14 -> 1153[label = "+1" color=blue];
+	1157 -> 1158[label = "+1" color=red];
+	1158 -> 1159[label = "+1" color=blue];
+	1153 -> 1159[label = "+1" color=red];
+	1160 -> 1161[label = "+1" color=red];
+	1161 -> 1162[label = "+1" color=blue];
+	1153 -> 1162[label = "+1" color=red];
+	1164 -> 1165[label = "+1" color=red];
+	1165 -> 1166[label = "+1" color=blue];
+	1153 -> 1166[label = "+1" color=red];
+	1169 -> 1170[label = "+1" color=red];
+	1170 -> 1171[label = "+1" color=blue];
+	1153 -> 1171[label = "+1" color=red];
+	14 -> 1190[label = "+1" color=blue];
+	1189 -> 1190[label = "+1" color=red];
+	14 -> 1232[label = "+1" color=blue];
+	14 -> 1232[label = "+1" color=red];
+	14 -> 1233[label = "+1" color=blue];
+	14 -> 1233[label = "+1" color=red];
+	1344 -> 1343[label = "+1" color=blue];
+	14 -> 1343[label = "+1" color=red];
+	14 -> 1345[label = "+1" color=blue];
+	14 -> 1345[label = "+1" color=red];
+	1347 -> 1346[label = "+1" color=blue];
+	14 -> 1346[label = "+1" color=red];
+	1368 -> 1367[label = "+1" color=blue];
+	14 -> 1367[label = "+1" color=red];
+	14 -> 1409[label = "+1" color=blue];
+	1408 -> 1409[label = "+1" color=red];
+	1507 -> 1509[label = "+1" color=blue];
+	14 -> 1509[label = "+1" color=red];
+	1610 -> 1611[label = "+1" color=blue];
+	14 -> 1611[label = "+1" color=red];
+	1613 -> 1612[label = "+1" color=blue];
+	14 -> 1612[label = "+1" color=red];
+	1624 -> 1623[label = "+1" color=blue];
+	14 -> 1623[label = "+1" color=red];
+	1626 -> 1625[label = "+1" color=blue];
+	14 -> 1625[label = "+1" color=red];
+	1628 -> 1627[label = "+1" color=blue];
+	14 -> 1627[label = "+1" color=red];
+	1629 -> 1628[label = "+1" color=blue];
+	14 -> 1671[label = "+1" color=blue];
+	14 -> 1671[label = "+1" color=red];
+	14 -> 1672[label = "+1" color=blue];
+	14 -> 1672[label = "+1" color=red];
+	14 -> 1695[label = "+1" color=blue];
+	14 -> 1695[label = "+1" color=red];
+	1723 -> 1724[label = "+1" color=blue];
+	14 -> 1724[label = "+1" color=red];
+	1723 -> 1725[label = "+1" color=blue];
+	14 -> 1725[label = "+1" color=red];
+	1643 -> 1731[label = "+1" color=blue];
+	14 -> 1731[label = "+1" color=red];
+	1733 -> 1732[label = "+1" color=blue];
+	14 -> 1732[label = "+1" color=red];
+	1735 -> 1734[label = "+1" color=red];
+	14 -> 1769[label = "+1" color=blue];
+	1734 -> 1769[label = "+1" color=red];
+	1734 -> 1770[label = "+1" color=blue];
+	1771 -> 1770[label = "+1" color=red];
+	14 -> 1772[label = "+1" color=blue];
+	14 -> 1772[label = "+1" color=red];
+	14 -> 1773[label = "+1" color=blue];
+	14 -> 1773[label = "+1" color=red];
+	14 -> 1810[label = "+1" color=blue];
+	1809 -> 1810[label = "+1" color=red];
+	14 -> 2126[label = "+1" color=blue];
+	14 -> 2126[label = "+1" color=red];
+	14 -> 2142[label = "+1" color=blue];
+	14 -> 2142[label = "+1" color=red];
+	14 -> 2144[label = "+1" color=blue];
+	14 -> 2144[label = "+1" color=red];
+	14 -> 2145[label = "+1" color=blue];
+	14 -> 2145[label = "+1" color=red];
+	2229 -> 2228[label = "+1" color=blue];
+	14 -> 2228[label = "+1" color=red];
+	14 -> 2296[label = "+1" color=red];
+	14 -> 2300[label = "+1" color=blue];
+	14 -> 2300[label = "+1" color=red];
+	323 -> 2500[label = "+1" color=blue];
+	318 -> 2500[label = "+1" color=red];
+	14 -> 2744[label = "+1" color=blue];
+	2744 -> 2745[label = "+1" color=blue];
+	14 -> 2745[label = "+1" color=red];
+	14 -> 2761[label = "+1" color=blue];
+	14 -> 2761[label = "+1" color=red];
+	14 -> 2769[label = "+1" color=blue];
+	14 -> 2769[label = "+1" color=red];
+	14 -> 2772[label = "+1" color=blue];
+	14 -> 2772[label = "+1" color=red];
+	14 -> 2773[label = "+1" color=blue];
+	14 -> 2773[label = "+1" color=red];
+	14 -> 2774[label = "+1" color=blue];
+	14 -> 2774[label = "+1" color=red];
+	14 -> 2775[label = "+1" color=blue];
+	14 -> 2775[label = "+1" color=red];
+	14 -> 2776[label = "+1" color=blue];
+	14 -> 2776[label = "+1" color=red];
+	2842 -> 2841[label = "+1" color=blue];
+	14 -> 2841[label = "+1" color=red];
+	2849 -> 2848[label = "+1" color=blue];
+	14 -> 2848[label = "+1" color=red];
+	2896 -> 2895[label = "+1" color=blue];
+	14 -> 2895[label = "+1" color=red];
+	2946 -> 2947[label = "+1" color=blue];
+	14 -> 2947[label = "+1" color=red];
+	14 -> 2976[label = "+1" color=blue];
+	14 -> 2976[label = "+1" color=red];
+	2993 -> 2992[label = "+1" color=blue];
+	14 -> 2992[label = "+1" color=red];
+	3131 -> 3132[label = "+1" color=blue];
+	14 -> 3132[label = "+1" color=red];
+	3131 -> 3133[label = "+1" color=blue];
+	14 -> 3133[label = "+1" color=red];
+	1369 -> 3180[label = "+1" color=blue];
+	14 -> 3180[label = "+1" color=red];
+	3235 -> 3234[label = "+1" color=blue];
+	14 -> 3234[label = "+1" color=red];
+	14 -> 3242[label = "+1" color=blue];
+	14 -> 3242[label = "+1" color=red];
+	14 -> 3249[label = "+1" color=blue];
+	14 -> 3249[label = "+1" color=red];
+	14 -> 3345[label = "+1" color=blue];
+	14 -> 3345[label = "+1" color=red];
+	14 -> 3347[label = "+1" color=blue];
+	14 -> 3347[label = "+1" color=red];
+	14 -> 3385[label = "+1" color=red];
+	14 -> 3386[label = "+1" color=blue];
+	3385 -> 3386[label = "+1" color=red];
+	14 -> 3387[label = "+1" color=blue];
+	3385 -> 3387[label = "+1" color=red];
+	3389 -> 3388[label = "+1" color=blue];
+	14 -> 3388[label = "+1" color=red];
+	14 -> 3415[label = "+1" color=blue];
+	14 -> 3415[label = "+1" color=red];
+	3460 -> 3459[label = "+1" color=blue];
+	14 -> 3459[label = "+1" color=red];
+	14 -> 3637[label = "+1" color=blue];
+	3636 -> 3637[label = "+1" color=red];
+	954 -> 3745[label = "+1" color=blue];
+	14 -> 3745[label = "+1" color=red];
+	14 -> 3844[label = "+1" color=blue];
+	14 -> 3844[label = "+1" color=red];
+	3919 -> 3918[label = "+1" color=blue];
+	14 -> 3918[label = "+1" color=red];
+	14 -> 3919[label = "+1" color=red];
+	14 -> 3920[label = "+1" color=red];
+	4483 -> 4484[label = "+1" color=blue];
+	14 -> 4484[label = "+1" color=red];
+	4483 -> 4485[label = "+1" color=blue];
+	14 -> 4485[label = "+1" color=red];
+	4849 -> 4848[label = "+1" color=blue];
+	14 -> 4848[label = "+1" color=red];
+	14 -> 4861[label = "+1" color=blue];
+	14 -> 4861[label = "+1" color=red];
+	4865 -> 4864[label = "+1" color=blue];
+	14 -> 4864[label = "+1" color=red];
+	14 -> 4877[label = "+1" color=blue];
+	1347 -> 4877[label = "+1" color=red];
+	5017 -> 5016[label = "+1" color=blue];
+	14 -> 5016[label = "+1" color=red];
+	5226 -> 5227[label = "+1" color=blue];
+	1809 -> 5227[label = "+1" color=red];
+}

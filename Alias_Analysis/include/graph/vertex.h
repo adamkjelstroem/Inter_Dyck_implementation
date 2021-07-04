@@ -18,15 +18,15 @@ public:
 
 /*public:*/
 	int id, x, y;
-	string name;
-	int graph_num;
+	//string name;
+	//int graph_num;
 	
 	Vertex(int id, int x, int y, string s){
 		this->id = id;
 		this->x = x;
 		this->y = y;
-		this->name = s;
-		graph_num=id;
+		//this->name = s;
+		//graph_num=id;
 	}
 
 	Vertex(){

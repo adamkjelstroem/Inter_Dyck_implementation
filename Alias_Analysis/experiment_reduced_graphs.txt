@@ -1,0 +1,95 @@
+
+Doing iteration 0 of 3. flattening to height 500
+
+Results for g='antlr':
+Original size of g: 825
+
+Number of sccs before reduction: 825
+Number of sccs after first reduction on '[': 427
+Number of sccs after also reducing on '(': 427
+Number of D dot D sccs thus far: 427
+
+Number of reachable pairs of g in D dot D: 3228
+Number of reachable pairs of g in D ignoring '[': 6424
+Number of reachable pairs of g in D ignoring '(': 8431
+Time for iteration: 12.1708 s
+
+Doing iteration 1 of 3. flattening to height 800
+
+Results for g='antlr':
+Original size of g: 825
+
+Number of sccs before reduction: 427
+Number of sccs after first reduction on '[': 427
+Number of sccs after also reducing on '(': 427
+Number of D dot D sccs thus far: 427
+
+Number of reachable pairs of g in D dot D: 3228
+Number of reachable pairs of g in D ignoring '[': 3813
+Number of reachable pairs of g in D ignoring '(': 4265
+Time for iteration: 18.3118 s
+
+Doing iteration 2 of 3. flattening to height 1100
+
+Results for g='antlr':
+Original size of g: 825
+
+Number of sccs before reduction: 427
+Number of sccs after first reduction on '[': 427
+Number of sccs after also reducing on '(': 427
+Number of D dot D sccs thus far: 427
+
+Number of reachable pairs of g in D dot D: 3228
+Number of reachable pairs of g in D ignoring '[': 3813
+Number of reachable pairs of g in D ignoring '(': 4265
+Time for iteration: 25.093 s
+
+
+--------------------------
+
+
+Doing iteration 0 of 3. flattening to height 500
+
+Results for g='bloat':
+Original size of g: 729
+
+Number of sccs before reduction: 729
+Number of sccs after first reduction on '[': 420
+Number of sccs after also reducing on '(': 420
+Number of D dot D sccs thus far: 420
+
+Number of reachable pairs of g in D dot D: 2164
+Number of reachable pairs of g in D ignoring '[': 4577
+Number of reachable pairs of g in D ignoring '(': 8011
+Time for iteration: 12.5528 s
+
+Doing iteration 1 of 3. flattening to height 800
+
+Results for g='bloat':
+Original size of g: 729
+
+Number of sccs before reduction: 420
+Number of sccs after first reduction on '[': 420
+Number of sccs after also reducing on '(': 420
+Number of D dot D sccs thus far: 420
+
+Number of reachable pairs of g in D dot D: 2164
+Number of reachable pairs of g in D ignoring '[': 2693
+Number of reachable pairs of g in D ignoring '(': 3122
+Time for iteration: 18.8192 s
+
+Doing iteration 2 of 3. flattening to height 1100
+
+Results for g='bloat':
+Original size of g: 729
+
+Number of sccs before reduction: 420
+Number of sccs after first reduction on '[': 420
+Number of sccs after also reducing on '(': 420
+Number of D dot D sccs thus far: 420
+
+Number of reachable pairs of g in D dot D: 2164
+Number of reachable pairs of g in D ignoring '[': 2693
+Number of reachable pairs of g in D ignoring '(': 3122
+Time for iteration: 25.5455 s
+

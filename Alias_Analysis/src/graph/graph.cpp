@@ -85,13 +85,20 @@ graph graph::flatten(string field_name, int depth){
 	//cout<<"Flattening on "<<field_name<<" up to height "<<depth<<endl;
 	
 
-	clock_t t;
+	clock_t t, t2;
 	t = clock();
-	bool print = false;
+	bool print = true;
+	float totalTime = 0;
 
 	for (int i = 0; i < depth; i++){
-		if(print && clock() - t > 2*CLOCKS_PER_SEC){
-			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)clock()-t)/CLOCKS_PER_SEC<<")"<<endl;
+		if(print && clock() - t > 3*CLOCKS_PER_SEC){
+
+			float t0 = ((float)clock()-t)/CLOCKS_PER_SEC;
+			//totalTime = totalTime + t0;
+
+			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<t0<<") "<<(i * 100 / depth)<<"%"<<endl;
+			//computed i layers of depth in t0
+
 			t = clock();
 		}
 		
@@ -105,6 +112,59 @@ graph graph::flatten(string field_name, int depth){
 	g.initWorklist();
 
 	return g;
+}
+
+
+void graph::transplantReachabilityInformationTo(graph g){
+	auto sccs = computeSCCs();
+
+	int mergings = 0;
+	for(auto s : sccs){
+		auto root = vertices[s.first];
+		if(root->y == 0){
+			//we only care about roots at layer 0
+			for(auto b : s.second){
+				auto other = vertices[b];
+				if(other->y == 0){
+					//we only care about members of the scc which are also at layer 0
+
+					auto root_in_g = g.getVertex(root->x, 0, "");
+					auto root_in_g_s_root_id = g.dsu.root(root_in_g->id);
+
+					auto other_in_g = g.getVertex(other->x, 0, "");
+					auto other_in_g_s_root_id = g.dsu.root(other_in_g->id);
+
+					if(root_in_g_s_root_id != other_in_g_s_root_id){
+						g.dsu.merge(root_in_g_s_root_id, other_in_g_s_root_id);
+						mergings++;
+					}
+				}
+			}
+		}
+	}
+	if(mergings > 0)
+		cout<<"merged "<<mergings<<" nodes in g"<<endl;
+
+}
+
+
+map<int,set<int>> graph::computeDisjointSets(){
+	DSU dsu;
+	dsu.init(N);
+	for(Vertex* u : vertices){
+		for(auto edge : u->edges){
+			for (auto v_id : edge.second){
+				if(dsu.root(u->id) != dsu.root(v_id)){
+					dsu.merge(dsu.root(u->id), dsu.root(v_id));
+				}
+			}
+		}
+	}
+	map<int,set<int>> scc;
+	for(int i=0;i<N;i++){
+		scc[dsu.root(i)].insert(i);
+	}
+	return scc;
 }
 
 //Here, we flatten up to some counter, then collapse nodes and reconstruct graph
@@ -928,11 +988,259 @@ void graph::printGraphAsTikz(){
 
 //prints the graph in the 'dot' format
 void graph::printAsDot(){
-	iterateOverEdges(
-		[](Vertex a, Vertex b, field f, void* extra[]) {
-			cout<<a.name<<"->"<<b.name<<"[label=\""<<f.field_name<<endl;
-		}, 
-	nullptr);
+	cout<<"digraph example {"<<endl;
+	for(Vertex* v : vertices){
+		for(auto edge : v->edges){
+			for(auto u_id : edge.second){
+				if(!(u_id == v->id && edge.first.field_name == "eps"))
+					cout<<"	"<<vertices[u_id]->id<<" -> "<<v->id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
+				
+			}
+		}
+	}
+	cout<<"}"<<endl;
+}
+
+graph graph::trimLeafEdges(graph g_working){
+	while(true){
+		//we're looking for cases of "a -- +1 --> b" where this is the only
+		//edge leading to b. also, b cannot have any out edges.
+		//thus, if we flip edges, b only has the eps edge, and if
+		//we don't it has an eps edge and an edge on exactly 1 counter
+		graph g_2;
+		
+		for(Vertex* v : g_working.vertices){
+			for(auto edge : v->edges){
+				for(int u_id : edge.second){
+					int u_x = g_working.vertices[u_id]->x;
+					//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
+					g_2.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
+				}
+			}
+		}
+
+
+		//g_2 is now g_working, but with edges flipped
+		set<int> to_delete;
+
+		for(Vertex* v : g_2.vertices){
+			
+			if(v->edges.size() <= 1){ //we have only the eps out-edge
+				auto v_in_g_working = g_working.getVertex(v->x, 0, "");
+				if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
+					//v has exactly 2 types of edges; the mandatory 'eps' self-edge
+					//and some other type, either "[" or "("
+					for(auto edge : v_in_g_working->edges){
+						if(edge.first.field_name != "eps" && edge.second.size() == 1){
+							int skip_this = v->id;
+							to_delete.insert(skip_this);
+						}
+					}
+				}
+			}
+		}
+		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
+		if(to_delete.size() == 0) break;
+		g_2.deleteVertices();
+
+		//make sure to_delete don't get carried over into new graph
+
+		graph g_working_2;
+
+		//build working copy of g without the deleted vertices
+		//basically, add an edge between 2 nodes if neither is to be deleted.
+		for (Vertex* u : g_working.vertices){
+			if(to_delete.find(u->id) == to_delete.end()){
+				//u is not a singleton
+				for (auto edge : u->edges){
+					for(auto v_id : edge.second){
+						if(to_delete.find(v_id) == to_delete.end()){
+							//if v is not a singleton, either
+							//then add an edge between them
+
+							//(actually add it between their respective roots)
+							auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
+							auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
+
+							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+
+							g_working.numedges++;
+						}
+					}
+				}
+			}
+		}
+
+
+		g_working_2.dsu.init(g_working_2.N);
+		g_working_2.initWorklist();
+
+		//overwrite g_working with g_working_2
+		g_working.deleteVertices();
+		g_working = g_working_2;
+
+
+		cout<<"Newly reduced g, without the removable edges:"<<endl;
+		g_working.printSparsenessFacts();
+	}
+	return g_working;
+}
+
+graph graph::trimViaSpecialRule(graph g_working){
+
+	graph g_outgoing; //g_outgoing is g_working but with edges flipped
+	for(Vertex* v : g_working.vertices){
+		for(auto edge : v->edges){
+			for(int u_id : edge.second){
+				int u_x = g_working.vertices[u_id]->x;
+				//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
+				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
+			}
+		}
+	}
+	set<int> to_delete;
+
+	/*	
+	if b does not have outgoing edges to other nodes than itself;
+
+	and b only has one neighbor
+
+	AND either
+
+	case a):
+	- node b has exactly one incoming edge, and b's self-loop is also a self-loop of its neighbor
+
+	OR
+
+	case b):
+	- you have 2 incoming edges, and both are self-loops on your neighbor
+
+	then, we can safely remove b
+	*/
+
+
+	for(Vertex* b : g_working.vertices){
+		//if b has only one neighbor, aka all nodes that 
+		//reach b are itself or one specific node:
+		auto b_outgoing = g_outgoing.getVertex(b->x, 0, "");
+		bool failed = false;
+
+		//check if b has outgoing edges only to itself
+		string self_loop_label = "";
+		for(auto edge : b_outgoing->edges){
+			for(auto neighbor : edge.second){
+				if(neighbor != b_outgoing->id){
+					failed = true;
+				}else if (edge.first.field_name != "eps"){
+					self_loop_label = edge.first.field_name;
+				}
+			}
+		}
+		if(failed) continue;
+
+		//check if b only has incoming edges from itself or one specific other node
+		int neighbor_id = -1;
+		int edges_from_neighbor = 0;
+		for(auto edge : b->edges){
+			for(auto neighbor : edge.second){
+				if(neighbor != b->id){
+					if(neighbor_id == -1){
+						neighbor_id = neighbor;
+						edges_from_neighbor++;
+					}else if (neighbor != neighbor_id){
+						failed = true;
+					}else{
+						edges_from_neighbor++;
+					}
+				}
+			}
+		}
+		if(failed) continue;
+
+		if(edges_from_neighbor == 1){
+			//case a):
+			//- node b has exactly one incoming edge, and b's self-loop is also a self-loop of its neighbor
+			bool yes = false;
+			for(auto edge : g_working.vertices[neighbor_id]->edges){
+				for(auto other : edge.second){
+					if(other == neighbor_id){
+						//found a self loop on the neighbor
+						if(edge.first.field_name == self_loop_label){
+							yes = true;
+						}
+					}
+				}
+			}
+			if(yes){
+				to_delete.insert(b->id);
+			}
+		}else if(edges_from_neighbor == 2){
+			//case b):
+			//- b has 2 incoming edges, and both are self-loops on its neighbor
+			int self_loops_on_neigbor = 0;
+			for(auto edge : g_working.vertices[neighbor_id]->edges){
+				for(auto other : edge.second){
+					if(other == neighbor_id)
+						self_loops_on_neigbor++;
+				}
+			}
+			if(self_loops_on_neigbor == 3){ //all nodes have an eps self-edge, so this is how to ask for 2 'true' self-loops
+				//b has 2 incoming edges, and its neighbor has 2 self-loops. thus we are done
+				to_delete.insert(b->id);
+			}
+		}else{
+			cout<<"SANITY CHECK! SOMETHING IS WRONG!"<<endl;
+			int x = 1/0;
+		}
+	}
+
+	//TODO detect more cases as outlined in my email to A Pavlogiannis 3 july 2021
+
+		
+	cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
+	g_outgoing.deleteVertices();
+
+	//make sure to_delete don't get carried over into new graph
+
+	graph g_working_2;
+
+	//build working copy of g without the deleted vertices
+	//basically, add an edge between 2 nodes if neither is to be deleted.
+	for (Vertex* u : g_working.vertices){
+		if(to_delete.find(u->id) == to_delete.end()){
+			//u is not a singleton
+			for (auto edge : u->edges){
+				for(auto v_id : edge.second){
+					if(to_delete.find(v_id) == to_delete.end()){
+						//if v is not a singleton, either
+						//then add an edge between them
+
+						//(actually add it between their respective roots)
+						auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
+						auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
+
+						v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+
+						g_working.numedges++;
+					}
+				}
+			}
+		}
+	}
+
+
+	g_working_2.dsu.init(g_working_2.N);
+	g_working_2.initWorklist();
+
+	//overwrite g_working with g_working_2
+	g_working.deleteVertices();
+	g_working = g_working_2;
+
+
+	cout<<"Newly reduced g, without the removable edges:"<<endl;
+	g_working.printSparsenessFacts();
+	
+	return g_working;
 }
 
 
@@ -1312,7 +1620,7 @@ void graph::printGraph(){
 	cout<<"size of fields in graph is "<<fields.size()<<endl;
 	for(int i=0;i<vertices.size();i++){
 		Vertex *vtx = vertices[i];
-		cout<<"*****  "<<vtx->name<<"  *****\n";
+		cout<<"*****  "<<vtx->x<<"  *****\n";
 		vtx->printvtxid();
 		printEdges(vtx);
 		cout<<endl;
@@ -1328,7 +1636,7 @@ void graph::printEdges(Vertex *vtx){
 		cout<<"** "<<f.field_name<<endl;
 		auto fedgeit = vtx->edgesbegin(f);
 		while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-			cout<<"\t"<<vertices[*fedgeit]->name<<endl;
+			cout<<"\t"<<vertices[*fedgeit]->x<<endl;
 			fedgeit++;
 		}
 		fit++;

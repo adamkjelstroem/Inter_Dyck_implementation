@@ -62,19 +62,19 @@ run.benchmark:
      [java] Soot called with main class : dacapo.123.Main
      [java] Exception in thread "main" java.lang.NullPointerException
      [java] 	at soot.JastAddJ.Program.initPaths(Program.java:329)
-     [java] 	at soot.SootResolver.<init>(SootResolver.java:86)
+     [java] Soot started on Tue Jun 29 13:37:22 CEST 2021	at soot.SootResolver.<init>(SootResolver.java:86)
+     [java] 
      [java] 	at soot.Singletons.soot_SootResolver(Singletons.java:795)
      [java] 	at soot.SootResolver.v(SootResolver.java:89)
      [java] 	at soot.Scene.tryLoadClass(Scene.java:416)
      [java] 	at soot.Scene.loadBasicClasses(Scene.java:990)
-     [java] Soot started on Tue Jun 29 10:16:05 CEST 2021	at soot.Scene.loadNecessaryClasses(Scene.java:1061)
-     [java] 
+     [java] 	at soot.Scene.loadNecessaryClasses(Scene.java:1061)
      [java] 	at soot.Main.run(Main.java:167)
      [java] 	at soot.Main.main(Main.java:141)
      [java] 	at client.datarace.DataraceMain.main(DataraceMain.java:124)
 
 BUILD SUCCESSFUL
-Total time: 2 seconds
+Total time: 3 seconds
 
 
 
@@ -84,7 +84,7 @@ computing on antlr
 Original size of g: 29831
 Number of reachable pairs wrt [ and ( (non-interleaved): 12246718
 Running 3 iterations.
-Doing iteration 1 flattening to height 100
+Doing iteration 1 flattening to height 10
 Number of D1 dot D1 SCCs before reduction: 29831
 
 Number of D1 dot D1 SCCs after first reducing on '[': 13194
@@ -98,13 +98,14 @@ Number of reachable pairs of g in D dot D: 16917083
 
 Number of reachable pairs of g in D ignoring '[': 23473776
 Number of reachable pairs of g in D ignoring '(': 43224906
+Number of reachable pairs reachable in both of these: 18242788
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2684
 Number of D1 dot D1 SCCs with a +1 self loop on (: 3331
 
-Time for iteration: 474.346 s
+Time for iteration: 50.6581 s
 
-Doing iteration 2 flattening to height 110
+Doing iteration 2 flattening to height 15
 Number of D1 dot D1 SCCs before reduction: 13194
 
 Number of D1 dot D1 SCCs after first reducing on '[': 13194
@@ -116,15 +117,16 @@ Number of reachable pairs after also reducing on '(': 16917083
 Number of D1 dot D1 SCCs thus far: 13194
 Number of reachable pairs of g in D dot D: 16917083
 
-Number of reachable pairs of g in D ignoring '[': 17180380
-Number of reachable pairs of g in D ignoring '(': 20228109
+Number of reachable pairs of g in D ignoring '[': 248045
+Number of reachable pairs of g in D ignoring '(': 3306625
+Number of reachable pairs reachable in both of these: 9535
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2684
 Number of D1 dot D1 SCCs with a +1 self loop on (: 3331
 
-Time for iteration: 538.946 s
+Time for iteration: 84.462 s
 
-Doing iteration 3 flattening to height 120
+Doing iteration 3 flattening to height 20
 Number of D1 dot D1 SCCs before reduction: 13194
 
 Number of D1 dot D1 SCCs after first reducing on '[': 13194
@@ -136,13 +138,14 @@ Number of reachable pairs after also reducing on '(': 16917083
 Number of D1 dot D1 SCCs thus far: 13194
 Number of reachable pairs of g in D dot D: 16917083
 
-Number of reachable pairs of g in D ignoring '[': 17180380
-Number of reachable pairs of g in D ignoring '(': 20228109
+Number of reachable pairs of g in D ignoring '[': 248045
+Number of reachable pairs of g in D ignoring '(': 3306625
+Number of reachable pairs reachable in both of these: 9535
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2684
 Number of D1 dot D1 SCCs with a +1 self loop on (: 3331
 
-Time for iteration: 611.103 s
+Time for iteration: 114.486 s
 
 
 
@@ -152,7 +155,7 @@ computing on bloat
 Original size of g: 36181
 Number of reachable pairs wrt [ and ( (non-interleaved): 26650688
 Running 3 iterations.
-Doing iteration 1 flattening to height 100
+Doing iteration 1 flattening to height 10
 Number of D1 dot D1 SCCs before reduction: 36181
 
 Number of D1 dot D1 SCCs after first reducing on '[': 15843
@@ -166,13 +169,14 @@ Number of reachable pairs of g in D dot D: 37300820
 
 Number of reachable pairs of g in D ignoring '[': 48839503
 Number of reachable pairs of g in D ignoring '(': 80785410
+Number of reachable pairs reachable in both of these: 39402513
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2676
 Number of D1 dot D1 SCCs with a +1 self loop on (: 4018
 
-Time for iteration: 511.456 s
+Time for iteration: 65.1854 s
 
-Doing iteration 2 flattening to height 110
+Doing iteration 2 flattening to height 15
 Number of D1 dot D1 SCCs before reduction: 15843
 
 Number of D1 dot D1 SCCs after first reducing on '[': 15843
@@ -184,15 +188,16 @@ Number of reachable pairs after also reducing on '(': 37300820
 Number of D1 dot D1 SCCs thus far: 15843
 Number of reachable pairs of g in D dot D: 37300820
 
-Number of reachable pairs of g in D ignoring '[': 37747673
-Number of reachable pairs of g in D ignoring '(': 41903903
+Number of reachable pairs of g in D ignoring '[': 429870
+Number of reachable pairs of g in D ignoring '(': 4598154
+Number of reachable pairs reachable in both of these: 11792
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2676
 Number of D1 dot D1 SCCs with a +1 self loop on (: 4018
 
-Time for iteration: 617.989 s
+Time for iteration: 88.611 s
 
-Doing iteration 3 flattening to height 120
+Doing iteration 3 flattening to height 20
 Number of D1 dot D1 SCCs before reduction: 15843
 
 Number of D1 dot D1 SCCs after first reducing on '[': 15843
@@ -204,13 +209,14 @@ Number of reachable pairs after also reducing on '(': 37300820
 Number of D1 dot D1 SCCs thus far: 15843
 Number of reachable pairs of g in D dot D: 37300820
 
-Number of reachable pairs of g in D ignoring '[': 37747673
-Number of reachable pairs of g in D ignoring '(': 41903903
+Number of reachable pairs of g in D ignoring '[': 429870
+Number of reachable pairs of g in D ignoring '(': 4598154
+Number of reachable pairs reachable in both of these: 11792
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 2676
 Number of D1 dot D1 SCCs with a +1 self loop on (: 4018
 
-Time for iteration: 675.331 s
+Time for iteration: 115.411 s
 
 
 
@@ -220,7 +226,7 @@ computing on chart
 Original size of g: 67535
 Number of reachable pairs wrt [ and ( (non-interleaved): 80147639
 Running 3 iterations.
-Doing iteration 1 flattening to height 100
+Doing iteration 1 flattening to height 10
 Number of D1 dot D1 SCCs before reduction: 67535
 
 Number of D1 dot D1 SCCs after first reducing on '[': 29866
@@ -234,13 +240,14 @@ Number of reachable pairs of g in D dot D: 114083718
 
 Number of reachable pairs of g in D ignoring '[': 151388847
 Number of reachable pairs of g in D ignoring '(': 246435056
+Number of reachable pairs reachable in both of these: 121390817
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 4842
 Number of D1 dot D1 SCCs with a +1 self loop on (: 8641
 
-Time for iteration: 1773.66 s
+Time for iteration: 199.621 s
 
-Doing iteration 2 flattening to height 110
+Doing iteration 2 flattening to height 15
 Number of D1 dot D1 SCCs before reduction: 29866
 
 Number of D1 dot D1 SCCs after first reducing on '[': 29866
@@ -252,12 +259,13 @@ Number of reachable pairs after also reducing on '(': 114083718
 Number of D1 dot D1 SCCs thus far: 29866
 Number of reachable pairs of g in D dot D: 114083718
 
-Number of reachable pairs of g in D ignoring '[': 115394827
-Number of reachable pairs of g in D ignoring '(': 128434301
+Number of reachable pairs of g in D ignoring '[': 1275562
+Number of reachable pairs of g in D ignoring '(': 14334369
+Number of reachable pairs reachable in both of these: 28213
 
 Number of D1 dot D1 SCCs with a +1 self loop on [: 4842
 Number of D1 dot D1 SCCs with a +1 self loop on (: 8641
 
-Time for iteration: 2679.36 s
+Time for iteration: 392.783 s
 
-Doing iteration 3 flattening to height 120
+Doing iteration 3 flattening to height 20
