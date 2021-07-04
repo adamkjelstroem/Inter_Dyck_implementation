@@ -181,12 +181,8 @@ int main(int argc, const char * argv[]){
 				}
 			}
 
-			{
-				graph m = g_working.trimLeafEdges(g_working);
-				g_working = m;	
-			}
-			
-			//TODO guarantee that repeating edges is zero
+
+			g_working = g_working.trim(g_working);
 
 			if(false){	
 				cout<<"Since repeating edges is zero, we can start deleting singleton vertices"<<endl;
@@ -261,7 +257,7 @@ int main(int argc, const char * argv[]){
 				g_working = *g_working_2;
 			}
 
-			
+			cout<<"g_working after trimming: "<<endl;
 			g_working.printSparsenessFacts();
 
 			//output if g_working contains more than 1 scc wrt plain reachability
@@ -318,11 +314,10 @@ int main(int argc, const char * argv[]){
 
 					//TODO do more trimming following this recipe:
 
-					g_part = g_part.trimViaSpecialRule(g_part);
-
 
 					//TODO move this trimming s.t. the entire graph gets trimmed, not just this disjoint subgraph.
-					g_part.printAsDot();
+					//g_part.printAsDot();
+					g_part.printSparsenessFacts();
 					return 0;
 				}
 				if(false){
