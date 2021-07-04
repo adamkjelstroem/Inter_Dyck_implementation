@@ -1018,8 +1018,7 @@ int countSelfLoops(Vertex* v){
 	return count - 1; //ignore mandatory self-edge
 }
 
-
-//counts the number of in-going edges of v
+//counts the number of in-going edges of v, ignoring self-edges
 int countIngoing(Vertex* v){
 	int count = 0;
 	for(auto edge : v->edges){
@@ -1028,6 +1027,11 @@ int countIngoing(Vertex* v){
 		}
 	}
 	return count; 
+}
+
+//count the number of outgoing edges of v.
+int countOutgoing(Vertex* v, graph& g_flipped){
+	return countIngoing(getVertexIn(g_flipped, v));
 }
 
 //builds flipped version of g, meaning edges go in the other direction.
