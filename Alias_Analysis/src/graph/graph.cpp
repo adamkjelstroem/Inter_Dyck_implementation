@@ -1001,7 +1001,13 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
+//builds flipped version of g, meaning edges go in the other direction.
+graph buildFlipped(graph g){
+	graph g_outgoing; //g_outgoing is g_working but with edges flipped
+	for(Vertex* v : g.vertices){
 		for(auto edge : v->edges){
+			for(int u_id : edge.second){
+				int u_x = g.vertices[u_id]->x;
 				//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
 				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
 			}
