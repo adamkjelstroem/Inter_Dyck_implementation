@@ -1001,24 +1001,23 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
+		for(auto edge : v->edges){
+				//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
+				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
+			}
+		}
+	}
+	return g_outgoing;
+}
+
 graph graph::trimLeafEdges(graph g_working){
 	while(true){
 		//we're looking for cases of "a -- +1 --> b" where this is the only
 		//edge leading to b. also, b cannot have any out edges.
 		//thus, if we flip edges, b only has the eps edge, and if
 		//we don't it has an eps edge and an edge on exactly 1 counter
-		graph g_2;
+		graph g_2 = buildFlipped(g_working);
 		
-		for(Vertex* v : g_working.vertices){
-			for(auto edge : v->edges){
-				for(int u_id : edge.second){
-					int u_x = g_working.vertices[u_id]->x;
-					//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
-					g_2.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
-				}
-			}
-		}
-
 
 		//g_2 is now g_working, but with edges flipped
 		set<int> to_delete;
@@ -1086,18 +1085,11 @@ graph graph::trimLeafEdges(graph g_working){
 	return g_working;
 }
 
-graph graph::trimViaSpecialRule(graph g_working){
 
-	graph g_outgoing; //g_outgoing is g_working but with edges flipped
-	for(Vertex* v : g_working.vertices){
-		for(auto edge : v->edges){
-			for(int u_id : edge.second){
-				int u_x = g_working.vertices[u_id]->x;
-				//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
-				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
-			}
-		}
-	}
+graph graph::trimViaSpecialRule(graph g_working){
+	
+	graph g_outgoing = buildFlipped(g_working); //g_outgoing is g_working but with edges flipped
+	
 	set<int> to_delete;
 
 	/*	
