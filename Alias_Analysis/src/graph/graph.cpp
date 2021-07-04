@@ -1069,7 +1069,7 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
 		//reach b are itself or one specific node:
-		auto b_outgoing = g_flipped.getVertex(b->x, 0, "");
+		auto b_outgoing = getVertexIn(g_flipped, b);
 		bool failed = false;
 
 		//check if b has outgoing edges only to itself
@@ -1143,13 +1143,10 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 }
 
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
-	//g_flipped is now g_working, but with edges flipped
-	graph g_flipped = buildFlipped(g_working);
+	graph g_flipped = buildFlipped(g_working);//g_flipped is g_working, but with edges flipped
 	
-	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
-	
+	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);	
 	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
-
 
 	g_flipped.deleteVertices();
 }
@@ -1181,8 +1178,8 @@ graph graph::trim(graph& g_working){
 							//then add an edge between them
 
 							//(actually add it between their respective roots)
-							auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
-							auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
+							auto v_root_w_2 = getVertexIn(g_working_2, u);
+							auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
 
 							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
 
