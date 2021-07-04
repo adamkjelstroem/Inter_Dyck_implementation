@@ -1022,12 +1022,10 @@ graph buildFlipped(graph &g){
 	return g_outgoing;
 }
 
+//if we have that "a -- +1 --> b", and this is the only in-edge on b,
+//and b does not have any out-edges or self-loops,
+//then we can remove b
 void findRemovableVerticesViaFirstRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
-	//we're looking for cases of "a -- +1 --> b" where this is the only
-	//edge leading to b. also, b cannot have any out edges.
-	//thus, if we flip edges, b only has the eps edge, and if
-	//we don't it has an eps edge and an edge on exactly 1 counter
-
 	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
 			auto v_in_g_working = getVertexIn(g_working, v);
