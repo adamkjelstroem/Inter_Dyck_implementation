@@ -1049,25 +1049,17 @@ graph buildFlipped(graph &g){
 	return g_outgoing;
 }
 
-//if we have that "a -- +1 --> b", and this is the only in-edge on b,
-//and b does not have any out-edges or self-loops,
-//then we can remove b
+//if we have that b has only 1 in-edge, 
+//and b has no out-edges,
+//and b has no self-loops
+//then remove b
 void findRemovableVerticesViaFirstRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
-	for(Vertex* v : g_flipped.vertices){
-		if(v->edges.size() <= 1){ //we have only the eps out-edge
-			auto v_in_g_working = getVertexIn(g_working, v);
-			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
-				//v has exactly 2 types of edges; the mandatory 'eps' self-edge
-				//and some other type, either "[" or "("
-				for(auto edge : v_in_g_working->edges){
-					if(edge.first.field_name != "eps" && edge.second.size() == 1){
-						int skip_this = v->id;
-						to_delete.insert(skip_this);
-					}
-				}
-			}
-		}
-	}	
+	for(Vertex* b : g_working.vertices){
+		if(countIngoing(b) != 1) continue;
+		if(countOutgoing(b, g_flipped) != 0) continue;
+		if(countSelfLoops(b) != 0) continue;
+		to_delete.insert(b->id);
+	}
 }
 
 void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
