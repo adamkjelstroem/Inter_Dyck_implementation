@@ -1016,12 +1016,7 @@ graph buildFlipped(graph &g){
 	return g_outgoing;
 }
 
-void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
-	
-	graph g_flipped = buildFlipped(g_working);
-	//g_flipped is now g_working, but with edges flipped
-
-
+void findRemovableVerticesViaFirstRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
 	//we're looking for cases of "a -- +1 --> b" where this is the only
 	//edge leading to b. also, b cannot have any out edges.
 	//thus, if we flip edges, b only has the eps edge, and if
@@ -1041,9 +1036,10 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 				}
 			}
 		}
-	}		
+	}	
+}
 
-
+void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
 
 	/*	
 	if b does not have outgoing edges to other nodes than itself;
@@ -1138,12 +1134,23 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 			int x = 1/0;
 		}
 	}
+}
+
+void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
+	//g_flipped is now g_working, but with edges flipped
+	graph g_flipped = buildFlipped(g_working);
+	
+	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
+	
+	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+
 
 	g_flipped.deleteVertices();
 }
 
 
 graph graph::trim(graph& g_working){
+	//repeatedly discover deletable vertices, and remove them. 
 	while(true){
 		set<int> to_delete;
 
@@ -1154,12 +1161,9 @@ graph graph::trim(graph& g_working){
 
 		if(to_delete.size() == 0) break;
 
-
-		//make sure to_delete don't get carried over into new graph
-
 		graph g_working_2;
 
-		//build working copy of g without the deleted vertices
+		//build new working copy of g without the deleted vertices
 		//basically, add an edge between 2 nodes if neither is to be deleted.
 		for (Vertex* u : g_working.vertices){
 			if(to_delete.find(u->id) == to_delete.end()){
