@@ -1007,6 +1007,17 @@ Vertex* getVertexIn(graph& other, Vertex* me){
 	return other.getVertex(me->x, 0, "");
 }
 
+//counts 'true' self-loops, ignoring the mandatory 'eps' edge
+int countSelfLoops(Vertex* v){
+	int count = 0;
+	for(auto edge : v->edges){
+		for(auto id : edge.second){
+			if(id == v->id) count++;
+		}
+	}
+	return count - 1; //ignore mandatory self-edge
+}
+
 //builds flipped version of g, meaning edges go in the other direction.
 graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
