@@ -1149,8 +1149,10 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 				//b has 2 incoming edges, and its neighbor has 2 self-loops. thus we are done
 				to_delete.insert(b->id);
 			}
-		}else{
-			cout<<"SANITY CHECK! SOMETHING IS WRONG!"<<endl;
+		}else if(edges_from_neighbor != 0){
+			cout<<"SANITY CHECK! SOMETHING IS WRONG! Edges from neighbor: "<<edges_from_neighbor<<endl;
+			cout<<"Id of b: "<<b->id<<endl;
+			g_working.printAsDot();
 			int x = 1/0;
 		}
 	}
