@@ -115,7 +115,7 @@ graph graph::flatten(string field_name, int depth){
 }
 
 
-void graph::transplantReachabilityInformationTo(graph g){
+void graph::transplantReachabilityInformationTo(graph& g){
 	auto sccs = computeSCCs();
 
 	int mergings = 0;
@@ -1022,10 +1022,10 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	//thus, if we flip edges, b only has the eps edge, and if
 	//we don't it has an eps edge and an edge on exactly 1 counter
 
-	graph g_2 = buildFlipped(g_working);
+	graph g_flipped = buildFlipped(g_working);
 	//g_2 is now g_working, but with edges flipped
 
-	for(Vertex* v : g_2.vertices){
+	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
 			auto v_in_g_working = g_working.getVertex(v->x, 0, "");
 			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
@@ -1041,7 +1041,7 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 		}
 	}		
 	
-	g_2.deleteVertices();
+	g_flipped.deleteVertices();
 }
 
 

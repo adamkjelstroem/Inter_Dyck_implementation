@@ -115,7 +115,7 @@ public:
 		return 12*N*N + 6*N;
 	}
 
-	void transplantReachabilityInformationTo(graph other);
+	void transplantReachabilityInformationTo(graph& other);
 	map<int,set<int>> computeDisjointSets();
 
 	//variout techniques to reduce graph sizes
