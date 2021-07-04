@@ -1012,10 +1012,10 @@ int countSelfLoops(Vertex* v){
 	int count = 0;
 	for(auto edge : v->edges){
 		for(auto id : edge.second){
-			if(id == v->id) count++;
+			if(id == v->id && edge.first.field_name != "eps") count++;
 		}
 	}
-	return count - 1; //ignore mandatory self-edge
+	return count;
 }
 
 //counts the number of in-going edges of v, ignoring self-edges
@@ -1164,9 +1164,35 @@ void findRemovableVerticesViaSecondRule(graph& g_working, graph& g_flipped, set<
 	}
 }
 
+//PRECONDITION: g_working has been collapsed via bidirectedReach()!
+//if there are no self-loops on a
+//and a has no in-edges
+//and "a -- +1 --> b"
+//and there are no self-loops on b 
+//and b has no out-edges
+//then remove a
 void findRemovableVerticesViaThirdRule(graph& g_working, graph& g_flipped, set<int>& to_delete){
-	//PRECONDITION: g_working has been collapsed via bidirectedReach()!
-	//if "a -- +1 --> b", "c -- +1 --> b", and there are no self-loops on a and b, and no other edges connect a or b
+	for(Vertex* a : g_working.vertices){
+		if(countSelfLoops(a) != 0) continue;
+		if(countIngoing(a) != 0) continue;
+		if(countOutgoing(a, g_flipped) != 1) continue;
+
+		Vertex* b;
+		Vertex* a_in_flipped = getVertexIn(g_flipped, a);
+		for(auto edge : a_in_flipped->edges){
+			for(int id : edge.second){
+				if(id != a_in_flipped->id){
+					b = getVertexIn(g_working, g_flipped.vertices[id]);
+				}
+			}
+		}
+
+		if(countSelfLoops(b) != 0) continue;
+		if(countOutgoing(b, g_flipped) != 0) continue;
+
+		to_delete.insert(a->id);
+	}
+
 }
 
 void findRemovableVertices(graph &g_working, set<int> &to_delete){
