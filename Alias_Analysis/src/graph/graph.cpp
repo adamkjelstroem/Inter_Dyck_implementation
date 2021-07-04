@@ -1002,7 +1002,7 @@ void graph::printAsDot(){
 }
 
 //builds flipped version of g, meaning edges go in the other direction.
-graph buildFlipped(graph g){
+graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
 	for(Vertex* v : g.vertices){
 		for(auto edge : v->edges){
@@ -1016,37 +1016,46 @@ graph buildFlipped(graph g){
 	return g_outgoing;
 }
 
-graph graph::trimLeafEdges(graph g_working){
-	while(true){
-		//we're looking for cases of "a -- +1 --> b" where this is the only
-		//edge leading to b. also, b cannot have any out edges.
-		//thus, if we flip edges, b only has the eps edge, and if
-		//we don't it has an eps edge and an edge on exactly 1 counter
-		graph g_2 = buildFlipped(g_working);
-		
+void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
+	//we're looking for cases of "a -- +1 --> b" where this is the only
+	//edge leading to b. also, b cannot have any out edges.
+	//thus, if we flip edges, b only has the eps edge, and if
+	//we don't it has an eps edge and an edge on exactly 1 counter
 
-		//g_2 is now g_working, but with edges flipped
-		set<int> to_delete;
+	graph g_2 = buildFlipped(g_working);
+	//g_2 is now g_working, but with edges flipped
 
-		for(Vertex* v : g_2.vertices){
-			
-			if(v->edges.size() <= 1){ //we have only the eps out-edge
-				auto v_in_g_working = g_working.getVertex(v->x, 0, "");
-				if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
-					//v has exactly 2 types of edges; the mandatory 'eps' self-edge
-					//and some other type, either "[" or "("
-					for(auto edge : v_in_g_working->edges){
-						if(edge.first.field_name != "eps" && edge.second.size() == 1){
-							int skip_this = v->id;
-							to_delete.insert(skip_this);
-						}
+	for(Vertex* v : g_2.vertices){
+		if(v->edges.size() <= 1){ //we have only the eps out-edge
+			auto v_in_g_working = g_working.getVertex(v->x, 0, "");
+			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
+				//v has exactly 2 types of edges; the mandatory 'eps' self-edge
+				//and some other type, either "[" or "("
+				for(auto edge : v_in_g_working->edges){
+					if(edge.first.field_name != "eps" && edge.second.size() == 1){
+						int skip_this = v->id;
+						to_delete.insert(skip_this);
 					}
 				}
 			}
 		}
+	}		
+	
+	g_2.deleteVertices();
+}
+
+
+graph graph::trimLeafEdges(graph g_working){
+	while(true){
+		set<int> to_delete;
+
+		discoverDeletableVertices(g_working, to_delete);
+
+
 		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
+
 		if(to_delete.size() == 0) break;
-		g_2.deleteVertices();
+
 
 		//make sure to_delete don't get carried over into new graph
 
