@@ -1001,6 +1001,12 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
+//finds the corresponding vertex in another graph
+//based on x values
+Vertex* getVertexIn(graph& other, Vertex* me){
+	return other.getVertex(me->x, 0, "");
+}
+
 //builds flipped version of g, meaning edges go in the other direction.
 graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
@@ -1024,7 +1030,7 @@ void findRemovableVerticesViaFirstRule(graph& g_working, graph& g_flipped, set<i
 
 	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
-			auto v_in_g_working = g_working.getVertex(v->x, 0, "");
+			auto v_in_g_working = getVertexIn(g_working, v);
 			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
 				//v has exactly 2 types of edges; the mandatory 'eps' self-edge
 				//and some other type, either "[" or "("
