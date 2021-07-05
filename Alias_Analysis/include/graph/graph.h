@@ -121,9 +121,28 @@ public:
 	//variout techniques to reduce graph sizes
 	graph makeCopyWithoutDuplicates();
 
-	//removed provably unreachable nodes
-	graph trim(graph& g_working);
+	//removes provably unreachable nodes
 	//Based on techniques discovered 2 july 2021 and 3 july 2021
+	graph trim(graph& g_working);
+
+	graph buildSubgraph(set<int> &ids){
+		graph g_part;
+		for (auto id_in_g_working : ids){
+			Vertex* v = vertices[id_in_g_working];
+			for(auto edge : v->edges){
+				for(auto u_id : edge.second){
+					g_part.addEdge(
+						vertices[u_id]->x, 0,
+						v->x, 0,
+						edge.first.field_name
+					);
+				}
+			}
+		}
+		g_part.dsu.init(g_part.N);
+		g_part.initWorklist();
+		return g_part;
+	}
 };
 
 #endif
