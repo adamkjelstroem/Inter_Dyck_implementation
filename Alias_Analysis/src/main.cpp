@@ -316,12 +316,6 @@ int main(int argc, const char * argv[]){
 					g_part.dsu.init(g_part.N);
 					g_part.initWorklist();
 
-					//TODO do more trimming following this recipe:
-
-					g_part = g_part.trim(g_part);
-
-
-					//TODO move this trimming s.t. the entire graph gets trimmed, not just this disjoint subgraph.
 					g_part.printSparsenessFacts();
 					//g_part.printAsDot();
 					return 0;
