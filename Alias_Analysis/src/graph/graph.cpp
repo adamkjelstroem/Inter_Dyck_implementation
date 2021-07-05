@@ -1162,11 +1162,9 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 
 //if a has no self-loops or in-edges,
 //and b has no self-loops or out-edges
-//and a has an out-edge to b
+//and a has only one out-edge to (b)
 //then remove a
 void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
-
-
 	for(Vertex* b : g_working.vertices){
 		//printVertexInfo(b, g_flipped);
 		if(countSelfLoops(b) != 0) continue;
@@ -1186,22 +1184,56 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 				to_delete.insert(a->id);
 			}
 		}
-
 	}
 }
 
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
 
-	//findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
+	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
 
-	//findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
 
 	findRemovableVerticesViaThirdRule(g_working, g_flipped, to_delete);
 
 	g_flipped.deleteVertices();
 }
 
+graph buildCopyWithout(graph& g_working, set<int>& to_delete){
+	graph g_working_2;
+
+	//build working copy of g without the deleted vertices
+	//basically, add an edge between 2 nodes if neither is to be deleted.
+	for (Vertex* u : g_working.vertices){
+		if(to_delete.find(u->id) == to_delete.end()){
+			//u is not a singleton
+			for (auto edge : u->edges){
+				for(auto v_id : edge.second){
+					if(to_delete.find(v_id) == to_delete.end()){
+						//if v is not a singleton, either
+						//then add an edge between them
+
+						//(actually add it between their respective roots)
+						auto v_root_w_2 = getVertexIn(g_working_2, u);
+						auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
+
+						v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+
+						g_working.numedges++;
+					}
+				}
+			}
+		}
+	}
+
+
+	g_working_2.dsu.init(g_working_2.N);
+	g_working_2.initWorklist();
+
+	//overwrite g_working with g_working_2
+	g_working.deleteVertices();
+	return g_working_2;
+}
 
 graph graph::trim(graph& g_working){
 	while(true){
@@ -1209,49 +1241,14 @@ graph graph::trim(graph& g_working){
 
 		discoverDeletableVertices(g_working, to_delete);
 
-
-		cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
+		//cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
 
 		if(to_delete.size() == 0) break;
 
+		g_working = buildCopyWithout(g_working, to_delete);
 
-		graph g_working_2;
-
-		//build working copy of g without the deleted vertices
-		//basically, add an edge between 2 nodes if neither is to be deleted.
-		for (Vertex* u : g_working.vertices){
-			if(to_delete.find(u->id) == to_delete.end()){
-				//u is not a singleton
-				for (auto edge : u->edges){
-					for(auto v_id : edge.second){
-						if(to_delete.find(v_id) == to_delete.end()){
-							//if v is not a singleton, either
-							//then add an edge between them
-
-							//(actually add it between their respective roots)
-							auto v_root_w_2 = getVertexIn(g_working_2, u);
-							auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
-
-							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
-
-							g_working.numedges++;
-						}
-					}
-				}
-			}
-		}
-
-
-		g_working_2.dsu.init(g_working_2.N);
-		g_working_2.initWorklist();
-
-		//overwrite g_working with g_working_2
-		g_working.deleteVertices();
-		g_working = g_working_2;
-
-
-		cout<<"Newly reduced g, without the removable edges:"<<endl;
-		g_working.printSparsenessFacts();
+		//cout<<"Newly reduced g, without the removable edges:"<<endl;
+		//g_working.printSparsenessFacts();
 	}
 	return g_working;
 }
