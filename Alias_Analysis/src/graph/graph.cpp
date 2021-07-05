@@ -1199,6 +1199,47 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	g_flipped.deleteVertices();
 }
 
+//These are removal rules where we have multiple (edgewise identical) paths that connect
+//some nodes a and b, such that we can flag all but 1 for removal
+void discoverDeletableVerticesAdam(graph &g_working, set<int> &to_delete){
+	graph g_flipped = buildFlipped(g_working);
+
+	//TODO use this
+	for(Vertex* a : g_working.vertices){
+		for(auto edge : a->edges){
+			if(edge.first.field_name != "[") continue;
+
+			for(int c_id : edge.second){
+
+			}
+		}
+	}
+
+
+	g_flipped.deleteVertices();
+}
+
+
+//procedure as suggested by A Pavlogiannis on 2 july 2021
+
+/*
+Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
+
+1. Remove u from G
+2. Let G_1,G_2,... be the connected components after removing u
+3. For each such G_i, insert u back in G_i and see if u reaches any v in G_i
+4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. G' will also have a double self loop on u (after merging), so repeat the above process.
+5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
+
+
+*/
+void graph::removeHubVertexAndCalc(graph &g_working, graph &g){
+	graph g_flipped = buildFlipped(g_working);
+
+
+	g_flipped.deleteVertices();
+}
+
 graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	graph g_working_2;
 
@@ -1238,7 +1279,6 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 graph graph::trim(graph& g_working){
 	while(true){
 		set<int> to_delete;
-
 		discoverDeletableVertices(g_working, to_delete);
 
 		//cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
@@ -1250,6 +1290,7 @@ graph graph::trim(graph& g_working){
 		//cout<<"Newly reduced g, without the removable edges:"<<endl;
 		//g_working.printSparsenessFacts();
 	}
+
 	return g_working;
 }
 

@@ -125,6 +125,8 @@ public:
 	//Based on techniques discovered 2 july 2021 and 3 july 2021
 	graph trim(graph& g_working);
 
+	void graph::removeHubVertexAndCalc(graph &g_working, graph &g);
+
 	graph buildSubgraph(set<int> &ids){
 		graph g_part;
 		for (auto id_in_g_working : ids){
