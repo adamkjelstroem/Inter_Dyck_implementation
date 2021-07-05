@@ -85,15 +85,18 @@ int main(int argc, const char * argv[]){
 			cout<<endl;
 			cout<<"-----------------"<<endl;
 			cout<<endl;
-			cout<<"Computing on "<<s;
+			cout<<"Computing on '"<<s;
 			if (using_reduced) cout<<"_reduced";
-			cout<<endl;
+			cout<<"'"<<endl;
+			cout<<"Initial graph:"<<endl;
 			g->printSparsenessFacts();
 			
+			//timing logic
+			clock_t t = clock();
 			
 			//Compute bidirected reach, as it is a sound under-approximation
 			g->bidirectedReach();
-			cout<<"Number of reachable pairs via (non-interleaved) bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
+			cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
 
 			//use g to construct g_working, which is a copy without duplicate edges
 			graph g_working = g->makeCopyWithoutDuplicates();
@@ -116,21 +119,23 @@ int main(int argc, const char * argv[]){
 			
 			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
 			cout<<endl;
-			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t plain reachability."<<endl;
-			cout<<"Each can be treated as its own subgraph"<<endl;
+			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t plain reachability. ";
+			cout<<"Each is treated as its own graph."<<endl;
 			
 			for(auto s : disjoint_components){
 				graph g_part = g_working.buildSubgraph(s.second);
 
-				g_part.removeHubVertexAndCalc(g_part, *g);
+				g_part.removeHubVertexIfExistsThenCalc(g_part, *g);
 			}
 			
 			g_working.deleteVertices();
 
-			cout<<"Number of reachable pairs in grap w.r.t interleaved, bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
+			cout<<"Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
 
 			g->deleteVertices();
 			delete g;
+
+			cout<<"Total time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
 		}
 
 		return 0;

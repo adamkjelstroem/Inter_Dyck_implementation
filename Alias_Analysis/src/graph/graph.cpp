@@ -87,18 +87,11 @@ graph graph::flatten(string field_name, int depth){
 
 	clock_t t, t2;
 	t = clock();
-	bool print = true;
-	float totalTime = 0;
-
+	bool print = false;
+	
 	for (int i = 0; i < depth; i++){
 		if(print && clock() - t > 3*CLOCKS_PER_SEC){
-
-			float t0 = ((float)clock()-t)/CLOCKS_PER_SEC;
-			//totalTime = totalTime + t0;
-
-			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<t0<<") "<<(i * 100 / depth)<<"%"<<endl;
-			//computed i layers of depth in t0
-
+			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)clock()-t)/CLOCKS_PER_SEC<<") "<<(i * 100 / depth)<<"%"<<endl;
 			t = clock();
 		}
 		
@@ -1344,7 +1337,7 @@ if u does not exist:
 
 
 */
-void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
+void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	//first, discover u
 	Vertex* u;
 	bool hasDoubleSelfLoop = false;
@@ -1360,17 +1353,16 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 		Vertex* u_in_g_working = getVertexIn(g_working, u);
 		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u_in_g_working);
 
-		if(true){
-			cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
-
-			int max = 0;
-			for(auto el : disjoint_subgraphs){
-				if(el.second.size() > max){
-					max = el.second.size();
-				}
+		/*
+		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+		int max = 0;
+		for(auto el : disjoint_subgraphs){
+			if(el.second.size() > max){
+				max = el.second.size();
 			}
-			cout<<"Max size of such subgraph: "<<(max+1)<<endl;
 		}
+		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
+		*/
 
 		int total_merged_with_u = 0;
 		for(auto el : disjoint_subgraphs){
@@ -1378,14 +1370,14 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			if(false){
-				cout<<endl<<"ids in g_working: ";
-				for(int id : ids_of_subgraph){
-					cout<<id<<" ";
-				}
-				cout<<endl;
-				subgraph.printAsDot();
+			/*
+			cout<<endl<<"ids in g_working: ";
+			for(int id : ids_of_subgraph){
+				cout<<id<<" ";
 			}
+			cout<<endl;
+			subgraph.printAsDot();
+			*/
 			
 			graph h = subgraph.flatten("[", subgraph.bound());
 			
@@ -1415,7 +1407,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 			subgraph.deleteVertices();
 		}
 
-		cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
+		//cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
 		if(total_merged_with_u == 0) return;
 
 
