@@ -1206,11 +1206,44 @@ void discoverDeletableVerticesAdam(graph &g_working, set<int> &to_delete){
 
 	//TODO use this
 	for(Vertex* a : g_working.vertices){
-		for(auto edge : a->edges){
+		Vertex* a_flipped = getVertexIn(g_flipped, a);
+		for(auto edge : a_flipped->edges){
 			if(edge.first.field_name != "[") continue;
 
-			for(int c_id : edge.second){
+			map<int, set<int>> map1;
+			
+			for(int c_flipped_id : edge.second){
+				Vertex* c = getVertexIn(g_working, g_flipped.vertices[c_flipped_id]);
+				
+				if(countSelfLoops(c) != 0) continue;
+				if(countOutEdges(c, g_flipped) != 0) continue;
+				if(countInEdges(c) != 2) continue;
 
+				//c has 2 in-edges and 0 loops and 0 out-edges
+
+				Vertex* b;
+				for(auto e : c->edges){
+					for(int b_id : e.second){
+						if(b_id != c->id)
+							b = g_working.vertices[b_id];
+					}
+				}
+
+				map1[b->id].insert(c->id);
+			}
+			//if(map1.size() > 1) cout<<"found "<<map1.size()<<" examples"<<endl;
+
+			for(auto entry : map1){
+				if(entry.second.size() <= 1) continue;
+
+				int saved = -1;
+				for(int el : entry.second){
+					if(saved == -1){
+						saved = el;
+					}else{
+						to_delete.insert(el);
+					}
+				}
 			}
 		}
 	}
@@ -1233,9 +1266,15 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 
 
 */
-void graph::removeHubVertexAndCalc(graph &g_working, graph &g){
+void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 	graph g_flipped = buildFlipped(g_working);
 
+	//first, discover u
+	for(Vertex* u : g_working.vertices){
+		if(countSelfLoops(u) != 2) continue;
+
+		//u is a vertex with 2 self-edges
+	}
 
 	g_flipped.deleteVertices();
 }
@@ -1286,6 +1325,11 @@ graph graph::trim(graph& g_working){
 		if(to_delete.size() == 0) break;
 
 		g_working = buildCopyWithout(g_working, to_delete);
+
+		set<int> to_delete2;
+
+		discoverDeletableVerticesAdam(g_working, to_delete2);
+		g_working = buildCopyWithout(g_working, to_delete2);
 
 		//cout<<"Newly reduced g, without the removable edges:"<<endl;
 		//g_working.printSparsenessFacts();
