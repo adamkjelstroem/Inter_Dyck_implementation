@@ -1284,14 +1284,15 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	g_working_2.initWorklist();
 
 	//overwrite g_working with g_working_2
-	g_working.deleteVertices();
+	//g_working.deleteVertices();
 	return g_working_2;
 }
 
 
-//procedure as suggested by A Pavlogiannis on 2 july 2021
 
 /*
+procedure as suggested by A Pavlogiannis on 2 july 2021
+
 Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
 
 1. Remove u from G
@@ -1299,8 +1300,6 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 3. For each such G_i, insert u back in G_i and see if u reaches any v in G_i
 4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. G' will also have a double self loop on u (after merging), so repeat the above process.
 5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
-
-
 */
 void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 	graph g_flipped = buildFlipped(g_working);
@@ -1316,22 +1315,44 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 		graph g_working_without_u = buildCopyWithout(g_working, u_set);
 
-		auto disjoint_subgraphs = g_working_without_u.computeDisjointSets();
-		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+		auto disjoint_subgraphs_not_in_g_working = g_working_without_u.computeDisjointSets();
 
-		int max = 0;
-		for(auto el : disjoint_subgraphs){
-			if(el.second.size() > max){
-				max = el.second.size();
+		//fix so ids in disjoint_subgraphs are actually ids in g_working
+		map<int, set<int>> disjoint_subgraphs;
+		for(auto el : disjoint_subgraphs_not_in_g_working){
+			for (int id : el.second){
+				Vertex* v_in_g_working = getVertexIn(g_working, g_working_without_u.vertices[id]);
+				disjoint_subgraphs[el.first].insert(v_in_g_working->id);
 			}
 		}
-		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
 
+		if(true){
+			cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+
+			int max = 0;
+			for(auto el : disjoint_subgraphs){
+				if(el.second.size() > max){
+					max = el.second.size();
+				}
+			}
+			cout<<"Max size of such subgraph: "<<(max+1)<<endl;
+		}
+		
 		for(auto el : disjoint_subgraphs){
-			//add u back into subgraph, including its self edges
+			auto ids_of_subgraph = el.second;
+			cout<<"size of ids : "<<ids_of_subgraph.size()<<endl;
+			ids_of_subgraph.insert(u->id); //add u back into subgraph.
+			
+			cout<<"size of ids : "<<ids_of_subgraph.size()<<endl;
+			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
+			
+			cout<<endl;
 
+			subgraph.printAsDot();
 		}
 	}
+
+	//TODO make sure deleteVertices() is called correctly for all graphs
 
 	g_flipped.deleteVertices();
 }
@@ -1339,18 +1360,20 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 graph graph::trim(graph& g_working){
 	while(true){
 		set<int> to_delete;
+		graph g_working_2;
+
 		discoverDeletableVertices(g_working, to_delete);
-
-		//cout<<"Number of vertices that can be removed: "<<to_delete.size()<<endl;
-
 		if(to_delete.size() == 0) break;
-
-		g_working = buildCopyWithout(g_working, to_delete);
+		
+		g_working_2 = buildCopyWithout(g_working, to_delete);
+		g_working.deleteVertices();
+		g_working = g_working_2;
 
 		set<int> to_delete2;
-
 		discoverDeletableVerticesAdam(g_working, to_delete2);
-		g_working = buildCopyWithout(g_working, to_delete2);
+		g_working_2 = buildCopyWithout(g_working, to_delete2);
+		g_working.deleteVertices();
+		g_working = g_working_2;
 
 		//cout<<"Newly reduced g, without the removable edges:"<<endl;
 		//g_working.printSparsenessFacts();
@@ -1363,10 +1386,11 @@ graph graph::buildSubgraph(set<int> &ids){
 	graph g_part;
 	for (auto id_in_g_working : ids){
 		Vertex* v = vertices[id_in_g_working];
+		
 		for(auto edge : v->edges){
 			for(int u_id : edge.second){
 				//ignore vertices that are not in subgraph
-				if(ids.find(u_id) == ids.end()) continue;
+				//if(ids.find(u_id) == ids.end()) continue;
 
 				g_part.addEdge(
 					vertices[u_id]->x, 0,
