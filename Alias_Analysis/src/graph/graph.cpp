@@ -1364,7 +1364,10 @@ graph graph::buildSubgraph(set<int> &ids){
 	for (auto id_in_g_working : ids){
 		Vertex* v = vertices[id_in_g_working];
 		for(auto edge : v->edges){
-			for(auto u_id : edge.second){
+			for(int u_id : edge.second){
+				//ignore vertices that are not in subgraph
+				if(ids.find(u_id) == ids.end()) continue;
+
 				g_part.addEdge(
 					vertices[u_id]->x, 0,
 					v->x, 0,
