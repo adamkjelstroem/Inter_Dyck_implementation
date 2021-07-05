@@ -145,8 +145,7 @@ void graph::transplantReachabilityInformationTo(graph& g){
 		}
 	}
 
-	if(mergings > 0)
-		cout<<"merged "<<(mergings+1)<<" nodes in g"<<endl;
+	// if(mergings > 0) cout<<"merged "<<(mergings+1)<<" nodes in g"<<endl;
 }
 
 
@@ -1721,6 +1720,7 @@ void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label
 
 
 void graph::printSparsenessFacts(){
+	/*
 	int num = 0;
 	for(Vertex* u : vertices){
 		for(auto edge : u->edges){
@@ -1731,8 +1731,9 @@ void graph::printSparsenessFacts(){
 		}
 	}
 	cout<<"repeating edges: "<<num<<endl;
+	*/
 
-	num = 0;
+	int num = 0;
 	for(Vertex* u : vertices){
 		for(auto edge : u->edges){
 			num += edge.second.size();
