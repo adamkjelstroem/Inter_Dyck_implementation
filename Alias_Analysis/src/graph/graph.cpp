@@ -1252,33 +1252,6 @@ void discoverDeletableVerticesAdam(graph &g_working, set<int> &to_delete){
 	g_flipped.deleteVertices();
 }
 
-
-//procedure as suggested by A Pavlogiannis on 2 july 2021
-
-/*
-Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
-
-1. Remove u from G
-2. Let G_1,G_2,... be the connected components after removing u
-3. For each such G_i, insert u back in G_i and see if u reaches any v in G_i
-4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. G' will also have a double self loop on u (after merging), so repeat the above process.
-5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
-
-
-*/
-void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
-	graph g_flipped = buildFlipped(g_working);
-
-	//first, discover u
-	for(Vertex* u : g_working.vertices){
-		if(countSelfLoops(u) != 2) continue;
-
-		//u is a vertex with 2 self-edges
-	}
-
-	g_flipped.deleteVertices();
-}
-
 graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	graph g_working_2;
 
@@ -1313,6 +1286,54 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	//overwrite g_working with g_working_2
 	g_working.deleteVertices();
 	return g_working_2;
+}
+
+
+//procedure as suggested by A Pavlogiannis on 2 july 2021
+
+/*
+Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
+
+1. Remove u from G
+2. Let G_1,G_2,... be the connected components after removing u
+3. For each such G_i, insert u back in G_i and see if u reaches any v in G_i
+4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. G' will also have a double self loop on u (after merging), so repeat the above process.
+5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
+
+
+*/
+void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
+	graph g_flipped = buildFlipped(g_working);
+
+	//first, discover u
+	for(Vertex* u : g_working.vertices){
+		if(countSelfLoops(u) != 2) continue;
+
+		//u is a vertex with 2 self-edges
+
+		set<int> u_set;
+		u_set.insert(u->id);
+
+		graph g_working_without_u = buildCopyWithout(g_working, u_set);
+
+		auto disjoint_subgraphs = g_working_without_u.computeDisjointSets();
+		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+
+		int max = 0;
+		for(auto el : disjoint_subgraphs){
+			if(el.second.size() > max){
+				max = el.second.size();
+			}
+		}
+		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
+
+		for(auto el : disjoint_subgraphs){
+			//add u back into subgraph, including its self edges
+			
+		}
+	}
+
+	g_flipped.deleteVertices();
 }
 
 graph graph::trim(graph& g_working){
