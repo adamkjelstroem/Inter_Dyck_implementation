@@ -1352,6 +1352,9 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 				cout<<endl;
 				subgraph.printAsDot();
 			}
+
+
+			subgraph.deleteVertices();
 		}
 	}
 
