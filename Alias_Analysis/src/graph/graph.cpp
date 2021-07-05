@@ -886,6 +886,10 @@ graph graph::copy_ignoring(string label){
 	return g;
 }
 
+Vertex* getVertexIn(graph& g, Vertex* me){
+	return g.getVertex(me->x, 0, "");
+}
+
 //makes copy without duplicates, adding edges between roots.
 graph graph::makeCopyWithoutDuplicates(){
 	graph g_working;
@@ -1000,9 +1004,6 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
-Vertex* getVertexIn(graph& g, Vertex* me){
-	return g.getVertex(me->x, 0, "");
-}
 
 //counts 'true' self loops, meaning we ignore the mandatory eps edge
 int countSelfLoops(Vertex* v){
