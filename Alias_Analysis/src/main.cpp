@@ -182,7 +182,7 @@ int main(int argc, const char * argv[]){
 			}
 
 			{
-				graph m = g_working.trimLeafEdges(g_working);
+				graph m = g_working.trim(g_working);
 				g_working = m;	
 			}
 			
@@ -318,7 +318,7 @@ int main(int argc, const char * argv[]){
 
 					//TODO do more trimming following this recipe:
 
-					g_part = g_part.trimViaSpecialRule(g_part);
+					g_part = g_part.trim(g_part);
 
 
 					//TODO move this trimming s.t. the entire graph gets trimmed, not just this disjoint subgraph.

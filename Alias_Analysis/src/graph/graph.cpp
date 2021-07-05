@@ -1133,7 +1133,7 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 				//b has 2 incoming edges, and its neighbor has 2 self-loops. thus we are done
 				to_delete.insert(b->id);
 			}
-		}else{
+		}else if(edges_from_neighbor != 0){
 			cout<<"SANITY CHECK! SOMETHING IS WRONG!"<<endl;
 			int x = 1/0;
 		}
