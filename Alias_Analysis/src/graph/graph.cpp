@@ -1154,12 +1154,39 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 	}
 }
 
+//if a has no self-loops or in-edges,
+//and b has no self-loops or out-edges
+//and a has an out-edge to b
+//then remove a
+void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
+	for(Vertex* b : g_working.vertices){
+		if(countSelfLoops(b) != 0) continue;
+		if(countOutEdges(b, g_flipped) != 0) continue;
+
+		//find 'a'
+		Vertex* a;
+		for(auto edge : b->edges){
+			for (int id : edge.second){
+				if(id == b->id) continue;
+				a = g_working.vertices[id];
+			}
+		}
+
+		if(countSelfLoops(a) != 0) continue;
+		if(countInEdges(a) != 0) continue;
+
+		to_delete.insert(a->id);
+	}
+}
+
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
 
 	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
 
 	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+
+	findRemovableVerticesViaThirdRule(g_working, g_flipped, to_delete);
 
 	g_flipped.deleteVertices();
 }
