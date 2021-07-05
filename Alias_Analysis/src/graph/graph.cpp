@@ -1047,8 +1047,14 @@ graph buildFlipped(graph &g){
 	return g_outgoing;
 }
 
-//we're looking for cases of "a -- +1 --> b" where this is the only
-//edge leading to b. also, b cannot have any out edges or self-loops.
+void printVertexInfo(Vertex* v, graph& g_flipped){
+	cout<<"looking at x = "<<v->x<<" with id "<<v->id<<endl;
+	cout<<"self-loops: "<<countSelfLoops(v)<<endl;
+	cout<<"out-edges: "<<countOutEdges(v, g_flipped)<<endl;
+	cout<<"in-edges: "<<countInEdges(v)<<endl;
+}
+
+//if b has one in-edge, and b has no out-edges, and b has no self-loops,
 //then, remove b
 void findRemovableVerticesViaFirstRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
 	for(Vertex* b : g_working.vertices){
@@ -1159,7 +1165,10 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 //and a has an out-edge to b
 //then remove a
 void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
+
+
 	for(Vertex* b : g_working.vertices){
+		//printVertexInfo(b, g_flipped);
 		if(countSelfLoops(b) != 0) continue;
 		if(countOutEdges(b, g_flipped) != 0) continue;
 
@@ -1169,22 +1178,24 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 			for (int id : edge.second){
 				if(id == b->id) continue;
 				a = g_working.vertices[id];
+
+				//test if 'a' adheres to rules
+				if(countSelfLoops(a) != 0) continue;
+				if(countInEdges(a) != 0) continue;
+
+				to_delete.insert(a->id);
 			}
 		}
 
-		if(countSelfLoops(a) != 0) continue;
-		if(countInEdges(a) != 0) continue;
-
-		to_delete.insert(a->id);
 	}
 }
 
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
 
-	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
+	//findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
 
-	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+	//findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
 
 	findRemovableVerticesViaThirdRule(g_working, g_flipped, to_delete);
 
