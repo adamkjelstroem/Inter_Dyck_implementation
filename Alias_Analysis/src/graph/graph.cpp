@@ -1005,6 +1005,33 @@ Vertex* getVertexIn(graph& g, Vertex* me){
 	return g.getVertex(me->x, 0, "");
 }
 
+//counts 'true' self loops, meaning we ignore the mandatory eps edge
+int countSelfLoops(Vertex* v){
+	int count = 0;
+	for(auto edge : v->edges){
+		for(int id : edge.second){
+			if(id == v->id && edge.first.field_name != "eps") count++;
+		}
+	}
+	return count;
+}
+
+//counts 'true' in-edges, ignoring self-loops
+int countInEdges(Vertex* v){
+	int count = 0;
+	for(auto edge : v->edges){
+		for(int id : edge.second){
+			if(id != v->id) count++;
+		}
+	}
+	return count;
+}
+
+//counts 'true' out-edges, ignoring self-loops
+int countOutEdges(Vertex* v, graph& g_flipped){
+	return countInEdges(getVertexIn(g_flipped, v));
+}
+
 //builds flipped version of g, meaning edges go in the other direction.
 graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
