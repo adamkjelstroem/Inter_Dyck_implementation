@@ -1001,6 +1001,10 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
+Vertex* getVertexIn(graph& g, Vertex* me){
+	return g.getVertex(me->x, 0, "");
+}
+
 //builds flipped version of g, meaning edges go in the other direction.
 graph buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
@@ -1023,7 +1027,7 @@ graph buildFlipped(graph &g){
 void findRemovableVerticesViaFirstRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
 	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
-			auto v_in_g_working = g_working.getVertex(v->x, 0, "");
+			auto v_in_g_working = getVertexIn(g_working, v);
 			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
 				//v has exactly 2 types of edges; the mandatory 'eps' self-edge
 				//and some other type, either "[" or "("
@@ -1060,7 +1064,7 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
 		//reach b are itself or one specific node:
-		auto b_outgoing = g_flipped.getVertex(b->x, 0, "");
+		auto b_outgoing = getVertexIn(g_flipped, b);
 		bool failed = false;
 
 		//check if b has outgoing edges only to itself
@@ -1170,8 +1174,8 @@ graph graph::trim(graph& g_working){
 							//then add an edge between them
 
 							//(actually add it between their respective roots)
-							auto v_root_w_2 = g_working_2.getVertex(u->x, 0, "");
-							auto u_root_w_2 = g_working_2.getVertex(g_working.vertices[v_id]->x, 0, "");
+							auto v_root_w_2 = getVertexIn(g_working_2, u);
+							auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
 
 							v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
 
