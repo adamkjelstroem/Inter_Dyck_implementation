@@ -1329,7 +1329,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 		for(auto el : disjoint_subgraphs){
 			//add u back into subgraph, including its self edges
-			
+
 		}
 	}
 
@@ -1357,6 +1357,25 @@ graph graph::trim(graph& g_working){
 	}
 
 	return g_working;
+}
+
+graph graph::buildSubgraph(set<int> &ids){
+	graph g_part;
+	for (auto id_in_g_working : ids){
+		Vertex* v = vertices[id_in_g_working];
+		for(auto edge : v->edges){
+			for(auto u_id : edge.second){
+				g_part.addEdge(
+					vertices[u_id]->x, 0,
+					v->x, 0,
+					edge.first.field_name
+				);
+			}
+		}
+	}
+	g_part.dsu.init(g_part.N);
+	g_part.initWorklist();
+	return g_part;
 }
 
 

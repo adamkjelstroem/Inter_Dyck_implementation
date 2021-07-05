@@ -127,24 +127,7 @@ public:
 
 	void removeHubVertexAndCalc(graph &g_working, graph &g);
 
-	graph buildSubgraph(set<int> &ids){
-		graph g_part;
-		for (auto id_in_g_working : ids){
-			Vertex* v = vertices[id_in_g_working];
-			for(auto edge : v->edges){
-				for(auto u_id : edge.second){
-					g_part.addEdge(
-						vertices[u_id]->x, 0,
-						v->x, 0,
-						edge.first.field_name
-					);
-				}
-			}
-		}
-		g_part.dsu.init(g_part.N);
-		g_part.initWorklist();
-		return g_part;
-	}
+	graph buildSubgraph(set<int> &ids);
 };
 
 #endif
