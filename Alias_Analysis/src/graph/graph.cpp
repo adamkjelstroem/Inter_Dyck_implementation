@@ -1048,24 +1048,14 @@ graph buildFlipped(graph &g){
 }
 
 //we're looking for cases of "a -- +1 --> b" where this is the only
-//edge leading to b. also, b cannot have any out edges.
-//thus, if we flip edges, b only has the eps edge, and if
-//we don't it has an eps edge and an edge on exactly 1 counter
+//edge leading to b. also, b cannot have any out edges or self-loops.
+//then, remove b
 void findRemovableVerticesViaFirstRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
-	for(Vertex* v : g_flipped.vertices){
-		if(v->edges.size() <= 1){ //we have only the eps out-edge
-			auto v_in_g_working = getVertexIn(g_working, v);
-			if(v_in_g_working->edges.size() <= 2){ //we have the eps in-edge and exactly one other type
-				//v has exactly 2 types of edges; the mandatory 'eps' self-edge
-				//and some other type, either "[" or "("
-				for(auto edge : v_in_g_working->edges){
-					if(edge.first.field_name != "eps" && edge.second.size() == 1){
-						int skip_this = v->id;
-						to_delete.insert(skip_this);
-					}
-				}
-			}
-		}
+	for(Vertex* b : g_working.vertices){
+		if(countInEdges(b) != 1) continue;
+		if(countOutEdges(b, g_flipped) != 0) continue;
+		if(countSelfLoops(b) != 0) continue;
+		to_delete.insert(b->id);
 	}	
 }
 
