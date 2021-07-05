@@ -1016,17 +1016,7 @@ graph buildFlipped(graph &g){
 	return g_outgoing;
 }
 
-void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
-	
-	graph g_flipped = buildFlipped(g_working);
-	//g_flipped is now g_working, but with edges flipped
-
-
-	//we're looking for cases of "a -- +1 --> b" where this is the only
-	//edge leading to b. also, b cannot have any out edges.
-	//thus, if we flip edges, b only has the eps edge, and if
-	//we don't it has an eps edge and an edge on exactly 1 counter
-
+void findRemovableVerticesViaFirstRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
 	for(Vertex* v : g_flipped.vertices){
 		if(v->edges.size() <= 1){ //we have only the eps out-edge
 			auto v_in_g_working = g_working.getVertex(v->x, 0, "");
@@ -1041,28 +1031,10 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 				}
 			}
 		}
-	}		
+	}	
+}
 
-
-
-	/*	
-	if b does not have outgoing edges to other nodes than itself;
-
-	and b only has one neighbor
-
-	AND either
-
-	case a):
-	- node b has exactly one incoming edge, and b's self-loop is also a self-loop of its neighbor
-
-	OR
-
-	case b):
-	- you have 2 incoming edges, and both are self-loops on your neighbor
-
-	then, we can safely remove b
-	*/
-
+void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
 
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
@@ -1138,6 +1110,41 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 			int x = 1/0;
 		}
 	}
+}
+
+void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
+	
+	graph g_flipped = buildFlipped(g_working);
+	//g_flipped is now g_working, but with edges flipped
+
+
+	//we're looking for cases of "a -- +1 --> b" where this is the only
+	//edge leading to b. also, b cannot have any out edges.
+	//thus, if we flip edges, b only has the eps edge, and if
+	//we don't it has an eps edge and an edge on exactly 1 counter
+	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
+
+
+
+	/*	
+	if b does not have outgoing edges to other nodes than itself;
+
+	and b only has one neighbor
+
+	AND either
+
+	case a):
+	- node b has exactly one incoming edge, and b's self-loop is also a self-loop of its neighbor
+
+	OR
+
+	case b):
+	- you have 2 incoming edges, and both are self-loops on your neighbor
+
+	then, we can safely remove b
+	*/
+	findRemovableVerticesViaSecondRule(g_working, g_flipped, to_delete);
+
 
 	g_flipped.deleteVertices();
 }

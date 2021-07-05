@@ -322,7 +322,8 @@ int main(int argc, const char * argv[]){
 
 
 					//TODO move this trimming s.t. the entire graph gets trimmed, not just this disjoint subgraph.
-					g_part.printAsDot();
+					g_part.printSparsenessFacts();
+					//g_part.printAsDot();
 					return 0;
 				}
 				if(false){
