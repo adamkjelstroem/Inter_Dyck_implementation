@@ -77,15 +77,26 @@ int main(int argc, const char * argv[]){
 			set<int> singletons;
 
 
-			if(true){
+			if(false){
 				g->construct2(s2, true, true);
 				g->dsu.init(g->N);
 				g->initWorklist();
 			}else{
-				g->addEdge(0,0,1,0,"[");
-				g->addEdge(1,0,2,0,"(");
-				g->addEdge(3,0,2,0,"[");
-				g->addEdge(4,0,3,0,"(");
+
+				if(false){
+					g->addEdge(0,0,1,0,"[");
+					g->addEdge(1,0,2,0,"(");
+					g->addEdge(3,0,2,0,"[");
+					g->addEdge(4,0,3,0,"(");
+				}else if(true){
+					int a = 0;
+					int b = 1;
+					int c = 2;
+					g->addEdge(a, 0, a, 0, "[");
+					g->addEdge(a, 0, b, 0, "(");
+					g->addEdge(c, 0, b, 0, "[");
+				}
+				
 				g->dsu.init(g->N);
 				g->initWorklist();
 			}	
@@ -98,6 +109,7 @@ int main(int argc, const char * argv[]){
 			if (using_reduced) cout<<"_reduced";
 			cout<<endl;
 			g->printSparsenessFacts();
+			
 			
 			//Compute bidirected reach, as it is a sound under-approximation
 			g->bidirectedReach();
@@ -298,66 +310,23 @@ int main(int argc, const char * argv[]){
 						}
 					}
 				}
-				cout<<"Size of biggest such component: "<<max<<endl;	
-				{
-					graph g_part;
-					for (auto id_in_g_working : scc[root_of_max]){
-						Vertex* v = g_working.vertices[id_in_g_working];
-						for(auto edge : v->edges){
-							for(auto u_id : edge.second){
-								g_part.addEdge(
-									g_working.vertices[u_id]->x, 0,
-									v->x, 0,
-									edge.first.field_name
-								);
-							}
-						}
-					}
-					g_part.dsu.init(g_part.N);
-					g_part.initWorklist();
+				if(false){
+					cout<<"Size of biggest such component: "<<max<<endl;	
+					graph g_part = g_working.buildSubgraph(scc[root_of_max]);
 
 					g_part.printSparsenessFacts();
 					//g_part.printAsDot();
 					return 0;
 				}
-				if(false){
-					cout<<"digraph example {"<<endl;
-					for(int v_id : scc[root_of_max]){
-						Vertex* v = g_working.vertices[v_id];
-						for(auto edge : v->edges){
-							for(auto u_id : edge.second){
-								if(u_id != v_id)
-									cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
-								
-							}
-						}
-					}
-					cout<<"}"<<endl;
-					return 0;
-				}
-
+				
 				//extract each component into separate graph
 				for(auto s : scc){
 					//we don't care about singleton sccs as no information can be discovered
-					if(s.second.size() == 1) continue;
+					//if(s.second.size() == 1) continue;
 
 					cout<<"Analyzing component of size "<<s.second.size()<<endl;
 					
-					graph g_part;
-					for (auto id_in_g_working : s.second){
-						Vertex* v = g_working.vertices[id_in_g_working];
-						for(auto edge : v->edges){
-							for(auto u_id : edge.second){
-								g_part.addEdge(
-									g_working.vertices[u_id]->x, 0,
-									v->x, 0,
-									edge.first.field_name
-								);
-							}
-						}
-					}
-					g_part.dsu.init(g_part.N);
-					g_part.initWorklist();
+					graph g_part = g_working.buildSubgraph(s.second);
 
 					if(false){
 						cout<<"Number of sccs: "<<g_part.computeSCCs().size()<<endl;
@@ -367,6 +336,10 @@ int main(int argc, const char * argv[]){
 
 					cout<<"This should flatten to a total of "<<g_part.bound() * g_part.N<<" nodes."<<endl;
 
+					cout<<endl<<endl;
+					g_part.printAsDot();
+
+					continue;
 					//compute flatten, then reach on each of these
 				
 					//graph h_part = g_part.flatten("(", g_part.bound());
