@@ -1288,6 +1288,26 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 }
 
 
+map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without){
+	set<int> u_set;
+	u_set.insert(without->id);
+
+	graph g_working_without_u = buildCopyWithout(g_working, u_set);
+
+	auto disjoint_subgraphs_not_in_g_working = g_working_without_u.computeDisjointSets();
+
+	//fix so ids in disjoint_subgraphs are actually ids in g_working
+	map<int, set<int>> disjoint_subgraphs;
+	for(auto el : disjoint_subgraphs_not_in_g_working){
+		for (int id : el.second){
+			Vertex* v_in_g_working = getVertexIn(g_working, g_working_without_u.vertices[id]);
+			disjoint_subgraphs[el.first].insert(v_in_g_working->id);
+		}
+		disjoint_subgraphs[el.first].insert(u->id);
+	}
+
+	return disjoint_subgraphs;
+}
 
 /*
 procedure as suggested by A Pavlogiannis on 2 july 2021
@@ -1304,88 +1324,79 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 	graph g_flipped = buildFlipped(g_working);
 
 	//first, discover u
-	for(Vertex* u : g_working.vertices){
-		if(countSelfLoops(u) != 2) continue;
-
-		//u is a vertex with 2 self-edges
-
-		set<int> u_set;
-		u_set.insert(u->id);
-
-		graph g_working_without_u = buildCopyWithout(g_working, u_set);
-
-		auto disjoint_subgraphs_not_in_g_working = g_working_without_u.computeDisjointSets();
-
-		//fix so ids in disjoint_subgraphs are actually ids in g_working
-		map<int, set<int>> disjoint_subgraphs;
-		for(auto el : disjoint_subgraphs_not_in_g_working){
-			for (int id : el.second){
-				Vertex* v_in_g_working = getVertexIn(g_working, g_working_without_u.vertices[id]);
-				disjoint_subgraphs[el.first].insert(v_in_g_working->id);
-			}
-			disjoint_subgraphs[el.first].insert(u->id);
-		}
-
-		if(true){
-			cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
-
-			int max = 0;
-			for(auto el : disjoint_subgraphs){
-				if(el.second.size() > max){
-					max = el.second.size();
-				}
-			}
-			cout<<"Max size of such subgraph: "<<(max+1)<<endl;
-		}
-		
-		int total = 0;
-		for(auto el : disjoint_subgraphs){
-			auto ids_of_subgraph = el.second;
-
-			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
-			
-			if(true){
-				cout<<endl<<"ids in g_working: ";
-				for(int id : ids_of_subgraph){
-					cout<<id<<" ";
-				}
-				cout<<endl;
-				subgraph.printAsDot();
-			}
-
-			graph h = subgraph.flatten("[", subgraph.bound());
-
-			h.bidirectedReach();
-
-			h.transplantReachabilityInformationTo(g_orig);
-
-			h.forceRootsToLayer(0);
-			
-			{
-				auto h_sccs = h.computeSCCs();
-				int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
-				auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
-				
-				int count = 0;
-				for(int member : scc_with_u_in_h){
-					if(h.vertices[member]->y == 0){
-						count++;
-					} 
-				}
-				total += count - 1;
-			}
-
-
-			h.deleteVertices();
-
-			subgraph.deleteVertices();
-		}
-		cout<<"Total vertices that get joined with 'u': "<<total<<endl;
-
-		if(total > 0){
-			//TODO repeat process somehow
-		}
+	Vertex* u;
+	bool hasDoubleSelfLoop = false;
+	for(Vertex* v : g_working.vertices){
+		if(countSelfLoops(v) != 2) continue;
+		u = v;
+		hasDoubleSelfLoop = true;
+		break;
 	}
+
+	map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u);
+
+	if(true){
+		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+
+		int max = 0;
+		for(auto el : disjoint_subgraphs){
+			if(el.second.size() > max){
+				max = el.second.size();
+			}
+		}
+		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
+	}
+	
+	int total_merged_with_u = 0;
+	for(auto el : disjoint_subgraphs){
+		auto ids_of_subgraph = el.second;
+
+		graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
+		
+		if(true){
+			cout<<endl<<"ids in g_working: ";
+			for(int id : ids_of_subgraph){
+				cout<<id<<" ";
+			}
+			cout<<endl;
+			subgraph.printAsDot();
+		}
+
+		graph h = subgraph.flatten("[", subgraph.bound());
+
+		h.bidirectedReach();
+
+		//transplant reachability info to both original and working versions of graph
+		h.transplantReachabilityInformationTo(g_orig);
+		h.transplantReachabilityInformationTo(g_working);
+		
+		h.forceRootsToLayer(0);
+		
+		{
+			auto h_sccs = h.computeSCCs();
+			int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
+			auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
+			
+			int count = 0;
+			for(int member : scc_with_u_in_h){
+				if(h.vertices[member]->y == 0){
+					count++;
+				} 
+			}
+			total_merged_with_u += count - 1;
+		}
+
+
+		h.deleteVertices();
+
+		subgraph.deleteVertices();
+	}
+	cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
+
+	if(total_merged_with_u > 0){
+		//TODO repeat process somehow
+	}
+
 
 	//TODO make sure deleteVertices() is called correctly for all graphs
 
