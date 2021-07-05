@@ -1339,6 +1339,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 			cout<<"Max size of such subgraph: "<<(max+1)<<endl;
 		}
 		
+		int total = 0;
 		for(auto el : disjoint_subgraphs){
 			auto ids_of_subgraph = el.second;
 
@@ -1353,9 +1354,36 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 				subgraph.printAsDot();
 			}
 
+			graph h = subgraph.flatten("[", subgraph.bound());
+
+			h.bidirectedReach();
+
+			h.forceRootsToLayer(0);
+
+			auto h_sccs = h.computeSCCs();
+
+			int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
+
+			auto scc_with_u_in_h = h_sccs[root_of_u_in_h];
+
+			{
+				int count = 0;
+				for(int member : scc_with_u_in_h){
+					if(h.vertices[member]->y == 0){
+						count++;
+						//TODO merge this in original graph!
+					} 
+				}
+				cout<<"Vertices that get joined with 'u': "<<count-1<<endl;
+				total += count - 1;
+			}
+
+
+			h.deleteVertices();
 
 			subgraph.deleteVertices();
 		}
+		cout<<"Total vertices that get joined with 'u': "<<total<<endl;
 	}
 
 	//TODO make sure deleteVertices() is called correctly for all graphs
