@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]){
 
 
 	if(true){
-		//Procedure as of 28 june 2021 2
+		//Procedure as of 28 june 2021
 		string benchmarks[] = {
 			"antlr",
 			"bloat",
@@ -74,40 +74,12 @@ int main(int argc, const char * argv[]){
 
 			//Data to work on
 			graph* g = new graph;
-			set<int> singletons;
+			
 
-
-			if(true){
-				g->construct2(s2, true, true);
-				g->dsu.init(g->N);
-				g->initWorklist();
-			}else{
-
-				if(false){
-					g->addEdge(0,0,1,0,"[");
-					g->addEdge(1,0,2,0,"(");
-					g->addEdge(3,0,2,0,"[");
-					g->addEdge(4,0,3,0,"(");
-				}else if(true){
-					int a = 0;
-					int b = 1;
-					int c = 2;
-					int d = 3;
-					g->addEdge(a, 0, a, 0, "[");
-					g->addEdge(a, 0, a, 0, "(");
-					g->addEdge(a, 0, b, 0, "(");
-					g->addEdge(c, 0, b, 0, "[");
-
-					g->addEdge(a, 0, d, 0, "(");
-				}
-				
-				g->dsu.init(g->N);
-				g->initWorklist();
-
-				g->printAsDot();
-				g->removeHubVertexAndCalc(*g, *g);
-				return 0;
-			}	
+			g->construct2(s2, true, true);
+			g->dsu.init(g->N);
+			g->initWorklist();
+		
 
 			cout<<endl;
 			cout<<endl;
@@ -121,263 +93,41 @@ int main(int argc, const char * argv[]){
 			
 			//Compute bidirected reach, as it is a sound under-approximation
 			g->bidirectedReach();
-			cout<<"Number of reachable pairs via D' reachability: "<<g->calcNumReachablePairs()<<endl;
-
-
-			
-			/*
-			for(string l : {"[", "("}){
-				graph g_ign_1 = g->copy_ignoring(l);	
-				g_ign_1.initWorklist();
-
-				g_ign_1.bidirectedReach();
-
-				cout<<"Number of reachable pairs when ignoring '"<<l<<"':   "<<g_ign_1.calcNumReachablePairs()<<endl;
-			}*/
-
+			cout<<"Number of reachable pairs via (non-interleaved) bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
 
 			//use g to construct g_working, which is a copy without duplicate edges
 			graph g_working = g->makeCopyWithoutDuplicates();
 
 
-			//flatten on either label to 2, collapse nodes into 
-			/*for(string label : {"(","["}){
-				graph h = g->flatten("(", 2);
-
-				h.initWorklist();
-				h.bidirectedReach();
-				//find sccs and add information to g
-				for (Vertex* v : h.vertices){
-					if(v->y != 0) continue;
-					auto v_root_x = h.vertices[h.dsu.root(v->id)]->x;
-					auto v_in_g = g->getVertex(v->x, 0, "")->id;
-					auto v_root_in_g = g->getVertex(v_root_x, 0, "")->id;
-					auto r1 = g->dsu.root(v_in_g);
-					auto r2 = g->dsu.root(v_root_in_g);
-					if(r1 != r2){
-						g->dsu.merge(r1, r2);
-					}
-				}
-				h.deleteVertices();
-			}*/
-
 			cout<<endl;
-			cout<<"g after reducing via D' reachability: "<<endl;
+			cout<<"Graph after reducing via (non-interleaved) bidirected dyck reachability: "<<endl;
 			g_working.printSparsenessFacts();
-			if(false){
-				graph g_2;
-				for(Vertex* v : g_working.vertices){
-					for(auto edge : v->edges){
-						for(int u_id : edge.second){
-							int u_x = g_working.vertices[u_id]->x;
-							g_2.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
-							g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
-						}
-					}
-				}
-				//every vertex in g_2 has an ingoing edge of label 'l' iff the corresponding vertex
-				//in g_working has an in or an out edge of label 'l'.
-				
-				//count the number of these
-				int num = 0;
-				for(Vertex* v : g_2.vertices){
-					if(v->edges.size() == 2){ //It has to be 2 here, as all graphs have an 'eps' edge to itself
-						num++; //TODO lookinto this.
-					}
-				}
-				cout<<"Number of vertices that can be removed: "<<num<<endl;
-
-
-				g_2.deleteVertices();
-			}
-
-			if(false){
-				auto edge = g_working.vertices[43]->edges;
-				cout<<"x of this "<<g_working.vertices[43]->x<<endl;
-				cout<<"edges: "<<edge.size()<<endl;
-				for(auto e : edge){
-					for(auto u : e.second){
-					cout<<e.first.field_name<<" with "<<u<<endl;
-					}
-				}
-			}
+			
 
 			{
 				graph m = g_working.trim(g_working);
 				g_working = m;	
 			}
-			
-			//TODO guarantee that repeating edges is zero
-
-			if(false){	
-				cout<<"Since repeating edges is zero, we can start deleting singleton vertices"<<endl;
-				graph g_ign_1 = g_working.copy_ignoring("[");	
-				graph g_ign_2 = g_working.copy_ignoring("(");
-
-				g_ign_1.initWorklist();
-				g_ign_2.initWorklist();
-
-				g_ign_1.bidirectedReach();
-				g_ign_2.bidirectedReach();
-
-				//d1 = g_ign_1.calcNumReachablePairs();
-				//d2 = g_ign_2.calcNumReachablePairs();
-
-
-				{
-					set<int> singletons_x;
-
-					auto scc_1 = g_ign_1.computeSCCs();
-					for(auto scc : scc_1){
-						if(scc.second.size() == 1) singletons_x.insert(g_ign_1.vertices[scc.first]->x);
-					}
-					auto scc_2 = g_ign_2.computeSCCs();
-					for(auto scc : scc_2){
-						if(scc.second.size() == 1) singletons_x.insert(g_ign_2.vertices[scc.first]->x);
-					}
-					//'singletons' now contains the ids in g of any node that is a singleton in at least one
-					//of the 'ignore' graphs
-					for (auto x : singletons_x){
-						singletons.insert(g->getVertex(x, 0, "")->id);	
-					}
-				}
-
-				cout<<"Found "<<singletons.size()<<" singletons"<<endl;
-
-				g_ign_1.deleteVertices();
-				g_ign_2.deleteVertices();
-
-				graph* g_working_2 = new graph;
-
-				//build working copy of g without the deleted singles edges
-				for (Vertex* u : g_working.vertices){
-					if(singletons.find(u->id) == singletons.end()){
-						//u is not a singleton
-						for (auto edge : u->edges){
-							for(auto v_id : edge.second){
-								if(singletons.find(v_id) == singletons.end()){
-									//if v is not a singleton, either
-									//then add an edge between them
-
-									//(actually add it between their respective roots)
-									auto v_root_w_2 = g_working_2->getVertex(u->x, 0, "");
-									auto u_root_w_2 = g_working_2->getVertex(g_working.vertices[v_id]->x, 0, "");
-
-									v_root_w_2->addedge(g_working_2->getfield(edge.first.field_name), u_root_w_2->id);
-
-									g_working.numedges++;
-								}
-							}
-						}
-					}
-				}
-
-
-				g_working_2->dsu.init(g_working_2->N);
-				g_working_2->initWorklist();
-
-				//overwrite g_working with g_working_2
-				g_working.deleteVertices();
-
-				g_working = *g_working_2;
-			}
 
 			cout<<endl;
-			cout<<"g after trimming:"<<endl;
+			cout<<"Graph after trimming:"<<endl;
 			g_working.printSparsenessFacts();
 
-			//output if g_working contains more than 1 scc wrt plain reachability
-			int max = 0;
-			int root_of_max = -1;
-			{
-				map<int,set<int>> scc = g_working.computeDisjointSets();
-				cout<<endl;
-				cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
-				int reasonable = -1;
-				for(auto el : scc){
-					int alt = el.second.size();
-					if(alt > max){
-						max = alt;
-						root_of_max = el.first;
-					}
-					
+			
+			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
+			cout<<endl;
+			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t plain reachability."<<endl;
+			cout<<"Each can be treated as its own subgraph"<<endl;
+			
+			for(auto s : disjoint_components){
+				graph g_part = g_working.buildSubgraph(s.second);
 
-					if(false){
-						if(alt < 51 && alt > 20){
-							cout<<"digraph example {"<<endl;
-							for(int v_id : el.second){
-								Vertex* v = g_working.vertices[v_id];
-								for(auto edge : v->edges){
-									for(auto u_id : edge.second){
-										if(u_id != v_id)
-											cout<<"	"<<u_id<<" -> "<<v_id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
-										
-									}
-								}
-							}
-							cout<<"}"<<endl;
-
-							return 0;
-						}
-					}
-				}
-
-				for(auto s : scc){
-					graph g_part = g_working.buildSubgraph(s.second);
-
-					//g_part.printSparsenessFacts();
-					
-					g_part.removeHubVertexAndCalc(g_part, *g);
-					
-					//g_part.printAsDot();
-					//continue;
-					//return 0;
-				}
-				
-				//extract each component into separate graph
-				if(false)
-				for(auto s : scc){
-					//we don't care about singleton sccs as no information can be discovered
-					if(s.second.size() == 1) continue;
-
-					cout<<"Analyzing component of size "<<s.second.size()<<endl;
-					
-					graph g_part = g_working.buildSubgraph(s.second);
-
-					if(false){
-						cout<<"Number of sccs: "<<g_part.computeSCCs().size()<<endl;
-						g_part.bidirectedReach();
-						cout<<"Number of sccs after reduction: "<<g_part.computeSCCs().size()<<endl;
-					}
-
-					cout<<"This should flatten to a total of "<<g_part.bound() * g_part.N<<" nodes."<<endl;
-
-					cout<<endl<<endl;
-					g_part.printAsDot();
-
-					continue;
-					//compute flatten, then reach on each of these
-				
-					//graph h_part = g_part.flatten("(", g_part.bound());
-					graph h_part = g_part.flatten("(", 100);
-					
-					g_part.deleteVertices();
-
-					h_part.bidirectedReach();	
-					h_part.forceRootsToLayer(0);
-
-					//then merge info into g
-					h_part.transplantReachabilityInformationTo(*g);
-
-					h_part.deleteVertices();
-				}
-				
+				g_part.removeHubVertexAndCalc(g_part, *g);
 			}
-
-
+			
 			g_working.deleteVertices();
 
-			cout<<"Number of reachable pairs in g: "<<g->calcNumReachablePairs()<<endl;
+			cout<<"Number of reachable pairs in grap w.r.t interleaved, bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
 
 			g->deleteVertices();
 			delete g;
