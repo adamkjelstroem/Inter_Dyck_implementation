@@ -1324,6 +1324,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 				Vertex* v_in_g_working = getVertexIn(g_working, g_working_without_u.vertices[id]);
 				disjoint_subgraphs[el.first].insert(v_in_g_working->id);
 			}
+			disjoint_subgraphs[el.first].insert(u->id);
 		}
 
 		if(true){
@@ -1340,10 +1341,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 		
 		for(auto el : disjoint_subgraphs){
 			auto ids_of_subgraph = el.second;
-			cout<<"size of ids : "<<ids_of_subgraph.size()<<endl;
-			ids_of_subgraph.insert(u->id); //add u back into subgraph.
 			
-			cout<<"size of ids : "<<ids_of_subgraph.size()<<endl;
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
 			cout<<endl;
