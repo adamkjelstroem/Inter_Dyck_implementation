@@ -1303,7 +1303,7 @@ map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without
 			Vertex* v_in_g_working = getVertexIn(g_working, g_working_without_u.vertices[id]);
 			disjoint_subgraphs[el.first].insert(v_in_g_working->id);
 		}
-		disjoint_subgraphs[el.first].insert(u->id);
+		disjoint_subgraphs[el.first].insert(without->id);
 	}
 
 	return disjoint_subgraphs;
@@ -1317,12 +1317,11 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 1. Remove u from G
 2. Let G_1,G_2,... be the connected components after removing u
 3. For each such G_i, insert u back in G_i and see if u reaches any v in G_i
-4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. G' will also have a double self loop on u (after merging), so repeat the above process.
+4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. 
+   G' will also have a double self loop on u (after merging), so repeat the above process.
 5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
 */
 void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
-	graph g_flipped = buildFlipped(g_working);
-
 	//first, discover u
 	Vertex* u;
 	bool hasDoubleSelfLoop = false;
@@ -1333,74 +1332,87 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 		break;
 	}
 
-	map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u);
+	//the process makes no sense if we don't have such a vertex.
+	while(hasDoubleSelfLoop){
+		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, getVertexIn(g_working, u));
 
-	if(true){
-		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
-
-		int max = 0;
-		for(auto el : disjoint_subgraphs){
-			if(el.second.size() > max){
-				max = el.second.size();
-			}
-		}
-		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
-	}
-	
-	int total_merged_with_u = 0;
-	for(auto el : disjoint_subgraphs){
-		auto ids_of_subgraph = el.second;
-
-		graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
-		
 		if(true){
-			cout<<endl<<"ids in g_working: ";
-			for(int id : ids_of_subgraph){
-				cout<<id<<" ";
+			cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
+
+			int max = 0;
+			for(auto el : disjoint_subgraphs){
+				if(el.second.size() > max){
+					max = el.second.size();
+				}
 			}
-			cout<<endl;
-			subgraph.printAsDot();
+			cout<<"Max size of such subgraph: "<<(max+1)<<endl;
 		}
 
-		graph h = subgraph.flatten("[", subgraph.bound());
+		int total_merged_with_u = 0;
+		for(auto el : disjoint_subgraphs){
+			auto ids_of_subgraph = el.second;
 
-		h.bidirectedReach();
-
-		//transplant reachability info to both original and working versions of graph
-		h.transplantReachabilityInformationTo(g_orig);
-		h.transplantReachabilityInformationTo(g_working);
-		
-		h.forceRootsToLayer(0);
-		
-		{
-			auto h_sccs = h.computeSCCs();
-			int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
-			auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
+			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			int count = 0;
-			for(int member : scc_with_u_in_h){
-				if(h.vertices[member]->y == 0){
-					count++;
-				} 
+			if(true){
+				cout<<endl<<"ids in g_working: ";
+				for(int id : ids_of_subgraph){
+					cout<<id<<" ";
+				}
+				cout<<endl;
+				subgraph.printAsDot();
 			}
-			total_merged_with_u += count - 1;
+
+			graph h = subgraph.flatten("[", subgraph.bound());
+
+			h.bidirectedReach();
+
+			//transplant reachability info to both original and working versions of graph
+			h.transplantReachabilityInformationTo(g_orig);
+			h.transplantReachabilityInformationTo(g_working);
+			
+			{
+				auto h_sccs = h.computeSCCs();
+				int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
+				auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
+				
+				int count = 0;
+				for(int member : scc_with_u_in_h){
+					if(h.vertices[member]->y == 0){
+						count++;
+					} 
+				}
+				total_merged_with_u += count - 1;
+			}
+
+			h.deleteVertices();
+			subgraph.deleteVertices();
 		}
 
+		if(total_merged_with_u == 0) return;
 
-		h.deleteVertices();
+		cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
 
-		subgraph.deleteVertices();
+		auto graph1 = g_working.makeCopyWithoutDuplicates();
+		g_working.deleteVertices();
+		g_working = graph1;
 	}
-	cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
 
-	if(total_merged_with_u > 0){
-		//TODO repeat process somehow
-	}
+	//if we get here, g_working does not have any such hub.
+	//thus we just compute bidirected reachability on it directly
+	//and merge that info into the original.
+
+	//TODO check if this subgraph is too big to compute on directly??
+	graph h = g_working.flatten("[", g_working.bound());
+	h.bidirectedReach();
+
+	//transplant reachability info to both original and working versions of graph
+	h.transplantReachabilityInformationTo(g_orig);
+	h.transplantReachabilityInformationTo(g_working);
+	h.deleteVertices();
 
 
 	//TODO make sure deleteVertices() is called correctly for all graphs
-
-	g_flipped.deleteVertices();
 }
 
 graph graph::trim(graph& g_working){
