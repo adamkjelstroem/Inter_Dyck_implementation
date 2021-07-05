@@ -321,21 +321,21 @@ int main(int argc, const char * argv[]){
 						}
 					}
 				}
-				if(true){
-					graph g_part = g_working.buildSubgraph(scc[root_of_max]);
-					cout<<"Size of biggest such component: "<<max<<endl;	
-					cout<<"Bound for this: "<<(max * g_part.bound())<<endl;
 
-					g_part.printSparsenessFacts();
+				for(auto s : scc){
+					graph g_part = g_working.buildSubgraph(s.second);
+
+					//g_part.printSparsenessFacts();
 					
 					g_part.removeHubVertexAndCalc(g_part, *g);
 					
 					//g_part.printAsDot();
 					//continue;
-					return 0;
+					//return 0;
 				}
 				
 				//extract each component into separate graph
+				if(false)
 				for(auto s : scc){
 					//we don't care about singleton sccs as no information can be discovered
 					if(s.second.size() == 1) continue;

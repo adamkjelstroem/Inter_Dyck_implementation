@@ -146,7 +146,7 @@ void graph::transplantReachabilityInformationTo(graph& g){
 	}
 
 	if(mergings > 0)
-		cout<<"merged "<<mergings<<" nodes in g"<<endl;
+		cout<<"merged "<<(mergings+1)<<" nodes in g"<<endl;
 }
 
 
@@ -1358,7 +1358,8 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 	//the process makes no sense if we don't have such a vertex.
 	while(hasDoubleSelfLoop){
-		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, getVertexIn(g_working, u));
+		Vertex* u_in_g_working = getVertexIn(g_working, u);
+		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u_in_g_working);
 
 		if(true){
 			cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
@@ -1378,7 +1379,7 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			if(true){
+			if(false){
 				cout<<endl<<"ids in g_working: ";
 				for(int id : ids_of_subgraph){
 					cout<<id<<" ";
@@ -1386,18 +1387,21 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 				cout<<endl;
 				subgraph.printAsDot();
 			}
-
+			
 			graph h = subgraph.flatten("[", subgraph.bound());
-
+			
 			h.bidirectedReach();
-
+			
 			//transplant reachability info to both original and working versions of graph
 			h.transplantReachabilityInformationTo(g_orig);
 			h.transplantReachabilityInformationTo(g_working);
 			
 			{
 				auto h_sccs = h.computeSCCs();
-				int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
+				Vertex* u_in_h = getVertexIn(h,u_in_g_working);
+					
+				int root_of_u_in_h = h.dsu.root(u_in_h->id);
+				
 				auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
 				
 				int count = 0;
@@ -1408,14 +1412,13 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 				}
 				total_merged_with_u += count - 1;
 			}
-
 			h.deleteVertices();
 			subgraph.deleteVertices();
 		}
 
+		cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
 		if(total_merged_with_u == 0) return;
 
-		cout<<"Total vertices that get joined with 'u': "<<total_merged_with_u<<endl;
 
 		auto graph1 = g_working.makeCopyWithoutDuplicates();
 		g_working.deleteVertices();
