@@ -116,35 +116,34 @@ graph graph::flatten(string field_name, int depth){
 
 
 void graph::transplantReachabilityInformationTo(graph& g){
+	forceRootsToLayer(0);
 	auto sccs = computeSCCs();
 
 	int mergings = 0;
 	for(auto s : sccs){
 		auto root = vertices[s.first];
-		if(root->y == 0){
-			//we only care about roots at layer 0
-			for(auto b : s.second){
-				auto other = vertices[b];
-				if(other->y == 0){
-					//we only care about members of the scc which are also at layer 0
 
-					auto root_in_g = g.getVertex(root->x, 0, "");
-					auto root_in_g_s_root_id = g.dsu.root(root_in_g->id);
+		//we only care about roots at layer 0
+		if(root->y != 0) continue;
+		
+		for(auto b : s.second){
+			auto other = vertices[b];
 
-					auto other_in_g = g.getVertex(other->x, 0, "");
-					auto other_in_g_s_root_id = g.dsu.root(other_in_g->id);
+			//we only care about members of the scc which are also at layer 0
+			if(other->y != 0) continue;
+			
+			auto root_in_g_s_root_id = g.dsu.root(getVertexIn(g, root)->id);
+			auto other_in_g_s_root_id = g.dsu.root(getVertexIn(g, other)->id);
 
-					if(root_in_g_s_root_id != other_in_g_s_root_id){
-						g.dsu.merge(root_in_g_s_root_id, other_in_g_s_root_id);
-						mergings++;
-					}
-				}
+			if(root_in_g_s_root_id != other_in_g_s_root_id){
+				g.dsu.merge(root_in_g_s_root_id, other_in_g_s_root_id);
+				mergings++;
 			}
 		}
 	}
+
 	if(mergings > 0)
 		cout<<"merged "<<mergings<<" nodes in g"<<endl;
-
 }
 
 
