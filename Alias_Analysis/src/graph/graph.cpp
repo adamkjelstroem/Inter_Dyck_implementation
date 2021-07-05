@@ -1341,12 +1341,17 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 		
 		for(auto el : disjoint_subgraphs){
 			auto ids_of_subgraph = el.second;
-			
+
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			cout<<endl;
-
-			subgraph.printAsDot();
+			if(true){
+				cout<<endl<<"ids in g_working: ";
+				for(int id : ids_of_subgraph){
+					cout<<id<<" ";
+				}
+				cout<<endl;
+				subgraph.printAsDot();
+			}
 		}
 	}
 
