@@ -44,9 +44,9 @@ int main(int argc, const char * argv[]){
 	if(true){
 		//Procedure as of 28 june 2021 2
 		string benchmarks[] = {
-			//"antlr",
-			//"bloat",
-			//"chart",
+			"antlr",
+			"bloat",
+			"chart",
 			"eclipse",
 			"fop",
 			"hsqldb",
@@ -77,7 +77,7 @@ int main(int argc, const char * argv[]){
 			set<int> singletons;
 
 
-			if(false){
+			if(true){
 				g->construct2(s2, true, true);
 				g->dsu.init(g->N);
 				g->initWorklist();
@@ -92,13 +92,21 @@ int main(int argc, const char * argv[]){
 					int a = 0;
 					int b = 1;
 					int c = 2;
+					int d = 3;
 					g->addEdge(a, 0, a, 0, "[");
+					g->addEdge(a, 0, a, 0, "(");
 					g->addEdge(a, 0, b, 0, "(");
 					g->addEdge(c, 0, b, 0, "[");
+
+					g->addEdge(a, 0, d, 0, "(");
 				}
 				
 				g->dsu.init(g->N);
 				g->initWorklist();
+
+				g->printAsDot();
+				g->removeHubVertexAndCalc(*g, *g);
+				return 0;
 			}	
 
 			cout<<endl;
@@ -153,7 +161,8 @@ int main(int argc, const char * argv[]){
 				h.deleteVertices();
 			}*/
 
-			cout<<"G_working: "<<endl;
+			cout<<endl;
+			cout<<"g after reducing via D' reachability: "<<endl;
 			g_working.printSparsenessFacts();
 			if(false){
 				graph g_2;
@@ -273,7 +282,8 @@ int main(int argc, const char * argv[]){
 				g_working = *g_working_2;
 			}
 
-			
+			cout<<endl;
+			cout<<"g after trimming:"<<endl;
 			g_working.printSparsenessFacts();
 
 			//output if g_working contains more than 1 scc wrt plain reachability
@@ -281,6 +291,7 @@ int main(int argc, const char * argv[]){
 			int root_of_max = -1;
 			{
 				map<int,set<int>> scc = g_working.computeDisjointSets();
+				cout<<endl;
 				cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
 				int reasonable = -1;
 				for(auto el : scc){
@@ -310,19 +321,24 @@ int main(int argc, const char * argv[]){
 						}
 					}
 				}
-				if(false){
-					cout<<"Size of biggest such component: "<<max<<endl;	
+				if(true){
 					graph g_part = g_working.buildSubgraph(scc[root_of_max]);
+					cout<<"Size of biggest such component: "<<max<<endl;	
+					cout<<"Bound for this: "<<(max * g_part.bound())<<endl;
 
 					g_part.printSparsenessFacts();
+					
+					g_part.removeHubVertexAndCalc(g_part, *g);
+					
 					//g_part.printAsDot();
+					//continue;
 					return 0;
 				}
 				
 				//extract each component into separate graph
 				for(auto s : scc){
 					//we don't care about singleton sccs as no information can be discovered
-					//if(s.second.size() == 1) continue;
+					if(s.second.size() == 1) continue;
 
 					cout<<"Analyzing component of size "<<s.second.size()<<endl;
 					
