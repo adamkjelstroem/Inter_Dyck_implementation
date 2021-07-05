@@ -114,6 +114,9 @@ graph graph::flatten(string field_name, int depth){
 	return g;
 }
 
+Vertex* getVertexIn(graph& g, Vertex* me){
+	return g.getVertex(me->x, 0, "");
+}
 
 void graph::transplantReachabilityInformationTo(graph& g){
 	forceRootsToLayer(0);
@@ -886,9 +889,6 @@ graph graph::copy_ignoring(string label){
 	return g;
 }
 
-Vertex* getVertexIn(graph& g, Vertex* me){
-	return g.getVertex(me->x, 0, "");
-}
 
 //makes copy without duplicates, adding edges between roots.
 graph graph::makeCopyWithoutDuplicates(){
