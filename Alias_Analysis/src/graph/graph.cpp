@@ -1320,6 +1320,29 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 4. If you find that u reaches some v in some G_i, do the appropriate merging to turn the initial graph G to a new graph G'. 
    G' will also have a double self loop on u (after merging), so repeat the above process.
 5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
+
+
+equivalent procedure as implemented by A Kjelstrøm:
+
+search for vertex u s.t. u has self edge on both counters
+
+if u exists:
+	while true:
+		remove u from G
+		find disjoint sets
+		for each set:
+			insert u into each
+			flatten to bound
+			compute all-pairs reachability
+			update G with this info (shrink it)
+		if no new info was discovered:
+			return		//since we already computed all-pairs reachability, we don't need to do the same without u for each set.
+if u does not exist:
+	flatten to bound
+	compute all-pairs reachability
+	update G with this info
+
+
 */
 void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 	//first, discover u
