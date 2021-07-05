@@ -1357,23 +1357,21 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 
 			h.bidirectedReach();
 
+			h.transplantReachabilityInformationTo(g_orig);
+
 			h.forceRootsToLayer(0);
-
-			auto h_sccs = h.computeSCCs();
-
-			int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
-
-			auto scc_with_u_in_h = h_sccs[root_of_u_in_h];
-
+			
 			{
+				auto h_sccs = h.computeSCCs();
+				int root_of_u_in_h = h.dsu.root(getVertexIn(h,u)->id);
+				auto scc_with_u_in_h = h_sccs[root_of_u_in_h];			
+				
 				int count = 0;
 				for(int member : scc_with_u_in_h){
 					if(h.vertices[member]->y == 0){
 						count++;
-						//TODO merge this in original graph!
 					} 
 				}
-				cout<<"Vertices that get joined with 'u': "<<count-1<<endl;
 				total += count - 1;
 			}
 
@@ -1383,6 +1381,10 @@ void graph::removeHubVertexAndCalc(graph &g_working, graph &g_orig){
 			subgraph.deleteVertices();
 		}
 		cout<<"Total vertices that get joined with 'u': "<<total<<endl;
+
+		if(total > 0){
+			//TODO repeat process somehow
+		}
 	}
 
 	//TODO make sure deleteVertices() is called correctly for all graphs
