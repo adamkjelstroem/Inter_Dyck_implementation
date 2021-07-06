@@ -59,10 +59,6 @@ int main(int argc, const char * argv[]){
 
 		//hyperparameters
 		bool using_reduced = false;
-		int iterations = 3;
-
-		
-
 		for(string s : benchmarks){
 			
 			string s2;
@@ -72,65 +68,73 @@ int main(int argc, const char * argv[]){
 				s2 = "./spg/orig_bench/" + s + ".dot";
 			}
 
-			//Data to work on
+			//initialize graph
 			graph* g = new graph;
-			
-
 			g->construct2(s2, true, true);
 			g->dsu.init(g->N);
 			g->initWorklist();
 		
 
 			cout<<endl;
-			cout<<endl;
 			cout<<"-----------------"<<endl;
 			cout<<endl;
 			cout<<"Computing on '"<<s;
 			if (using_reduced) cout<<"_reduced";
 			cout<<"'"<<endl;
+			cout<<endl;
 			cout<<"Initial graph:"<<endl;
 			g->printSparsenessFacts();
+
+			{
+				graph copy_ignored = g->copy_ignoring("[");
+				copy_ignored.bidirectedReach();
+				cout<<endl;
+				cout<<"Number of reachable pairs when replacing edges on one counter with epsilon edges: "<<copy_ignored.calcNumReachablePairs()<<endl;
+				cout<<"Number of DSCCs when replacing edges on one counter with epsilon edges: "<<copy_ignored.computeSCCs().size()<<endl;
+				copy_ignored.deleteVertices();
+			}
 			
 			//timing logic
 			clock_t t = clock();
 			
-			//Compute bidirected reach, as it is a sound under-approximation
+
+			//Reduce graph via bidirected reach, as it is a sound under-approximation
 			g->bidirectedReach();
+			cout<<endl;
 			cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
+			cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g->computeSCCs().size()<<endl;
+			cout<<"Number of disjoint components: "<<g->computeDisjointSets().size()<<endl;
 
-			//use g to construct g_working, which is a copy without duplicate edges
-			graph g_working = g->makeCopyWithoutDuplicates();
-
-
+			graph g_working = g->makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
 			cout<<endl;
 			cout<<"Graph after reducing via (non-interleaved) bidirected dyck reachability: "<<endl;
 			g_working.printSparsenessFacts();
 			
 
-			{
-				graph m = g_working.trim(g_working);
-				g_working = m;	
-			}
-
+			//use various rules of trimming to reduce graph
+			g_working = g_working.trim(g_working);
 			cout<<endl;
 			cout<<"Graph after trimming:"<<endl;
 			g_working.printSparsenessFacts();
 
-			
+
+			//split graph into disjoint components
 			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
 			cout<<endl;
-			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t plain reachability. ";
+			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t. plain reachability. ";
 			cout<<"Each is treated as its own graph."<<endl;
 			
+			//further split each component if possible, then flatten up to the bound and perform
+			//calculations directly.
 			for(auto s : disjoint_components){
 				graph g_part = g_working.buildSubgraph(s.second);
-
 				g_part.removeHubVertexIfExistsThenCalc(g_part, *g);
 			}
 			
 			g_working.deleteVertices();
 
 			cout<<"Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
+			cout<<"Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: "<<g->computeSCCs().size()<<endl;
 
 			g->deleteVertices();
 			delete g;
@@ -749,7 +753,7 @@ int main(int argc, const char * argv[]){
 					for(int i=0;i<g_working->N;i++){
 						scc[dsu.root(i)].insert(i);
 					}
-					cout<<"Found "<<scc.size()<<" disjoint components w.r.t plain reachability"<<endl;
+					cout<<"Found "<<scc.size()<<" disjoint components w.r.t. plain reachability"<<endl;
 					int max = -1;
 					for(auto el : scc){
 						int alt = el.second.size();
