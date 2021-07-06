@@ -52,9 +52,7 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-
-	
-	if(true){
+	if(false){
 		//test for set difference
 		string data[] = {
 			"antlr",
@@ -110,6 +108,7 @@ int main(int argc, const char * argv[]){
 				}
 			}
 			cout<<s<<" - D1D1 pairs - DkD1 pairs: "<<res<<endl;
+			cout<<"# d1d1 pairs : "<<d1d1_pairs.size()<<" - #dkd1 pairs : "<<dkd1_pairs.size()<<endl;
 		}
 
 		return 0;
@@ -132,13 +131,18 @@ int main(int argc, const char * argv[]){
 			"xalan"
 		};
 
+		string flatten_label = "(";
+
+		cout<<"Table when flattening on "<<flatten_label<<endl;
+		cout<<endl;
+
 		cout<<"\\begin{table}[]"<<endl;
 		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
 		cout<<"\\hline"<<endl;
 		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
 	
 		for(string s : data){
-			d1dk_experiment(s, "[");
+			d1dk_experiment(s, flatten_label);
 		}
 
 		cout<<"\\end{tabular}"<<endl;
@@ -1229,53 +1233,7 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
-	if(true){
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
 
-		string flatten_on = "[";
-		for(string s : data){
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			graph g;
-			
-			cout<<"running heuristicReductionBeforeFlattenReach on "<<s<<endl;
-
-			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
-
-
-			//clock_t time;
-			struct timeval tv1,tv2;
-
-
-			gettimeofday(&tv1, NULL);
-			//time = clock();
-
-			g.heuristicReductionBeforeFlattenReach(flatten_on);
-
-
-			//time = clock() - time;
-			gettimeofday(&tv2, NULL);
-
-			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"'): "<<g.calcNumReachablePairs()<<endl;
-
-
-			double bidir_reach_time_s = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec);
-			cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s<<"\n\n";
-			
-		}
-		return 0;
-	}
 
 	if(true){
 		string data[] = {

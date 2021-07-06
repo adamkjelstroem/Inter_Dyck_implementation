@@ -74,18 +74,15 @@ public:
 	Vertex* getVertex(int x, int y, const string &name);
 
 	void construct2(string infile_name, bool d1_parenthesis, bool d1_bracket);
-	void construct2flattenbracket(string infile_name);
+	
 	graph flatten(string field_name, int depth);
+
 	void flattenReach(string flatten_label);
+	
 	int calcNumReachablePairs();
 
 	void forceRootsToLayer(int layer);
-	void flattenReach2(string flatten_label);
-
-	void flattenReachRemade(string flatten_label);
 	
-	void heuristicReductionBeforeFlattenReach(string flatten_label);
-
 	//helper functions
 	void setFlattened(bool v){
 		isFlattened = isFlattened | v;
