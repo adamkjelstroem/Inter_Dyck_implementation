@@ -87,6 +87,7 @@ int main(int argc, const char * argv[]){
 
 			{
 				graph copy_ignored = g->copy_ignoring("[");
+				copy_ignored.initWorklist();
 				copy_ignored.bidirectedReach();
 				cout<<endl;
 				cout<<"Number of reachable pairs when replacing edges on one counter with epsilon edges: "<<copy_ignored.calcNumReachablePairs()<<endl;
