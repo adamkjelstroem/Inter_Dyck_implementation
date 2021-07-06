@@ -18,14 +18,6 @@ void d1dk_experiment(string path, string counterSymbol){
 	g.printSparsenessFacts();
 	
 	
-
-	graph g_c3 = g.copy_ignoring(counterSymbol);
-	g_c3.initWorklist();
-	g_c3.bidirectedReach();
-	cout<<endl;
-	cout<<"Number of reachable pairs when replacing counter edges with eps edges: "<<g_c3.calcNumReachablePairs()<<endl;
-	cout<<"Number of DSCCs when replacing counter edges with eps edges: "<<g_c3.computeSCCs().size()<<endl;
-	g_c3.deleteVertices();
 	
 	g.bidirectedReach();
 	cout<<endl;
@@ -55,6 +47,7 @@ void d1dk_experiment(string path, string counterSymbol){
 	for(auto component : disjoint_components){
 		if(component.second.size() > 100)
 			cout<<"Processing a component with "<<component.second.size()<<" vertices."<<endl;
+
 		//cout<<"Working on one of size "<<component.second.size()<<endl;
 		graph subgraph = g_working.buildSubgraph(component.second);
 
