@@ -125,6 +125,10 @@ public:
 	//Based on techniques discovered 2 july 2021 and 3 july 2021
 	graph trim(graph& g_working);
 
+	//removes provably unreachable nodes via the
+	//rules applicable in the D1Dk case.
+	graph trim_d1dk(graph& g_working);
+
 	void removeHubVertexIfExistsThenCalc(graph &g_working, graph &g);
 
 	graph buildSubgraph(set<int> &ids);

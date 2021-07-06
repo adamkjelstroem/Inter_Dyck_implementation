@@ -1458,6 +1458,33 @@ graph graph::trim(graph& g_working){
 	return g_working;
 }
 
+graph graph::trim_d1dk(graph& g_working){
+	while(true){
+		set<int> to_delete;
+		graph g_working_2;
+
+		
+		graph g_flipped = buildFlipped(g_working);
+
+		findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
+
+		findRemovableVerticesViaThirdRule(g_working, g_flipped, to_delete);
+
+		g_flipped.deleteVertices();
+		
+		if(to_delete.size() == 0) break;
+		
+		g_working_2 = buildCopyWithout(g_working, to_delete);
+		g_working.deleteVertices();
+		g_working = g_working_2;
+
+		//cout<<"Newly reduced g, without the removable edges:"<<endl;
+		//g_working.printSparsenessFacts();
+	}
+
+	return g_working;
+}
+
 graph graph::buildSubgraph(set<int> &ids){
 	graph g_part;
 	for (auto id_in_g_working : ids){
