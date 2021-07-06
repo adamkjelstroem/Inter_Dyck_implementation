@@ -1,0 +1,386 @@
+compiling the files
+CLASS_PATH = 
+BENCHMARK = 123
+MAIN_PROG = 
+Buildfile: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml
+
+clean:
+   [delete] Deleting directory /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+init:
+    [mkdir] Created dir: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+build:
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml:47: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 71 source files to /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:41: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				Integer newId = new Integer(id.intValue());
+    [javac] 				                ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:48: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				ind.add(new Integer(ex.expression.size() - 1));
+    [javac] 				        ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:63: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(conditions[j]));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:70: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				item.add(new Integer(conditions[j]));
+    [javac] 				         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:112: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set s = (Set) indices.get(new Integer(oldid));
+    [javac] 		                          ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:119: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.remove(new Integer(oldid));
+    [javac] 			            ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:120: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.add(new Integer(newid));
+    [javac] 			         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:132: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set in = (Set) indices.get(new Integer(id));
+    [javac] 		                           ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:144: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 					s.remove(new Integer(id));
+    [javac] 					         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:183: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(i));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:12: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(1));
+    [javac] 			              ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:13: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			return new Integer(0);
+    [javac] 			       ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:15: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(id.intValue() + 1));
+    [javac] 			              ^
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 13 warnings
+
+run.benchmark:
+     [java] May alias is spa   Debug is true   use_cache is false  use_summary is true
+     [java] [PARAMETER] SPA_BUDGET_NODES: 75000, SUMM_RATIO: 3, TIME_BUDGET: 2
+     [java] Soot called with main class : dacapo.123.Main
+     [java] Soot started on Tue Jul 06 09:26:53 CEST 2021
+     [java] Exception in thread "main" java.lang.NullPointerException
+     [java] 	at soot.JastAddJ.Program.initPaths(Program.java:329)
+     [java] 	at soot.SootResolver.<init>(SootResolver.java:86)
+     [java] 	at soot.Singletons.soot_SootResolver(Singletons.java:795)
+     [java] 	at soot.SootResolver.v(SootResolver.java:89)
+     [java] 	at soot.Scene.tryLoadClass(Scene.java:416)
+     [java] 	at soot.Scene.loadBasicClasses(Scene.java:990)
+     [java] 	at soot.Scene.loadNecessaryClasses(Scene.java:1061)
+     [java] 	at soot.Main.run(Main.java:167)
+     [java] 	at soot.Main.main(Main.java:141)
+     [java] 	at client.datarace.DataraceMain.main(DataraceMain.java:124)
+
+BUILD SUCCESSFUL
+Total time: 2 seconds
+
+
+-----------------
+
+Computing on 'antlr'
+
+Initial graph:
+edges: 67799
+Vertices: 29831
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 6533529
+Number of DSCCs when replacing edges on one counter with epsilon edges: 10166
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1613938
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 26825
+Number of disjoint components: 6779
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 50375
+Vertices: 26825
+
+Graph after trimming:
+edges: 1591
+Vertices: 1090
+
+Found 773 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1730557
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 26793
+Total time: 29.5055 s
+
+-----------------
+
+Computing on 'bloat'
+
+Initial graph:
+edges: 82592
+Vertices: 36181
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 8583086
+Number of DSCCs when replacing edges on one counter with epsilon edges: 13848
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 2290516
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 32725
+Number of disjoint components: 8045
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 61213
+Vertices: 32725
+
+Graph after trimming:
+edges: 1745
+Vertices: 1231
+
+Found 909 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 2398505
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 32693
+Total time: 12.1625 s
+
+-----------------
+
+Computing on 'chart'
+
+Initial graph:
+edges: 160787
+Vertices: 67535
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 39774516
+Number of DSCCs when replacing edges on one counter with epsilon edges: 23734
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 7240671
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 60844
+Number of disjoint components: 15300
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 113919
+Vertices: 60844
+
+Graph after trimming:
+edges: 3659
+Vertices: 2668
+
+Found 2043 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 7941381
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 60787
+Total time: 23.1081 s
+
+-----------------
+
+Computing on 'eclipse'
+
+Initial graph:
+edges: 70495
+Vertices: 30981
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 7050349
+Number of DSCCs when replacing edges on one counter with epsilon edges: 10628
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1796452
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 27840
+Number of disjoint components: 7197
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 51945
+Vertices: 27840
+
+Graph after trimming:
+edges: 1605
+Vertices: 1123
+
+Found 816 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1870923
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 27812
+Total time: 11.4559 s
+
+-----------------
+
+Computing on 'fop'
+
+Initial graph:
+edges: 142804
+Vertices: 61016
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 34675816
+Number of DSCCs when replacing edges on one counter with epsilon edges: 21609
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 6536040
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 54723
+Number of disjoint components: 14214
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 102305
+Vertices: 54723
+
+Graph after trimming:
+edges: 3385
+Vertices: 2425
+
+Found 1815 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 7168199
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 54671
+Total time: 22.1209 s
+
+-----------------
+
+Computing on 'hsqldb'
+
+Initial graph:
+edges: 62935
+Vertices: 27494
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 5901277
+Number of DSCCs when replacing edges on one counter with epsilon edges: 8996
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1508413
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 24610
+Number of disjoint components: 6453
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 45930
+Vertices: 24610
+
+Graph after trimming:
+edges: 1391
+Vertices: 966
+
+Found 699 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1578448
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 24584
+Total time: 11.0406 s
+
+-----------------
+
+Computing on 'jython'
+
+Initial graph:
+edges: 86354
+Vertices: 36162
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 12536132
+Number of DSCCs when replacing edges on one counter with epsilon edges: 12322
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 4159201
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 31845
+Number of disjoint components: 9198
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 59149
+Vertices: 31845
+
+Graph after trimming:
+edges: 1886
+Vertices: 1293
+
+Found 912 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 4357299
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 31811
+Total time: 18.8484 s
+
+-----------------
+
+Computing on 'luindex'
+
+Initial graph:
+edges: 65099
+Vertices: 28595
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 6200592
+Number of DSCCs when replacing edges on one counter with epsilon edges: 9344
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1569414
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 25636
+Number of disjoint components: 6743
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 47763
+Vertices: 25636
+
+Graph after trimming:
+edges: 1479
+Vertices: 1039
+
+Found 764 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1640846
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 25610
+Total time: 10.7443 s
+
+-----------------
+
+Computing on 'lusearch'
+
+Initial graph:
+edges: 67122
+Vertices: 29530
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 6406064
+Number of DSCCs when replacing edges on one counter with epsilon edges: 9730
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1614199
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 26447
+Number of disjoint components: 7018
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 49261
+Vertices: 26447
+
+Graph after trimming:
+edges: 1610
+Vertices: 1113
+
+Found 807 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1699519
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 26417
+Total time: 12.5287 s
+
+-----------------
+
+Computing on 'pmd'
+
+Initial graph:
+edges: 71165
+Vertices: 31333
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 7784885
+Number of DSCCs when replacing edges on one counter with epsilon edges: 10488
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1926461
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 28093
+Number of disjoint components: 7434
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 52274
+Vertices: 28093
+
+Graph after trimming:
+edges: 1520
+Vertices: 1048
+
+Found 755 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 2190593
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 28064
+Total time: 13.5458 s
+
+-----------------
+
+Computing on 'xalan'
+
+Initial graph:
+edges: 62481
+Vertices: 27358
+
+Number of reachable pairs when replacing edges on one counter with epsilon edges: 5743397
+Number of DSCCs when replacing edges on one counter with epsilon edges: 8947
+
+Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: 1446402
+Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: 24523
+Number of disjoint components: 6397
+
+Graph after reducing via (non-interleaved) bidirected dyck reachability: 
+edges: 45755
+Vertices: 24523
+
+Graph after trimming:
+edges: 1384
+Vertices: 968
+
+Found 708 disjoint components w.r.t. plain reachability. Each is treated as its own graph.
+Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: 1513262
+Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: 24498
+Total time: 11.3903 s
