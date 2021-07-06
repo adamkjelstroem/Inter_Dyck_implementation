@@ -142,12 +142,14 @@ void graph::transplantReachabilityInformationTo(graph& g){
 }
 
 
-//The process as fully implemented
+//The D1D1 version of the process as fully implemented. 
+//PRECONDITION: this is a graph of DkD1 form.
 void graph::bidirectedInterleavedD1D1Reach(){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
 	bidirectedReach();
-	
-	graph g_working = makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
+
+	//construct working copy of g without dublicate edges.
+	graph g_working = makeCopyWithoutDuplicates();
 	
 	//use various rules of trimming to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
@@ -158,12 +160,45 @@ void graph::bidirectedInterleavedD1D1Reach(){
 	
 	//further split each component if possible, then flatten up to the bound and perform
 	//calculations directly.
-	auto me = this;
 	for(auto s : disjoint_components){
 		graph g_part = g_working.buildSubgraph(s.second);
-		g_part.removeHubVertexIfExistsThenCalc(g_part, *me);
+		g_part.removeHubVertexIfExistsThenCalc(g_part, *this);
 	}
 	
+	//cleanup
+	g_working.deleteVertices();
+}
+
+//The DkD1 version of the process. 
+//PRECONDITION: 'this' is a graph of D1D1 form.
+void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
+	//Reduce graph via bidirected reach, as it is a sound under-approximation
+	bidirectedReach();
+	
+ 	//construct working copy of g without dublicate edges.
+	graph g_working = makeCopyWithoutDuplicates();
+
+	//use various rules of trimming (which apply in the DkD1 case) to reduce graph. 
+	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
+	g_working = g_working.trim_d1dk(g_working);
+	g_working.initWorklist();
+
+	//split graph into disjoint components and compute on each directly.
+	auto disjoint_components = g_working.computeDisjointSets();
+	for(auto component : disjoint_components){
+		graph subgraph = g_working.buildSubgraph(component.second);
+
+		//subgraph.N is the bound
+		graph h = subgraph.flatten(flatten_on, subgraph.N);
+
+		subgraph.deleteVertices();
+				
+		h.bidirectedReach();
+		
+		h.transplantReachabilityInformationTo(*this);
+
+		h.deleteVertices();
+	}
 	//cleanup
 	g_working.deleteVertices();
 }

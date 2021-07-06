@@ -134,6 +134,8 @@ public:
 	graph buildSubgraph(set<int> &ids);
 
 	void bidirectedInterleavedD1D1Reach();
+
+	void bidirectedInterleavedDkD1Reach(string flatten_on);
 };
 
 #endif
