@@ -77,7 +77,7 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-	if(true){
+	if(false){
 		//Test setup for D1 dot Dk flattened to a bound=n
 		string data[] = {
 			"antlr",
@@ -110,6 +110,89 @@ int main(int argc, const char * argv[]){
 		}
 		return 0;
 	}
+
+	if(false){
+		//Procedure as of 28 june 2021, with print statements updated to export as tex file
+		string benchmarks[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		cout<<"\\begin{table}[]"<<endl;
+		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+		cout<<"\\hline"<<endl;
+		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+	
+		for(string s : benchmarks){
+			
+			string s2 = "./spg/orig_bench/" + s + ".dot";
+			
+			//initialize graph
+			graph* g = new graph;
+			g->construct2(s2, true, true);
+			g->dsu.init(g->N);
+			g->initWorklist();
+		
+
+			int n = g->N;
+			
+			
+			//timing logic
+			clock_t t = clock();
+			
+
+			//Reduce graph via bidirected reach, as it is a sound under-approximation
+			g->bidirectedReach();
+			
+			int d_sccs = g->computeSCCs().size();
+			int d_reachable_pairs = g->calcNumReachablePairs();
+
+			graph g_working = g->makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
+			
+
+			//use various rules of trimming to reduce graph
+			g_working = g_working.trim(g_working);
+
+
+			//split graph into disjoint components
+			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
+			
+			//further split each component if possible, then flatten up to the bound and perform
+			//calculations directly.
+			for(auto s : disjoint_components){
+				graph g_part = g_working.buildSubgraph(s.second);
+				g_part.removeHubVertexIfExistsThenCalc(g_part, *g);
+			}
+			
+			g_working.deleteVertices();
+
+			int id_sccs = g->computeSCCs().size();
+			int id_reachable_pairs = g->calcNumReachablePairs();
+
+			g->deleteVertices();
+			delete g;
+
+			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+			cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
+		}
+
+		cout<<"\\end{tabular}"<<endl;
+		cout<<"\\end{table}"<<endl;
+
+		return 0;
+	}
+
+
 
 
 	if(true){
@@ -220,7 +303,7 @@ int main(int argc, const char * argv[]){
 
 
 
-	if(true){
+	if(false){
 		//Procedure as of 28 june 2021
 		string benchmarks[] = {
 			"antlr",
