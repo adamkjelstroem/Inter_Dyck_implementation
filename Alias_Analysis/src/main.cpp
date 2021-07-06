@@ -6,68 +6,43 @@
 #include <sys/time.h>
 
 void d1dk_experiment(string s, string counterSymbol){
-	cout<<endl;
-	cout<<"When '"<<counterSymbol<<"' is D1:"<<endl;
-	cout<<endl;
-
 	graph g;
 	g.construct2("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
+
+	int n = g.N;
+
+	graph g_copy = g.copy();
+	g_copy.initWorklist();
+	g_copy.bidirectedReach();
+	int d_sccs = g_copy.computeSCCs().size();
+	int d_reachable_pairs = g_copy.calcNumReachablePairs();
+
+	clock_t t = clock();	
 	
-	cout<<"graph facts: "<<endl;
-	g.printSparsenessFacts();
-	
-	
-	
-	g.bidirectedReach();
-	cout<<endl;
-	cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g.calcNumReachablePairs()<<endl;
-	cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g.computeSCCs().size()<<endl;
-	
+	g.bidirectedInterleavedDkD1Reach(s);
 
-	graph g_working = g.makeCopyWithoutDuplicates();
-
-	cout<<endl;
-	cout<<"Graph after reduction via plain dyck union reachability: "<<endl;
-	g_working.printSparsenessFacts();
-	cout<<endl;
-
-	g_working = g_working.trim_d1dk(g_working);
-
-	cout<<"Graph after trimming: "<<endl;
-	g_working.printSparsenessFacts();
-	cout<<endl;
-
-	g_working.initWorklist();
-
-	clock_t t = clock();
-
-	auto disjoint_components = g_working.computeDisjointSets();
-	cout<<"found "<<disjoint_components.size()<<" disjoint components"<<endl;
-	for(auto component : disjoint_components){
-		if(component.second.size() > 100)
-			cout<<"Processing a component with "<<component.second.size()<<" vertices."<<endl;
-
-		//cout<<"Working on one of size "<<component.second.size()<<endl;
-		graph subgraph = g_working.buildSubgraph(component.second);
-
-		graph h = subgraph.flatten(counterSymbol, subgraph.N);
-		
-		h.bidirectedReach();
-		
-		h.transplantReachabilityInformationTo(g);
-
-		subgraph.deleteVertices();
-		h.deleteVertices();
-	}
-	cout<<endl;
-	cout<<"Number of reachable pairs when flattening to a linear bound on the counter: "<<g.calcNumReachablePairs()<<endl;
-	cout<<"Number of DSCCs when flattening to a linear bound on the counter: "<<g.computeSCCs().size()<<endl;
-
-	cout<<"Time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
-	
+	int id_sccs = g.computeSCCs().size();
+	int id_reachable_pairs = g.calcNumReachablePairs();
 
 	g.deleteVertices();
+
+	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+	cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
+}
+
+set<pair<int, int>> getReachablePairs(graph& g){
+	set<pair<int, int>> pairs;
+	for(int a = 0; a < g.N; a++){
+		for(int b = a+1; b < g.N; b++){
+			if(g.dsu.root(a) == g.dsu.root(b)){
+				pair<int, int> p (a, b);
+				pairs.insert(p);
+			}
+		}
+	}
+	return pairs;
 }
 
 int main(int argc, const char * argv[]){
@@ -77,7 +52,71 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-	if(false){
+
+	
+	if(true){
+		//test for set difference
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		string flatten_label = "(";
+		cout<<"Computing set differences between DkD1 and D1D1 when flattening DkD1 on "<<flatten_label<<endl;
+		for(string s : data){
+			string s2 = "./spg/orig_bench/" + s + ".dot";
+
+			//initialize d1d1 graph
+			graph d1d1;
+			d1d1.construct2(s2, true, true);
+			d1d1.dsu.init(d1d1.N);
+			d1d1.initWorklist();
+
+			//d1d1.printAsDot();
+
+			//initialize dkd1 graph
+			graph dkd1;
+			dkd1.construct2(s2, flatten_label == "[", flatten_label == "("); 
+			dkd1.dsu.init(dkd1.N);
+			dkd1.initWorklist();
+
+			d1d1.bidirectedInterleavedD1D1Reach();
+
+			dkd1.bidirectedInterleavedDkD1Reach(flatten_label);
+
+			//compare results.
+
+			//We extract pairs into list
+			set<pair<int, int>> d1d1_pairs = getReachablePairs(d1d1);
+			set<pair<int, int>> dkd1_pairs = getReachablePairs(dkd1);
+			
+			//since DkD1 pairs are a subset of D1D1 pairs,
+			//we compute D1D1 pairs - DkD1 pairs
+
+			int res = 0;
+			for(auto d1d1pair : d1d1_pairs){
+				//a pair is in the set difference if it is in d1d1 but not in dkd1
+				if(dkd1_pairs.find(d1d1pair) == dkd1_pairs.end()){
+					res++;
+				}
+			}
+			cout<<s<<" - D1D1 pairs - DkD1 pairs: "<<res<<endl;
+		}
+
+		return 0;
+	}
+
+
+	if(true){
 		//Test setup for D1 dot Dk flattened to a bound=n
 		string data[] = {
 			"antlr",
@@ -93,20 +132,18 @@ int main(int argc, const char * argv[]){
 			"xalan"
 		};
 
+		cout<<"\\begin{table}[]"<<endl;
+		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+		cout<<"\\hline"<<endl;
+		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+	
 		for(string s : data){
-			//string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			
-			cout<<endl;
-			cout<<"-----------------"<<endl;
-			cout<<endl;
-			cout<<"Computing on '"<<s<<"'"<<endl;
-			cout<<endl;
-			
 			d1dk_experiment(s, "[");
-			cout<<endl;
-			d1dk_experiment(s, "(");
-			
 		}
+
+		cout<<"\\end{tabular}"<<endl;
+		cout<<"\\end{table}"<<endl;
+
 		return 0;
 	}
 
@@ -144,35 +181,17 @@ int main(int argc, const char * argv[]){
 
 			int n = g->N;
 			
+			graph g_copy = g->copy();
+			g_copy.initWorklist();
+			g_copy.bidirectedReach();
+			int d_sccs = g_copy.computeSCCs().size();
+			int d_reachable_pairs = g_copy.calcNumReachablePairs();
+
 			
 			//timing logic
 			clock_t t = clock();
 			
-
-			//Reduce graph via bidirected reach, as it is a sound under-approximation
-			g->bidirectedReach();
-			
-			int d_sccs = g->computeSCCs().size();
-			int d_reachable_pairs = g->calcNumReachablePairs();
-
-			graph g_working = g->makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
-			
-
-			//use various rules of trimming to reduce graph
-			g_working = g_working.trim(g_working);
-
-
-			//split graph into disjoint components
-			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
-			
-			//further split each component if possible, then flatten up to the bound and perform
-			//calculations directly.
-			for(auto s : disjoint_components){
-				graph g_part = g_working.buildSubgraph(s.second);
-				g_part.removeHubVertexIfExistsThenCalc(g_part, *g);
-			}
-			
-			g_working.deleteVertices();
+			g->bidirectedInterleavedD1D1Reach();
 
 			int id_sccs = g->computeSCCs().size();
 			int id_reachable_pairs = g->calcNumReachablePairs();
@@ -194,7 +213,8 @@ int main(int argc, const char * argv[]){
 
 
 
-	if(true){
+	//TODO delete?
+	if(false){
 		//Procedure as of 28 june 2021
 		string benchmarks[] = {
 			"antlr",
