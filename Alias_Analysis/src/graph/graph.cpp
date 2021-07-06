@@ -142,6 +142,32 @@ void graph::transplantReachabilityInformationTo(graph& g){
 }
 
 
+//The process as fully implemented
+void graph::bidirectedInterleavedD1D1Reach(){
+	//Reduce graph via bidirected reach, as it is a sound under-approximation
+	bidirectedReach();
+	
+	graph g_working = makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
+	
+	//use various rules of trimming to reduce graph. 
+	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
+	g_working = g_working.trim(g_working);
+
+	//split graph into disjoint components
+	map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
+	
+	//further split each component if possible, then flatten up to the bound and perform
+	//calculations directly.
+	auto me = this;
+	for(auto s : disjoint_components){
+		graph g_part = g_working.buildSubgraph(s.second);
+		g_part.removeHubVertexIfExistsThenCalc(g_part, *me);
+	}
+	
+	//cleanup
+	g_working.deleteVertices();
+}
+
 map<int,set<int>> graph::computeDisjointSets(){
 	DSU dsu;
 	dsu.init(N);

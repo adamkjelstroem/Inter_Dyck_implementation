@@ -132,6 +132,8 @@ public:
 	void removeHubVertexIfExistsThenCalc(graph &g_working, graph &g);
 
 	graph buildSubgraph(set<int> &ids);
+
+	void bidirectedInterleavedD1D1Reach();
 };
 
 #endif
