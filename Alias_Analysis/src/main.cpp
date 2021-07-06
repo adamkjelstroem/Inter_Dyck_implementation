@@ -5,13 +5,13 @@
 #include <time.h>
 #include <sys/time.h>
 
-void d1dk_experiment(string path, string counterSymbol){
+void d1dk_experiment(string s, string counterSymbol){
 	cout<<endl;
 	cout<<"When '"<<counterSymbol<<"' is D1:"<<endl;
 	cout<<endl;
 
 	graph g;
-	g.construct2(path, counterSymbol == "[", counterSymbol == "("); 
+	g.construct2("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
 	
 	cout<<"graph facts: "<<endl;
@@ -95,7 +95,6 @@ int main(int argc, const char * argv[]){
 
 		for(string s : data){
 			//string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			string s2 = "./spg/orig_bench/" + s + ".dot";
 			
 			cout<<endl;
 			cout<<"-----------------"<<endl;
@@ -103,9 +102,9 @@ int main(int argc, const char * argv[]){
 			cout<<"Computing on '"<<s<<"'"<<endl;
 			cout<<endl;
 			
-			d1dk_experiment(s2, "[");
+			d1dk_experiment(s, "[");
 			cout<<endl;
-			d1dk_experiment(s2, "(");
+			d1dk_experiment(s, "(");
 			
 		}
 		return 0;
