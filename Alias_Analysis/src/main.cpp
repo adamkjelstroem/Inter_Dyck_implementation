@@ -5,6 +5,56 @@
 #include <time.h>
 #include <sys/time.h>
 
+void d1dk_experiment(string path, string counterSymbol){
+	cout<<endl;
+	cout<<"When '"<<counterSymbol<<"' is D1:"<<endl;
+
+	graph g;
+	g.construct2(path, counterSymbol == "[", counterSymbol == "("); 
+
+	graph g_c = g.copy();
+	g_c.initWorklist();
+	g_c.bidirectedReach();
+	cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g_c.calcNumReachablePairs();
+	cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g_c.computeSCCs().size();
+	g_c.deleteVertices();
+
+	graph g_c2 = g.copy();
+	g_c2.initWorklist();
+
+	clock_t t = clock();
+
+	auto disjoint_components = g_c2.computeDisjointSets();
+	for(auto component : disjoint_components){
+		graph subgraph = g_c2.buildSubgraph(component.second);
+
+		graph h = subgraph.flatten(counterSymbol, subgraph.N);
+		
+		h.bidirectedReach();
+		
+		h.transplantReachabilityInformationTo(g_c2);
+
+		subgraph.deleteVertices();
+		h.deleteVertices();
+	}
+	cout<<endl;
+	cout<<"Number of reachable pairs when flattening to a linear bound on the counter: "<<g_c2.calcNumReachablePairs()<<endl;
+	cout<<"Number of DSCCs when flattening to a linear bound on the counter: "<<g_c2.computeSCCs().size()<<endl;
+
+	cout<<"Time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
+	
+	
+	graph g_c3 = g.copy_ignoring(counterSymbol);
+	g_c3.initWorklist();
+	g_c3.bidirectedReach();
+	cout<<endl;
+	cout<<"Number of reachable pairs when replacing counter edges with eps edges: "<<g_c3.calcNumReachablePairs()<<endl;
+	cout<<"Number of DSCCs when replacing counter edges with eps edges: "<<g_c3.computeSCCs().size()<<endl;
+	g_c3.deleteVertices();
+	
+
+	g.deleteVertices();
+}
 
 int main(int argc, const char * argv[]){
 	if (false) //TODO remove
@@ -13,7 +63,8 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
-	if(false){
+	if(true){
+		//Test setup for D1 dot Dk flattened to a bound=n
 		string data[] = {
 			"antlr",
 			"bloat",
@@ -31,11 +82,17 @@ int main(int argc, const char * argv[]){
 		for(string s : data){
 			//string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			string s2 = "./spg/orig_bench/" + s + ".dot";
-			graph g;
-			g.construct2(s2, true, true); //Parses files in the ".dot" format
-			g.initWorklist();
-			g.bidirectedReach();
-			cout<<"D' reachability for original version of "<<s<<": "<<g.calcNumReachablePairs()<<endl;
+			
+			cout<<endl;
+			cout<<"-----------------"<<endl;
+			cout<<endl;
+			cout<<"Computing on '"<<s<<"'"<<endl;
+			cout<<endl;
+			
+			d1dk_experiment(s2, "[");
+			cout<<endl;
+			d1dk_experiment(s2, "(");
+			
 		}
 		return 0;
 	}
