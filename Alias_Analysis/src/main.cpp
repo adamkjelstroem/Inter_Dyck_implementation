@@ -8,42 +8,17 @@
 void d1dk_experiment(string path, string counterSymbol){
 	cout<<endl;
 	cout<<"When '"<<counterSymbol<<"' is D1:"<<endl;
+	cout<<endl;
 
 	graph g;
 	g.construct2(path, counterSymbol == "[", counterSymbol == "("); 
-
-	graph g_c = g.copy();
-	g_c.initWorklist();
-	g_c.bidirectedReach();
-	cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g_c.calcNumReachablePairs();
-	cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g_c.computeSCCs().size();
-	g_c.deleteVertices();
-
-	graph g_c2 = g.copy();
-	g_c2.initWorklist();
-
-	clock_t t = clock();
-
-	auto disjoint_components = g_c2.computeDisjointSets();
-	for(auto component : disjoint_components){
-		graph subgraph = g_c2.buildSubgraph(component.second);
-
-		graph h = subgraph.flatten(counterSymbol, subgraph.N);
-		
-		h.bidirectedReach();
-		
-		h.transplantReachabilityInformationTo(g_c2);
-
-		subgraph.deleteVertices();
-		h.deleteVertices();
-	}
-	cout<<endl;
-	cout<<"Number of reachable pairs when flattening to a linear bound on the counter: "<<g_c2.calcNumReachablePairs()<<endl;
-	cout<<"Number of DSCCs when flattening to a linear bound on the counter: "<<g_c2.computeSCCs().size()<<endl;
-
-	cout<<"Time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
+	g.initWorklist();
+	
+	cout<<"graph facts: "<<endl;
+	g.printSparsenessFacts();
 	
 	
+
 	graph g_c3 = g.copy_ignoring(counterSymbol);
 	g_c3.initWorklist();
 	g_c3.bidirectedReach();
@@ -51,6 +26,52 @@ void d1dk_experiment(string path, string counterSymbol){
 	cout<<"Number of reachable pairs when replacing counter edges with eps edges: "<<g_c3.calcNumReachablePairs()<<endl;
 	cout<<"Number of DSCCs when replacing counter edges with eps edges: "<<g_c3.computeSCCs().size()<<endl;
 	g_c3.deleteVertices();
+	
+	g.bidirectedReach();
+	cout<<endl;
+	cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g.calcNumReachablePairs()<<endl;
+	cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g.computeSCCs().size()<<endl;
+	
+
+	graph g_working = g.makeCopyWithoutDuplicates();
+
+	cout<<endl;
+	cout<<"Graph after reduction via plain dyck union reachability: "<<endl;
+	g_working.printSparsenessFacts();
+	cout<<endl;
+
+	g_working = g_working.trim_d1dk(g_working);
+
+	cout<<"Graph after trimming: "<<endl;
+	g_working.printSparsenessFacts();
+	cout<<endl;
+
+	g_working.initWorklist();
+
+	clock_t t = clock();
+
+	auto disjoint_components = g_working.computeDisjointSets();
+	cout<<"found "<<disjoint_components.size()<<" disjoint components"<<endl;
+	for(auto component : disjoint_components){
+		if(component.second.size() > 100)
+			cout<<"Processing a component with "<<component.second.size()<<" vertices."<<endl;
+		//cout<<"Working on one of size "<<component.second.size()<<endl;
+		graph subgraph = g_working.buildSubgraph(component.second);
+
+		graph h = subgraph.flatten(counterSymbol, subgraph.N);
+		
+		h.bidirectedReach();
+		
+		h.transplantReachabilityInformationTo(g);
+
+		subgraph.deleteVertices();
+		h.deleteVertices();
+	}
+	cout<<endl;
+	cout<<"Number of reachable pairs when flattening to a linear bound on the counter: "<<g.calcNumReachablePairs()<<endl;
+	cout<<"Number of DSCCs when flattening to a linear bound on the counter: "<<g.computeSCCs().size()<<endl;
+
+	cout<<"Time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
 	
 
 	g.deleteVertices();
