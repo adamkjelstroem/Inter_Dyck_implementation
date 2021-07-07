@@ -1,0 +1,97 @@
+compiling the files
+CLASS_PATH = 
+BENCHMARK = 123
+MAIN_PROG = 
+Buildfile: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml
+
+clean:
+   [delete] Deleting directory /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+init:
+    [mkdir] Created dir: /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+
+build:
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/build.xml:47: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 71 source files to /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/bin
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:41: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				Integer newId = new Integer(id.intValue());
+    [javac] 				                ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:48: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				ind.add(new Integer(ex.expression.size() - 1));
+    [javac] 				        ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:63: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(conditions[j]));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:70: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				item.add(new Integer(conditions[j]));
+    [javac] 				         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:112: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set s = (Set) indices.get(new Integer(oldid));
+    [javac] 		                          ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:119: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.remove(new Integer(oldid));
+    [javac] 			            ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:120: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			item.add(new Integer(newid));
+    [javac] 			         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:132: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 		Set in = (Set) indices.get(new Integer(id));
+    [javac] 		                           ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:144: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 					s.remove(new Integer(id));
+    [javac] 					         ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/edu/osu/cse/pa/spg/symbolic/BooleanExpression.java:183: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 				s.add(new Integer(i));
+    [javac] 				      ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:12: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(1));
+    [javac] 			              ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:13: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			return new Integer(0);
+    [javac] 			       ^
+    [javac] /home/adam/Documents/GitHub/Inter_Dyck_implementation/Alias_Analysis/spa/src/iohoister/analysis/UniqueID.java:15: warning: [deprecation] Integer(int) in Integer has been deprecated
+    [javac] 			idMap.put(st, new Integer(id.intValue() + 1));
+    [javac] 			              ^
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 13 warnings
+
+run.benchmark:
+     [java] May alias is spa   Debug is true   use_cache is false  use_summary is true
+     [java] [PARAMETER] SPA_BUDGET_NODES: 75000, SUMM_RATIO: 3, TIME_BUDGET: 2
+     [java] Soot called with main class : dacapo.123.Main
+     [java] Soot started on Tue Jul 06 16:50:06 CEST 2021
+     [java] Exception in thread "main" java.lang.NullPointerException
+     [java] 	at soot.JastAddJ.Program.initPaths(Program.java:329)
+     [java] 	at soot.SootResolver.<init>(SootResolver.java:86)
+     [java] 	at soot.Singletons.soot_SootResolver(Singletons.java:795)
+     [java] 	at soot.SootResolver.v(SootResolver.java:89)
+     [java] 	at soot.Scene.tryLoadClass(Scene.java:416)
+     [java] 	at soot.Scene.loadBasicClasses(Scene.java:990)
+     [java] 	at soot.Scene.loadNecessaryClasses(Scene.java:1061)
+     [java] 	at soot.Main.run(Main.java:167)
+     [java] 	at soot.Main.main(Main.java:141)
+     [java] 	at client.datarace.DataraceMain.main(DataraceMain.java:124)
+
+BUILD SUCCESSFUL
+Total time: 2 seconds
+
+Table when flattening on (
+
+\begin{table}[]
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\ \hline
+antlr & 29831 & 26825 & 1613938 & 26825 & 1613938 & 5.73852 \\ \hline
+bloat & 36181 & 32725 & 2290516 & 32725 & 2290516 & 5.4743 \\ \hline
+chart & 67535 & 60844 & 7240671 & 60844 & 7240671 & 19.1898 \\ \hline
+eclipse & 30981 & 27840 & 1796452 & 27840 & 1796452 & 5.05918 \\ \hline
+fop & 61016 & 54723 & 6536040 & 54723 & 6536040 & 17.7674 \\ \hline
+hsqldb & 27494 & 24610 & 1508413 & 24610 & 1508413 & 4.32403 \\ \hline
+jython & 36162 & 31845 & 4159201 & 31845 & 4159201 & 7.8304 \\ \hline
+luindex & 28595 & 25636 & 1569414 & 25636 & 1569414 & 4.36919 \\ \hline
+lusearch & 29530 & 26447 & 1614199 & 26447 & 1614199 & 6.14074 \\ \hline
+pmd & 31333 & 28093 & 1926461 & 28093 & 1926461 & 6.37289 \\ \hline
+xalan & 27358 & 24523 & 1446402 & 24523 & 1446402 & 4.42746 \\ \hline
+\end{tabular}
+\end{table}

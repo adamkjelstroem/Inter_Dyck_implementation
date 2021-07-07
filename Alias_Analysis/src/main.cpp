@@ -650,7 +650,7 @@ int main(int argc, const char * argv[]){
 
 
 	if(true){
-		//Procedure as of 28 june 2021
+		//Procedure as of 28 june 2021 (old)
 		string benchmarks[] = {
 			"antlr",
 			"bloat",
