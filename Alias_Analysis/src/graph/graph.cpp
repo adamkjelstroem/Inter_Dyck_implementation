@@ -144,7 +144,7 @@ void graph::transplantReachabilityInformationTo(graph& g){
 
 
 //The D1D1 version of the process as fully implemented. 
-//PRECONDITION: this method is called on a graph of DkD1 form.
+//PRECONDITION: this method is called on a graph of D1D1 form.
 void graph::bidirectedInterleavedD1D1Reach(){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
 	bidirectedReach();
@@ -171,7 +171,7 @@ void graph::bidirectedInterleavedD1D1Reach(){
 }
 
 //The DkD1 version of the process. 
-//PRECONDITION: this method is called on a graph of D1D1 form.
+//PRECONDITION: this method is called on a graph of DkD1 form.
 void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
 	bidirectedReach();
@@ -216,11 +216,7 @@ map<int,set<int>> graph::computeDisjointSets(){
 			}
 		}
 	}
-	map<int,set<int>> scc;
-	for(int i=0;i<N;i++){
-		scc[dsu.root(i)].insert(i);
-	}
-	return scc;
+	return dsu.getSCCs();
 }
 
 map<int,set<int>> graph::computeSCCs(){
@@ -1137,9 +1133,6 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	h.transplantReachabilityInformationTo(g_orig);
 	h.transplantReachabilityInformationTo(g_working);
 	h.deleteVertices();
-
-
-	//TODO make sure deleteVertices() is called correctly for all graphs
 }
 
 graph graph::trim(graph& g_working){
