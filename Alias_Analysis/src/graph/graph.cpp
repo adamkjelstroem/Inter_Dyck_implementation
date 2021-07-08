@@ -154,7 +154,7 @@ void graph::bidirectedInterleavedD1D1Reach(){
 	
 	//use various rules of trimming to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
-	g_working = g_working.trim(g_working);
+	g_working = g_working.trim_d1d1(g_working);
 
 	//split graph into disjoint components
 	map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
@@ -181,7 +181,7 @@ void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
 
 	//use various rules of trimming (which apply in the DkD1 case) to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
-	g_working = g_working.trim_d1dk(g_working);
+	g_working = g_working.trim_dkd1(g_working);
 	g_working.initWorklist();
 
 	//split graph into disjoint components and compute on each directly.
@@ -837,12 +837,11 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	h.transplantReachabilityInformationTo(g_orig);
 	h.transplantReachabilityInformationTo(g_working);
 	h.deleteVertices();
-
-
-	//TODO make sure deleteVertices() is called correctly for all graphs
 }
 
-graph graph::trim(graph& g_working){
+//Combines the various trimming techniques to remove unreachable vertices that are 
+//also irrelevant for reachability (in the D1D1 case)
+graph graph::trim_d1d1(graph& g_working){
 	while(true){
 		set<int> to_delete;
 		graph g_working_2;
@@ -867,11 +866,13 @@ graph graph::trim(graph& g_working){
 	return g_working;
 }
 
-graph graph::trim_d1dk(graph& g_working){
+//Combines the various trimming techniques to remove unreachable vertices that are 
+//also irrelevant for reachability (in the DkD1 case).
+//Basically, 'hub removal' isn't used.
+graph graph::trim_dkd1(graph& g_working){
 	while(true){
 		set<int> to_delete;
 		graph g_working_2;
-
 		
 		graph g_flipped = buildFlipped(g_working);
 
@@ -917,52 +918,6 @@ graph graph::buildSubgraph(set<int> &ids){
 	return g_part;
 }
 
-
-// takes the file name containing the edge information of the spg as arguement
-// and construct a Ngraph from it
-void graph::construct(string infile_name){
-	/*
-	ifstream infile(infile_name);
-	string line;
-	while(std::getline(infile,line)){
-		std::vector<string> tokens;
-		split(line,"||",tokens);
-		if(tokens.size()==0 || (tokens.size()==1 && tokens[0].size()==0))
-			continue;
-		if(tokens[0] == "e"){
-			// assert(tokens.size()==4);
-			//Note the flipping of tokens[1] and tokens[2]
-			addEdge(tokens[2], 0,tokens[1], 0,tokens[3]);
-			// if(getfield(tokens[3])==EPS){
-			// 	addedge(getVertex(tokens[2]),getVertex(tokens[1]),EPS);
-			// }
-			continue;
-		}
-		if(tokens[0] == "v"){
-			// assert(tokens.size()==2);
-			getVertex(tokens[1], 0);
-			continue;
-		}
-		if(tokens[0] == "f"){
-			// assert(tokens.size()==2);
-			getfield(tokens[1]);
-			continue;
-		}
-		if(tokens[0] == "//"){
-			// comment in infile
-			continue;
-		}
-		cerr<<"incorrect syntax in "+infile_name<<endl;
-		cerr<<line<<endl;
-		cerr<<"tokens were "<<tokens.size()<<endl;
-		for(int i=0;i<tokens.size();i++)
-			cerr<<tokens[i]<<"   **;**   ";
-		cerr<<endl;
-	}
-	dsu.init(vertices.size());*/ //TODO legacy code for old format, should be revisited
-}
-
-
 void graph::initWorklist(){
 	//cout<<"Number of vertices : "<<vertices.size()<<endl;
 	//cout<<"Number of edges : "<<numedges<<endl;
@@ -986,7 +941,8 @@ void graph::initWorklist(){
 	}
 }
 
-// algorithm described in this paper
+// algorithm to compute bidirected dyck reachability
+// on the union alphabet.
 void graph::bidirectedReach(){
 	//precondition graph::initWorklist() has been called
 	while(!worklist.empty()){
@@ -1148,19 +1104,6 @@ void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label
 
 
 void graph::printSparsenessFacts(){
-	/*
-	int num = 0;
-	for(Vertex* u : vertices){
-		for(auto edge : u->edges){
-			if(edge.second.size() > 1){
-				num += edge.second.size();
-				//cout<<"Found example "<<u->x<<" with #edges of label "<<edge.first.field_name<<" equal to "<<edge.second.size()<<endl;
-			}
-		}
-	}
-	cout<<"repeating edges: "<<num<<endl;
-	*/
-
 	int num = 0;
 	for(Vertex* u : vertices){
 		for(auto edge : u->edges){
@@ -1224,7 +1167,7 @@ void graph::printDetailReach(){
 				if(vertices[elem]->y == 0){ 
 					cout<<"("<<vertices[elem]->x<<"), ";
 					//cout<<tokens[0]<<"\n";
-				}else if(true){ //TODO disable this
+				}else {
 					cout<<"("<<vertices[elem]->x<<", "<<vertices[elem]->y<<"), ";
 				}
 			}
