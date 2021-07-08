@@ -47,12 +47,6 @@ public:
 		fields.push_back(EPS);
 		str2field["eps"] = EPS;
 	}
-	~graph(){
-		for(Vertex* v : vertices){
-			//TODO might have to reactivate
-			//delete v;
-		}
-	}
 	void initWorklist();
 	void bidirectedReach();
 	void construct(string infile_name);
@@ -76,8 +70,6 @@ public:
 	void constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket);
 	
 	graph flatten(string field_name, int depth);
-
-	void flattenReach(string flatten_label);
 	
 	int calcNumReachablePairs();
 

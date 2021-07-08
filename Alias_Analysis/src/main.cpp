@@ -1092,24 +1092,6 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
-	//tests flattenReach w/ memory
-	if(false){
-		//TODO broken??
-		graph g;
-		string s = 
-			"antlr";
-		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-
-		g.constructFromDot(s2, true, true);
-
-		g.flattenReach("[");
-
-		
-		cout<<"d1 dot d1 reachability for reduced version of "<<s<<": "<<g.calcNumReachablePairs()<<endl;
-
-		return 0;
-	}
-
 	if(true){
 		//tests early stopping by 'repeating scc patterns'
 

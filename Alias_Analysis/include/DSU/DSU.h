@@ -27,9 +27,6 @@ public:
 	int rootpos(int pos);
 
 	void exchange(int uid,int vid);
-
-	//compute respective sccs.
-	map<int, set<int>> getSCCs();
 };
 
 #endif
