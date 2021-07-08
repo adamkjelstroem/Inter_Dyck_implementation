@@ -1034,8 +1034,6 @@ map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without
 }
 
 /*
-procedure as suggested by A Pavlogiannis on 2 july 2021
-
 Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
 
 1. Remove u from G
@@ -1046,7 +1044,7 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
 
 
-equivalent procedure as implemented by A Kjelstrøm:
+equivalent procedure as implemented:
 
 search for vertex u s.t. u has self edge on both counters
 
@@ -1084,34 +1082,14 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 		Vertex* u_in_g_working = getVertexIn(g_working, u);
 		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u_in_g_working);
 
-		/*
-		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
-		int max = 0;
-		for(auto el : disjoint_subgraphs){
-			if(el.second.size() > max){
-				max = el.second.size();
-			}
-		}
-		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
-		*/
-
 		int total_merged_with_u = 0;
 		for(auto el : disjoint_subgraphs){
 			auto ids_of_subgraph = el.second;
 
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			/*
-			cout<<endl<<"ids in g_working: ";
-			for(int id : ids_of_subgraph){
-				cout<<id<<" ";
-			}
-			cout<<endl;
-			subgraph.printAsDot();
-			*/
-			
+			//Note: this part takes a while if subgraph is big.
 			graph h = subgraph.flatten("[", subgraph.bound());
-			
 			h.bidirectedReach();
 			
 			//transplant reachability info to both original and working versions of graph
@@ -1151,7 +1129,7 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	//thus we just compute bidirected reachability on it directly
 	//and merge that info into the original.
 
-	//TODO check if this subgraph is too big to compute on directly??
+	//Note: this part takes a while if g_working is big.
 	graph h = g_working.flatten("[", g_working.bound());
 	h.bidirectedReach();
 
