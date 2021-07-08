@@ -7,7 +7,7 @@
 
 //construct graph using the ".dot" format. 
 //d1_parenthesis flag relaxes on parentheses, and d1_bracket relaxes on brackets.
-void graph::construct2(string infile_name, bool d1_parenthesis, bool d1_bracket){
+void graph::constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket){
 	ifstream infile(infile_name);
 	string line;
 	while(std::getline(infile, line)){
@@ -107,6 +107,7 @@ graph graph::flatten(string field_name, int depth){
 	return g;
 }
 
+//returns the vertex in g that corresponds to 'me'.
 Vertex* getVertexIn(graph& g, Vertex* me){
 	return g.getVertex(me->x, 0, "");
 }
@@ -143,7 +144,7 @@ void graph::transplantReachabilityInformationTo(graph& g){
 
 
 //The D1D1 version of the process as fully implemented. 
-//PRECONDITION: this is a graph of DkD1 form.
+//PRECONDITION: this method is called on a graph of DkD1 form.
 void graph::bidirectedInterleavedD1D1Reach(){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
 	bidirectedReach();
@@ -170,7 +171,7 @@ void graph::bidirectedInterleavedD1D1Reach(){
 }
 
 //The DkD1 version of the process. 
-//PRECONDITION: 'this' is a graph of D1D1 form.
+//PRECONDITION: this method is called on a graph of D1D1 form.
 void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
 	bidirectedReach();
@@ -922,12 +923,11 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	g_flipped.deleteVertices();
 }
 
-//These are removal rules where we have multiple (edgewise identical) paths that connect
-//some nodes a and b, such that we can flag all but 1 for removal
-void discoverDeletableVerticesAdam(graph &g_working, set<int> &to_delete){
+
+//if a --> c <-- b and a --> d <-- b, and neither c nor d are reachable, then delete d.
+void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
 
-	//TODO use this
 	for(Vertex* a : g_working.vertices){
 		Vertex* a_flipped = getVertexIn(g_flipped, a);
 		for(auto edge : a_flipped->edges){
@@ -962,9 +962,9 @@ void discoverDeletableVerticesAdam(graph &g_working, set<int> &to_delete){
 				int saved = -1;
 				for(int el : entry.second){
 					if(saved == -1){
-						saved = el;
+						saved = el; //save first one discovered
 					}else{
-						to_delete.insert(el);
+						to_delete.insert(el); //mark all others for deletion.
 					}
 				}
 			}
@@ -1177,7 +1177,7 @@ graph graph::trim(graph& g_working){
 		g_working = g_working_2;
 
 		set<int> to_delete2;
-		discoverDeletableVerticesAdam(g_working, to_delete2);
+		findRemovableVerticesWhereAllWitnessSame(g_working, to_delete2);
 		g_working_2 = buildCopyWithout(g_working, to_delete2);
 		g_working.deleteVertices();
 		g_working = g_working_2;

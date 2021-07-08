@@ -7,7 +7,7 @@
 
 void d1dk_experiment(string s, string counterSymbol){
 	graph g;
-	g.construct2("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
+	g.constructFromDot("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
 
 	int n = g.N;
@@ -75,7 +75,7 @@ int main(int argc, const char * argv[]){
 
 			//initialize d1d1 graph
 			graph d1d1;
-			d1d1.construct2(s2, true, true);
+			d1d1.constructFromDot(s2, true, true);
 			d1d1.dsu.init(d1d1.N);
 			d1d1.initWorklist();
 
@@ -83,7 +83,7 @@ int main(int argc, const char * argv[]){
 
 			//initialize dkd1 graph
 			graph dkd1;
-			dkd1.construct2(s2, flatten_label == "[", flatten_label == "("); 
+			dkd1.constructFromDot(s2, flatten_label == "[", flatten_label == "("); 
 			dkd1.dsu.init(dkd1.N);
 			dkd1.initWorklist();
 
@@ -178,7 +178,7 @@ int main(int argc, const char * argv[]){
 			
 			//initialize graph
 			graph* g = new graph;
-			g->construct2(s2, true, true);
+			g->constructFromDot(s2, true, true);
 			g->dsu.init(g->N);
 			g->initWorklist();
 		
@@ -247,7 +247,7 @@ int main(int argc, const char * argv[]){
 
 			//initialize graph
 			graph* g = new graph;
-			g->construct2(s2, true, true);
+			g->constructFromDot(s2, true, true);
 			g->dsu.init(g->N);
 			g->initWorklist();
 		
@@ -363,7 +363,7 @@ int main(int argc, const char * argv[]){
 
 
 			if(true){
-				g->construct2(s2, true, true);
+				g->constructFromDot(s2, true, true);
 				g->dsu.init(g->N);
 				g->initWorklist();
 			}else{
@@ -684,7 +684,7 @@ int main(int argc, const char * argv[]){
 			}
 
 			if(true){
-				g->construct2(s2, true, true);
+				g->constructFromDot(s2, true, true);
 				g->dsu.init(g->N);
 				g->initWorklist();
 			}else{
@@ -1054,7 +1054,7 @@ int main(int argc, const char * argv[]){
 			"antlr";
 		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 
-		g.construct2(s2, true, true);
+		g.constructFromDot(s2, true, true);
 
 		g.flattenReach("[");
 
@@ -1090,7 +1090,7 @@ int main(int argc, const char * argv[]){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			s2 = "./spg/orig_bench/" + s + ".dot"; 
 			graph g;
-			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
 			//g.flattenReachRemade(flatten_on);
 			
 			cout<<"flattening graph "<<s<<"_reduced up to height "<<height<<endl;
@@ -1254,7 +1254,7 @@ int main(int argc, const char * argv[]){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
 			
-			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
 			long long n = g.N;
 			long long c = n*n*18 + 6*n;
 			cout<<"Nodes of graph "<<s<<"_reduced: "<<n<<". This yields "<<c<<" layers with a total of "<<c*n<<" nodes when flattened."<<endl;
@@ -1282,7 +1282,7 @@ int main(int argc, const char * argv[]){
 			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
 			graph g;
 			
-			g.construct2(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
 			//g.flattenReachRemade(flatten_on);
 			
 			int height = (int)(((long long) 1000*1000*5) / ((long long)g.N));
@@ -1418,7 +1418,7 @@ int main(int argc, const char * argv[]){
 	//true -> construct form input
 	//false -> generate
 	if(true){
-		g.construct2(argv[1], true, true); //NOTE using construct2 uses the new format
+		g.constructFromDot(argv[1], true, true); //NOTE using construct2 uses the new format
 		g2 = g.copy();
 		cout<<"Graph loaded from file"<<endl;
 	}else{

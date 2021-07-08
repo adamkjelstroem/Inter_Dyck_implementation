@@ -73,7 +73,7 @@ public:
 	// gets the vertex with name, if not present creates it. name is arbitrary display value
 	Vertex* getVertex(int x, int y, const string &name);
 
-	void construct2(string infile_name, bool d1_parenthesis, bool d1_bracket);
+	void constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket);
 	
 	graph flatten(string field_name, int depth);
 
