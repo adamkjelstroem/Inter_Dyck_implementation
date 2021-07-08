@@ -282,6 +282,7 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 	}
 }
 
+//copy graph information, preserving vertex 'x' values, but not IDs as they are unique only in the graph.
 graph graph::copy(){
 	graph g;
 
@@ -350,25 +351,22 @@ graph graph::makeCopyWithoutDuplicates(){
 int graph::calcNumReachablePairs(){
 	int n = 0;
 
-	map<int,set<int>> scc;
-	for(int i=0;i<this->N;i++){
-		scc[dsu.root(i)].insert(i);
-	}
+	map<int,set<int>> scc = computeSCCs();
 
 	auto it = scc.begin();
 	while(it!=scc.end()){
-		int zero_elems = 0;
+		int members_in_bottom_layer = 0;
 		for(int elem : it->second){
-			if(vertices[elem]->y == 0) zero_elems++;
-			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
+			if(vertices[elem]->y == 0) members_in_bottom_layer++;
 		}
-		n += zero_elems*(zero_elems - 1) / 2;//zero_elems * (zero_elems-1) / 2;
+		n += members_in_bottom_layer*(members_in_bottom_layer - 1) / 2;
 		it++;
 	}
 
 	return n;
 }
 
+//helper function printing graph in the tikz format.
 void graph::printGraphAsTikz(){
 	cout<<"\\begin{tikzpicture}"<<endl;
 
@@ -512,7 +510,6 @@ case b):
 then, we can safely remove b
 */
 void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<int> &to_delete){
-
 	for(Vertex* b : g_working.vertices){
 		//if b has only one neighbor, aka all nodes that 
 		//reach b are itself or one specific node:
@@ -582,9 +579,6 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 				//b has 2 incoming edges, and its neighbor has 2 self-loops. thus we are done
 				to_delete.insert(b->id);
 			}
-		}else if(edges_from_neighbor != 0){
-			cout<<"SANITY CHECK! SOMETHING IS WRONG!"<<endl;
-			int x = 1/0;
 		}
 	}
 }
@@ -680,6 +674,7 @@ void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_del
 	g_flipped.deleteVertices();
 }
 
+//builds a of g_working copy without the nodes marked for deletion.
 graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	graph g_working_2;
 
@@ -716,7 +711,7 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	return g_working_2;
 }
 
-
+//helper function for 'removeHubVertexIfExistsThenCalc'
 map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without){
 	set<int> u_set;
 	u_set.insert(without->id);
@@ -739,8 +734,6 @@ map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without
 }
 
 /*
-procedure as suggested by A Pavlogiannis on 2 july 2021
-
 Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
 
 1. Remove u from G
@@ -751,7 +744,7 @@ Assume that u reaches v via some path P. Then without loss of generality, this p
 5. If you find that u does not reach any v in any G_i, remove u from G. Call G' the new graph, and repeat.
 
 
-equivalent procedure as implemented by A Kjelstrøm:
+equivalent procedure as implemented:
 
 search for vertex u s.t. u has self edge on both counters
 
@@ -789,34 +782,14 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 		Vertex* u_in_g_working = getVertexIn(g_working, u);
 		map<int, set<int>> disjoint_subgraphs = getDisjointSetsWhenRemoving(g_working, u_in_g_working);
 
-		/*
-		cout<<"Removing "<<u->id<<" yielded "<<disjoint_subgraphs.size()<<" subgraphs"<<endl;
-		int max = 0;
-		for(auto el : disjoint_subgraphs){
-			if(el.second.size() > max){
-				max = el.second.size();
-			}
-		}
-		cout<<"Max size of such subgraph: "<<(max+1)<<endl;
-		*/
-
 		int total_merged_with_u = 0;
 		for(auto el : disjoint_subgraphs){
 			auto ids_of_subgraph = el.second;
 
 			graph subgraph = g_working.buildSubgraph(ids_of_subgraph);
 			
-			/*
-			cout<<endl<<"ids in g_working: ";
-			for(int id : ids_of_subgraph){
-				cout<<id<<" ";
-			}
-			cout<<endl;
-			subgraph.printAsDot();
-			*/
-			
+			//Note: for large subgraphs, this is the time-consuming step
 			graph h = subgraph.flatten("[", subgraph.bound());
-			
 			h.bidirectedReach();
 			
 			//transplant reachability info to both original and working versions of graph
@@ -856,7 +829,7 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	//thus we just compute bidirected reachability on it directly
 	//and merge that info into the original.
 
-	//TODO check if this subgraph is too big to compute on directly??
+	//Note: for large subgraphs, this is the time-consuming step
 	graph h = g_working.flatten("[", g_working.bound());
 	h.bidirectedReach();
 
