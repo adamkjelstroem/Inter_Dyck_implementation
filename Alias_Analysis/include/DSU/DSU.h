@@ -2,6 +2,8 @@
 #define DSU_H
 
 #include <vector>
+#include <set>
+#include <map>
 using namespace std;
 
 class DSU {
@@ -26,14 +28,8 @@ public:
 
 	void exchange(int uid,int vid);
 
-	//compute sccs from DSU data.
-	map<int, set<int>> getSCCs(){
-		map<int,set<int>> scc;
-		for(int i=0;i<N;i++){
-			scc[root(i)].insert(i);
-		}
-		return scc;
-	}
+	//compute respective sccs.
+	map<int, set<int>> getSCCs();
 };
 
 #endif

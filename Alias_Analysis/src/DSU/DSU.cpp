@@ -78,3 +78,11 @@ void DSU::exchange(int uid,int vid){
 	posofvtx[uid] = posv;
 	posofvtx[vid] = posu;
 }
+
+map<int, set<int>> DSU::getSCCs(){
+	map<int,set<int>> scc;
+	for(int i=0;i<N;i++){
+		scc[root(i)].insert(i);
+	}
+	return scc;
+}
