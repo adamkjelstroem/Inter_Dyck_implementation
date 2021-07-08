@@ -1183,4 +1183,90 @@ int main(int argc, const char * argv[]){
 		return 0;
 	}
 
+	// Bidirected Reach Algorithm
+	graph g2, g;
+	clock_t time;
+	struct timeval tv1,tv2;
+	
+
+	//true -> construct form input
+	//false -> generate
+	if(true){
+		g.constructFromDot(argv[1], true, true); //NOTE using construct2 uses the new format
+		g2 = g.copy();
+		cout<<"Graph loaded from file"<<endl;
+	}else{
+		gettimeofday(&tv1, NULL);
+		time = clock();
+		
+		g = Test::makeRandomGraph((int)tv1.tv_usec, 10, 7);
+
+		g2 = g.copy();
+		cout<<"Graph generated"<<endl;
+	}
+
+
+	gettimeofday(&tv1, NULL);
+	time = clock();
+
+	//true -> flattenReach
+	//false -> flatten, then reach
+	if(true){
+		g.flattenReach("[");
+		g2.flattenReach("(");
+	}else{
+		g = g.flatten("[", 80);
+		//g2 = g2.flatten("(", 8);
+
+		//g.printGraphAsTikz();
+		//g2.printGraphAsTikz();
+
+		g.bidirectedReach();
+		//g2.bidirectedReach();
+	}
+	
+
+	time = clock() - time;
+	gettimeofday(&tv2, NULL);
+
+	//g.printDetailReach();
+
+	cout<<"flattened on '[':\\\\"<<endl;
+	cout<<"Number of reachable pairs: "<<g.calcNumReachablePairs()<<endl;
+	//g.printDetailReach();
+	cout<<"flattened on '(':\\\\"<<endl;
+	cout<<"Number of reachable pairs: "<<g2.calcNumReachablePairs()<<endl;
+	//g2.printDetailReach();
+
+	// time required for bidirectedReach
+	cout<<"\nBidirected Reach Algorithm"<<endl;
+	double bidir_reach_time_s = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +(double) (tv2.tv_sec - tv1.tv_sec);
+	cout<<"\tTime recorded in seconds : "<<bidir_reach_time_s<<"\n\n";
+
+	cout<<endl<<endl;
+	
+
+	//TODO same here!
+	//this code has been disabled
+	/*
+
+	// previous dyck Reachability Algorithm
+	cout<<"previous existing Algorithm"<<endl;
+	Ngraph ng;   // 
+	clock_t ntime;
+	struct timeval ntv1,ntv2;
+	ng.construct(argv[1]);
+	ng.initWorklist();
+
+	gettimeofday(&ntv1,NULL);
+	ntime = clock();
+	ng.dyck_reach();
+	ntime = clock()-ntime;
+	gettimeofday(&ntv2,NULL);
+
+
+	// time required for dyckReach
+	cout<<"\tTime recorded in seconds : "<<(double) (ntv2.tv_usec - ntv1.tv_usec) / 1000000 +(double) (ntv2.tv_sec - ntv1.tv_sec)<<endl;
+	*/
+
 }

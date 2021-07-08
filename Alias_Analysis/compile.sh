@@ -13,6 +13,6 @@ echo "compiling the files"
 # g++ -std=c++11 -ggdb -pg -I ./include src/main.cpp ./build/graph.o ./build/utils.o ./build/dsu.o ./build/Ngraph.o ./build/fdll.o -o ./build/main.out
 
 mkdir -p build;
-g++ -std=c++11 -I ./include src/main.cpp src/graph/Ngraph.cpp src/utils/fdll.cpp src/graph/graph.cpp src/DSU/DSU.cpp src/utils/utils.cpp -o ./build/main.out
+g++ -std=c++11 -I ./include src/main.cpp src/graph/Ngraph.cpp src/utils/fdll.cpp src/graph/graph.cpp src/DSU/DSU.cpp src/utils/utils.cpp src/test/test.cpp -o ./build/main.out
 
 exit $? 
