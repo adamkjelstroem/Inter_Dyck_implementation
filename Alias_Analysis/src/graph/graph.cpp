@@ -154,7 +154,7 @@ void graph::bidirectedInterleavedD1D1Reach(){
 	
 	//use various rules of trimming to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
-	g_working = g_working.trim(g_working);
+	g_working = g_working.trim_d1d1(g_working);
 
 	//split graph into disjoint components
 	map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
@@ -181,7 +181,7 @@ void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
 
 	//use various rules of trimming (which apply in the DkD1 case) to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
-	g_working = g_working.trim_d1dk(g_working);
+	g_working = g_working.trim_dkd1(g_working);
 	g_working.initWorklist();
 
 	//split graph into disjoint components and compute on each directly.
@@ -290,6 +290,7 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 	}
 }
 
+//Produces a copy of this. Note that IDs are not preserved, but x and y values are.
 graph graph::copy(){
 	graph g;
 
@@ -305,7 +306,7 @@ graph graph::copy(){
 	return g;
 }
 
-//copies the graph, replacing edges with 'label' with 'eps'
+//copies the graph, replacing edges with 'label' with 'eps'. Note that IDs are not preserved, but x and y values are.
 graph graph::copy_ignoring(string label){
 	graph g;
 
@@ -332,11 +333,11 @@ graph graph::makeCopyWithoutDuplicates(){
 	graph g_working;
 	for(Vertex* v : vertices){
 		auto v_root = vertices[dsu.root(v->id)]; //find v's root vertex in g
-		auto v_root_w = g_working.getVertex(v_root->x, 0, ""); //find the vertex with the corresponding x value in g_working
+		auto v_root_w = getVertexIn(g_working, v_root); //find the vertex with the corresponding x value in g_working
 		for(auto edge : v->edges){
 			for(int u_id : edge.second){
 				int u_root_id = dsu.root(u_id);
-				auto u_root_w = g_working.getVertex(vertices[u_root_id]->x, 0, "");
+				auto u_root_w = getVertexIn(g_working, vertices[u_root_id]);
 				
 				auto e = v_root_w->edges[edge.first];
 
@@ -368,9 +369,8 @@ int graph::calcNumReachablePairs(){
 		int zero_elems = 0;
 		for(int elem : it->second){
 			if(vertices[elem]->y == 0) zero_elems++;
-			//cout<<"analyzing element "<<vertices[elem]->id <<" with layer "<<vertices[elem]->layer<<endl;
 		}
-		n += zero_elems*(zero_elems - 1) / 2;//zero_elems * (zero_elems-1) / 2;
+		n += zero_elems*(zero_elems - 1) / 2;
 		it++;
 	}
 
@@ -476,7 +476,6 @@ graph buildFlipped(graph &g){
 		for(auto edge : v->edges){
 			for(int u_id : edge.second){
 				int u_x = g.vertices[u_id]->x;
-				//g_2.addEdge(u_x, 0, v->x, 0, edge.first.field_name);
 				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
 			}
 		}
@@ -637,7 +636,7 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 }
 
 
-//if a --> c <-- b and a --> d <-- b, and neither c nor d are reachable, then delete d.
+//if a --> c <-- b and a --> d <-- b, then delete d.
 void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
 
@@ -724,7 +723,7 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	return g_working_2;
 }
 
-
+//Helper function for removeHubVertexIfExistsThenCalc.
 map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without){
 	set<int> u_set;
 	u_set.insert(without->id);
@@ -852,7 +851,8 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 	h.deleteVertices();
 }
 
-graph graph::trim(graph& g_working){
+//Trims graph in the D1D1 case, removing unreachable nodes that are also irrelevant for reachability between other nodes.
+graph graph::trim_d1d1(graph& g_working){
 	while(true){
 		set<int> to_delete;
 		graph g_working_2;
@@ -877,7 +877,9 @@ graph graph::trim(graph& g_working){
 	return g_working;
 }
 
-graph graph::trim_d1dk(graph& g_working){
+//Trims graph in the DkD1 case, removing unreachable nodes that are also irrelevant for reachability between other nodes.
+//This means applying the first and third trimming rules.
+graph graph::trim_dkd1(graph& g_working){
 	while(true){
 		set<int> to_delete;
 		graph g_working_2;

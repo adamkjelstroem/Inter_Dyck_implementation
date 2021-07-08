@@ -336,7 +336,7 @@ int main(int argc, const char * argv[]){
 			
 
 			//use various rules of trimming to reduce graph
-			g_working = g_working.trim(g_working);
+			g_working = g_working.trim_d1d1(g_working);
 			cout<<endl;
 			cout<<"Graph after trimming:"<<endl;
 			g_working.printSparsenessFacts();

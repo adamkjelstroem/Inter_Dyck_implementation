@@ -86,7 +86,7 @@ public:
 
 	map<int,set<int>> computeSCCs();
 
-	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height);
+	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height); //TODO remove
 
 	graph copy_ignoring(string label);
 
@@ -112,11 +112,11 @@ public:
 
 	//removes provably unreachable nodes
 	//Based on techniques discovered 2 july 2021 and 3 july 2021
-	graph trim(graph& g_working);
+	graph trim_d1d1(graph& g_working);
 
 	//removes provably unreachable nodes via the
 	//rules applicable in the D1Dk case.
-	graph trim_d1dk(graph& g_working);
+	graph trim_dkd1(graph& g_working);
 
 	void removeHubVertexIfExistsThenCalc(graph &g_working, graph &g);
 
