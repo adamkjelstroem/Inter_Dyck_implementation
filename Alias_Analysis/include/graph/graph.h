@@ -76,8 +76,6 @@ public:
 	void constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket);
 	
 	graph flatten(string field_name, int depth);
-
-	void flattenReach(string flatten_label);
 	
 	int calcNumReachablePairs();
 
