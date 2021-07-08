@@ -52,6 +52,50 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+	for(string s : data){
+		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+
+		//initialize d1d1 graph
+		graph d1d1;
+		d1d1.constructFromDot(s2, true, true);
+		d1d1.dsu.init(d1d1.N);
+		d1d1.initWorklist();
+		
+		int edges = 0;
+		for(Vertex* v : d1d1.vertices){
+			for(auto edge : v->edges){
+				edges += edge.second.size();
+			}
+		}
+
+		clock_t t = clock();
+		d1d1.bidirectedInterleavedD1D1Reach();
+
+
+		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+
+		cout<<s<<"_reduced.dot has "<<d1d1.N<<" nodes and "<<edges<<" edges  - and "<<d1d1.calcNumReachablePairs()<<" reachable pairs which were found in "<<time<<" seconds"<<endl;
+
+		
+
+	}
+	return 0;
+
 	if(false){
 		//test for set difference
 		string data[] = {
