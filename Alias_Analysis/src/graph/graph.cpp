@@ -929,52 +929,6 @@ graph graph::buildSubgraph(set<int> &ids){
 	return g_part;
 }
 
-
-// takes the file name containing the edge information of the spg as arguement
-// and construct a Ngraph from it
-void graph::construct(string infile_name){
-	/*
-	ifstream infile(infile_name);
-	string line;
-	while(std::getline(infile,line)){
-		std::vector<string> tokens;
-		split(line,"||",tokens);
-		if(tokens.size()==0 || (tokens.size()==1 && tokens[0].size()==0))
-			continue;
-		if(tokens[0] == "e"){
-			// assert(tokens.size()==4);
-			//Note the flipping of tokens[1] and tokens[2]
-			addEdge(tokens[2], 0,tokens[1], 0,tokens[3]);
-			// if(getfield(tokens[3])==EPS){
-			// 	addedge(getVertex(tokens[2]),getVertex(tokens[1]),EPS);
-			// }
-			continue;
-		}
-		if(tokens[0] == "v"){
-			// assert(tokens.size()==2);
-			getVertex(tokens[1], 0);
-			continue;
-		}
-		if(tokens[0] == "f"){
-			// assert(tokens.size()==2);
-			getfield(tokens[1]);
-			continue;
-		}
-		if(tokens[0] == "//"){
-			// comment in infile
-			continue;
-		}
-		cerr<<"incorrect syntax in "+infile_name<<endl;
-		cerr<<line<<endl;
-		cerr<<"tokens were "<<tokens.size()<<endl;
-		for(int i=0;i<tokens.size();i++)
-			cerr<<tokens[i]<<"   **;**   ";
-		cerr<<endl;
-	}
-	dsu.init(vertices.size());*/ //TODO legacy code for old format, should be revisited
-}
-
-
 void graph::initWorklist(){
 	//cout<<"Number of vertices : "<<vertices.size()<<endl;
 	//cout<<"Number of edges : "<<numedges<<endl;
@@ -998,7 +952,7 @@ void graph::initWorklist(){
 	}
 }
 
-// algorithm described in this paper
+// algorithm for computing bidirected reachability on the union alphabet.
 void graph::bidirectedReach(){
 	//precondition graph::initWorklist() has been called
 	while(!worklist.empty()){
