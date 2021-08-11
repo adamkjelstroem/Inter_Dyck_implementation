@@ -103,21 +103,6 @@ void full_d1d1_experiment(){
 		cout<<"\\end{table}"<<endl;
 }
 
-void full_union_dyck_of_d1d1_experiment(){
-	for(auto s : test_cases){
-		string s2 = "./spg/orig_bench/" + s + ".dot";
-
-		graph d1d1;
-		d1d1.constructFromDot(s2, true, true);
-		d1d1.dsu.init(d1d1.N);
-		d1d1.initWorklist();
-		
-		d1d1.bidirectedReach();
-
-		cout<<"Number of D-SCCs for "<<s<<": "<<d1d1.computeSCCs().size()<<endl;
-	}
-}
-
 void full_set_difference_experiment(){
 	string flatten_label = "(";
 	cout<<"Computing set differences between DkD1 and D1D1 when flattening DkD1 on "<<flatten_label<<endl;
@@ -267,14 +252,12 @@ int main(int argc, const char * argv[]){
 	//	return 1;
 	//}
 
-	//full_d1d1_experiment();
+	full_d1d1_experiment();
 
-	//full_union_dyck_experiment();
+	full_d1dk_experiment();
 
-	//full_set_difference_experiment();
-
-	//full_d1dk_experiment();
-
-	//full_early_stopping_experiment();
+	full_set_difference_experiment();
+	
+	full_early_stopping_experiment();
 
 }
