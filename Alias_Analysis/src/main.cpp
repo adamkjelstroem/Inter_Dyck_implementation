@@ -4,6 +4,20 @@
 #include <time.h>
 #include <sys/time.h>
 
+string test_cases[] = {
+	"antlr",
+	"bloat",
+	"chart",
+	"eclipse",
+	"fop",
+	"hsqldb",
+	"jython",
+	"luindex",
+	"lusearch",
+	"pmd",
+	"xalan"
+};
+
 void d1dk_experiment(string s, string counterSymbol){
 	graph g;
 	g.constructFromDot("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
@@ -44,48 +58,53 @@ set<pair<int, int>> getReachablePairs(graph& g){
 	return pairs;
 }
 
+void full_d1d1_experiment(){
+	for(string s : test_cases){
+		string s2 = "./spg/orig_bench/" + s + ".dot";
+
+		//initialize d1d1 graph
+		graph d1d1;
+		d1d1.constructFromDot(s2, true, true);
+		d1d1.dsu.init(d1d1.N);
+		d1d1.initWorklist();
+		
+		clock_t t = clock();
+		
+		d1d1.bidirectedInterleavedD1D1Reach();
+
+		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+		cout<<"Number of ID-SCCs for "<<s<<": "<<d1d1.computeSCCs().size()<<endl;
+		cout<<"Time: "<<time<<" seconds"<<endl;
+	}
+}
+
+void full_union_dyck_experiment(){
+	for(auto s : test_cases){
+		string s2 = "./spg/orig_bench/" + s + ".dot";
+
+		graph d1d1;
+		d1d1.constructFromDot(s2, true, true);
+		d1d1.dsu.init(d1d1.N);
+		d1d1.initWorklist();
+		
+		d1d1.bidirectedReach();
+
+		cout<<"Number of D-SCCs for "<<s<<": "<<d1d1.computeSCCs().size()<<endl;
+	}
+}
+
 int main(int argc, const char * argv[]){
-	if (false) //TODO remove
-	if(argc!=2){
-		cerr<<"the argument should be path to file containing spg graph"<<endl;
-		return 1;
-	}
+	//if(argc!=2){
+	//	cerr<<"the argument should be path to file containing spg graph"<<endl;
+	//	return 1;
+	//}
 
-	if(true){
-string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
+	//full_d1d1_experiment();
 
-		for(auto s : data){
-			string s2 = "./spg/orig_bench/" + s + ".dot";
+	full_union_dyck_experiment();
 
-			graph d1d1;
-			d1d1.constructFromDot(s2, true, true);
-			d1d1.dsu.init(d1d1.N);
-			d1d1.initWorklist();
-			
-			d1d1.bidirectedReach();
-
-
-			cout<<"Number of reachable pairs for "<<s<<": "<<d1d1.calcNumReachablePairs()<<endl;;
-
-		}
-
-		return 0;
-	}
-
-
-	if(true){
+	if(false){
 		string data[] = {
 			"antlr",
 			"bloat",
@@ -166,52 +185,6 @@ string data[] = {
 	}
 
 
-
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-	for(string s : data){
-		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-
-		//initialize d1d1 graph
-		graph d1d1;
-		d1d1.constructFromDot(s2, true, true);
-		d1d1.dsu.init(d1d1.N);
-		d1d1.initWorklist();
-		
-		int edges = 0;
-		for(Vertex* v : d1d1.vertices){
-			for(auto edge : v->edges){
-				edges += edge.second.size();
-			}
-		}
-
-		clock_t t = clock();
-		d1d1.bidirectedInterleavedD1D1Reach();
-
-
-		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
-
-		cout<<s<<"_reduced.dot has "<<d1d1.N<<" nodes and "<<edges<<" edges  - and "<<d1d1.calcNumReachablePairs()<<" reachable pairs which were found in "<<time<<" seconds"<<endl;
-
-		if (s == "antlr" && d1d1.calcNumReachablePairs() != 428) cout<<"ERROR"<<endl;
-		if (s == "bloat" && d1d1.calcNumReachablePairs() != 428) cout<<"ERROR"<<endl;
-		if (s == "chart" && d1d1.calcNumReachablePairs() != 752) cout<<"ERROR"<<endl;
-		
-
-	}
 	return 0;
 
 	if(false){
