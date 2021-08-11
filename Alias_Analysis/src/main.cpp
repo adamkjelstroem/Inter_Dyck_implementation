@@ -28,21 +28,21 @@ void d1dk_experiment(string s, string counterSymbol){
 	graph g_copy = g.copy();
 	g_copy.initWorklist();
 	g_copy.bidirectedReach();
-	int d_sccs = g_copy.computeSCCs().size();
+	int d_ccs = g_copy.computeSCCs().size();
 	int d_reachable_pairs = g_copy.calcNumReachablePairs();
 
 	clock_t t = clock();	
 	
 	g.bidirectedInterleavedDkD1Reach(s);
 
-	int id_sccs = g.computeSCCs().size();
+	int id_ccs = g.computeSCCs().size();
 	int id_reachable_pairs = g.calcNumReachablePairs();
 
 	g.deleteVertices();
 
 	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
-	cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
+	cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 }
 
 set<pair<int, int>> getReachablePairs(graph& g){
@@ -61,7 +61,7 @@ set<pair<int, int>> getReachablePairs(graph& g){
 void full_d1d1_experiment(){
 	
 		cout<<"\\begin{table}[]"<<endl;
-		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+		cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
 		cout<<"\\hline"<<endl;
 		cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 	
@@ -172,9 +172,9 @@ void full_d1dk_experiment(){
 	cout<<endl;
 
 	cout<<"\\begin{table}[]"<<endl;
-	cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+	cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
 	cout<<"\\hline"<<endl;
-	cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+	cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 
 	for(string s : test_cases){
 		d1dk_experiment(s, flatten_label);
