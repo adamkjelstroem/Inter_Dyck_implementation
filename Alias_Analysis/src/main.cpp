@@ -60,6 +60,7 @@ set<pair<int, int>> getReachablePairs(graph& g){
 
 void full_d1d1_experiment(){
 	
+		cout<<"%Table for D1 odot D1 experiment:"<<endl;
 		cout<<"\\begin{table}[]"<<endl;
 		cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
 		cout<<"\\hline"<<endl;
@@ -153,7 +154,7 @@ void full_d1dk_experiment(){
 	
 	string flatten_label = "(";
 
-	cout<<"Table when flattening on "<<flatten_label<<endl;
+	cout<<"%Table when flattening on '"<<flatten_label<<"':"<<endl;
 	cout<<endl;
 
 	cout<<"\\begin{table}[]"<<endl;
@@ -256,8 +257,8 @@ int main(int argc, const char * argv[]){
 
 	full_d1dk_experiment();
 
-	full_set_difference_experiment();
+	//full_set_difference_experiment();
 	
-	full_early_stopping_experiment();
+	//full_early_stopping_experiment();
 
 }
