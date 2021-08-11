@@ -51,6 +51,122 @@ int main(int argc, const char * argv[]){
 		return 1;
 	}
 
+	if(true){
+string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(auto s : data){
+			string s2 = "./spg/orig_bench/" + s + ".dot";
+
+			graph d1d1;
+			d1d1.constructFromDot(s2, true, true);
+			d1d1.dsu.init(d1d1.N);
+			d1d1.initWorklist();
+			
+			d1d1.bidirectedReach();
+
+
+			cout<<"Number of reachable pairs for "<<s<<": "<<d1d1.calcNumReachablePairs()<<endl;;
+
+		}
+
+		return 0;
+	}
+
+
+	if(true){
+		string data[] = {
+			"antlr",
+			"bloat",
+			"chart",
+			"eclipse",
+			"fop",
+			"hsqldb",
+			"jython",
+			"luindex",
+			"lusearch",
+			"pmd",
+			"xalan"
+		};
+
+		for(auto s : data){
+			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+
+			graph d1d1;
+			d1d1.constructFromDot(s2, false, false);
+			d1d1.dsu.init(d1d1.N);
+			d1d1.initWorklist();
+			
+			d1d1.bidirectedReach();
+
+			d1d1 = d1d1.makeCopyWithoutDuplicates();
+
+			auto d_sccs = d1d1.computeDisjointSets();
+
+			int root_of_biggest = -1;
+			int max = 0;
+			for(auto el : d_sccs){
+				if(root_of_biggest == -1 || el.second.size() > max){
+					max = el.second.size();
+					root_of_biggest = el.first;
+				}
+			}
+
+
+			graph subgraph = d1d1.buildSubgraph(d_sccs[root_of_biggest]);
+
+
+
+			//do trimming on subgraph
+
+			subgraph = subgraph.trim_dkd1(subgraph);
+
+			auto dsccs2 = subgraph.computeDisjointSets();
+
+			for(auto el : dsccs2){
+				graph g = subgraph.buildSubgraph(el.second);
+				bool brackets = false, parentheses = false;
+				for(Vertex* v : g.vertices){
+					for(auto e : v->edges){
+						if(e.first.field_name.find("(") != std::string::npos){
+							parentheses = true;
+						}
+						if(e.first.field_name.find("[") != std::string::npos){
+							brackets = true;
+						}
+					}
+				}
+				if(parentheses && brackets){
+
+					cout<<"First visualization (before trimming): "<<endl;
+
+					subgraph.printAsDot();
+
+					cout<<"Second visualization (after trimming): "<<endl;
+
+					subgraph.printAsDot();
+				}
+			}
+
+
+
+		}
+		return 0;
+	}
+
+
+
 		string data[] = {
 			"antlr",
 			"bloat",
