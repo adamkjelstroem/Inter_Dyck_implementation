@@ -94,6 +94,72 @@ void full_union_dyck_experiment(){
 	}
 }
 
+void full_set_difference_experiment(){
+	string flatten_label = "(";
+	cout<<"Computing set differences between DkD1 and D1D1 when flattening DkD1 on "<<flatten_label<<endl;
+	for(string s : test_cases){
+		string s2 = "./spg/orig_bench/" + s + ".dot";
+
+		//initialize d1d1 graph
+		graph d1d1;
+		d1d1.constructFromDot(s2, true, true);
+		d1d1.dsu.init(d1d1.N);
+		d1d1.initWorklist();
+
+		//d1d1.printAsDot();
+
+		//initialize dkd1 graph
+		graph dkd1;
+		dkd1.constructFromDot(s2, flatten_label == "[", flatten_label == "("); 
+		dkd1.dsu.init(dkd1.N);
+		dkd1.initWorklist();
+
+		d1d1.bidirectedInterleavedD1D1Reach();
+
+		dkd1.bidirectedInterleavedDkD1Reach(flatten_label);
+
+		//compare results.
+
+		//We extract pairs into list
+		set<pair<int, int>> d1d1_pairs = getReachablePairs(d1d1);
+		set<pair<int, int>> dkd1_pairs = getReachablePairs(dkd1);
+		
+		//since DkD1 pairs are a subset of D1D1 pairs,
+		//we compute D1D1 pairs - DkD1 pairs
+
+		int res = 0;
+		for(auto d1d1pair : d1d1_pairs){
+			//a pair is in the set difference if it is in d1d1 but not in dkd1
+			if(dkd1_pairs.find(d1d1pair) == dkd1_pairs.end()){
+				res++;
+			}
+		}
+		cout<<s<<" - D1D1 pairs - DkD1 pairs: "<<res<<endl;
+		cout<<"# d1d1 pairs : "<<d1d1_pairs.size()<<" - #dkd1 pairs : "<<dkd1_pairs.size()<<endl;
+	}
+}
+
+void full_d1dk_experiment(){
+	//Test setup for D1 dot Dk flattened to a bound=n
+	
+	string flatten_label = "(";
+
+	cout<<"Table when flattening on "<<flatten_label<<endl;
+	cout<<endl;
+
+	cout<<"\\begin{table}[]"<<endl;
+	cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+	cout<<"\\hline"<<endl;
+	cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+
+	for(string s : test_cases){
+		d1dk_experiment(s, flatten_label);
+	}
+
+	cout<<"\\end{tabular}"<<endl;
+	cout<<"\\end{table}"<<endl;
+}
+
 int main(int argc, const char * argv[]){
 	//if(argc!=2){
 	//	cerr<<"the argument should be path to file containing spg graph"<<endl;
@@ -102,191 +168,15 @@ int main(int argc, const char * argv[]){
 
 	//full_d1d1_experiment();
 
-	full_union_dyck_experiment();
+	//full_union_dyck_experiment();
 
-	if(false){
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
+	//full_set_difference_experiment();
 
-		for(auto s : data){
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+	//full_d1dk_experiment();
 
-			graph d1d1;
-			d1d1.constructFromDot(s2, false, false);
-			d1d1.dsu.init(d1d1.N);
-			d1d1.initWorklist();
-			
-			d1d1.bidirectedReach();
-
-			d1d1 = d1d1.makeCopyWithoutDuplicates();
-
-			auto d_sccs = d1d1.computeDisjointSets();
-
-			int root_of_biggest = -1;
-			int max = 0;
-			for(auto el : d_sccs){
-				if(root_of_biggest == -1 || el.second.size() > max){
-					max = el.second.size();
-					root_of_biggest = el.first;
-				}
-			}
-
-
-			graph subgraph = d1d1.buildSubgraph(d_sccs[root_of_biggest]);
-
-
-
-			//do trimming on subgraph
-
-			subgraph = subgraph.trim_dkd1(subgraph);
-
-			auto dsccs2 = subgraph.computeDisjointSets();
-
-			for(auto el : dsccs2){
-				graph g = subgraph.buildSubgraph(el.second);
-				bool brackets = false, parentheses = false;
-				for(Vertex* v : g.vertices){
-					for(auto e : v->edges){
-						if(e.first.field_name.find("(") != std::string::npos){
-							parentheses = true;
-						}
-						if(e.first.field_name.find("[") != std::string::npos){
-							brackets = true;
-						}
-					}
-				}
-				if(parentheses && brackets){
-
-					cout<<"First visualization (before trimming): "<<endl;
-
-					subgraph.printAsDot();
-
-					cout<<"Second visualization (after trimming): "<<endl;
-
-					subgraph.printAsDot();
-				}
-			}
-
-
-
-		}
-		return 0;
-	}
-
-
-	return 0;
-
-	if(false){
-		//test for set difference
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		string flatten_label = "(";
-		cout<<"Computing set differences between DkD1 and D1D1 when flattening DkD1 on "<<flatten_label<<endl;
-		for(string s : data){
-			string s2 = "./spg/orig_bench/" + s + ".dot";
-
-			//initialize d1d1 graph
-			graph d1d1;
-			d1d1.constructFromDot(s2, true, true);
-			d1d1.dsu.init(d1d1.N);
-			d1d1.initWorklist();
-
-			//d1d1.printAsDot();
-
-			//initialize dkd1 graph
-			graph dkd1;
-			dkd1.constructFromDot(s2, flatten_label == "[", flatten_label == "("); 
-			dkd1.dsu.init(dkd1.N);
-			dkd1.initWorklist();
-
-			d1d1.bidirectedInterleavedD1D1Reach();
-
-			dkd1.bidirectedInterleavedDkD1Reach(flatten_label);
-
-			//compare results.
-
-			//We extract pairs into list
-			set<pair<int, int>> d1d1_pairs = getReachablePairs(d1d1);
-			set<pair<int, int>> dkd1_pairs = getReachablePairs(dkd1);
-			
-			//since DkD1 pairs are a subset of D1D1 pairs,
-			//we compute D1D1 pairs - DkD1 pairs
-
-			int res = 0;
-			for(auto d1d1pair : d1d1_pairs){
-				//a pair is in the set difference if it is in d1d1 but not in dkd1
-				if(dkd1_pairs.find(d1d1pair) == dkd1_pairs.end()){
-					res++;
-				}
-			}
-			cout<<s<<" - D1D1 pairs - DkD1 pairs: "<<res<<endl;
-			cout<<"# d1d1 pairs : "<<d1d1_pairs.size()<<" - #dkd1 pairs : "<<dkd1_pairs.size()<<endl;
-		}
-
-		return 0;
-	}
 
 
 	if(true){
-		//Test setup for D1 dot Dk flattened to a bound=n
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		string flatten_label = "(";
-
-		cout<<"Table when flattening on "<<flatten_label<<endl;
-		cout<<endl;
-
-		cout<<"\\begin{table}[]"<<endl;
-		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
-		cout<<"\\hline"<<endl;
-		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
-	
-		for(string s : data){
-			d1dk_experiment(s, flatten_label);
-		}
-
-		cout<<"\\end{tabular}"<<endl;
-		cout<<"\\end{table}"<<endl;
-
-		return 0;
-	}
-
-	if(false){
 		//Procedure as of 28 june 2021, with print statements updated to export as tex file
 		string benchmarks[] = {
 			"antlr",
@@ -332,13 +222,14 @@ int main(int argc, const char * argv[]){
 			
 			g->bidirectedInterleavedD1D1Reach();
 
+			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
 			int id_sccs = g->computeSCCs().size();
 			int id_reachable_pairs = g->calcNumReachablePairs();
 
 			g->deleteVertices();
 			delete g;
 
-			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
 			cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
 		}
