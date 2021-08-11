@@ -63,7 +63,7 @@ void full_d1d1_experiment(){
 		cout<<"\\begin{table}[]"<<endl;
 		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
 		cout<<"\\hline"<<endl;
-		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+		cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 	
 		for(string s : test_cases){
 			
@@ -75,14 +75,12 @@ void full_d1d1_experiment(){
 			g->dsu.init(g->N);
 			g->initWorklist();
 		
-
 			int n = g->N;
 			
 			graph g_copy = g->copy();
 			g_copy.initWorklist();
 			g_copy.bidirectedReach();
-			int d_sccs = g_copy.computeSCCs().size();
-			int d_reachable_pairs = g_copy.calcNumReachablePairs();
+			int d_ccs = g_copy.computeSCCs().size();
 
 			
 			//timing logic
@@ -92,21 +90,20 @@ void full_d1d1_experiment(){
 
 			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
-			int id_sccs = g->computeSCCs().size();
-			int id_reachable_pairs = g->calcNumReachablePairs();
+			int id_ccs = g->computeSCCs().size();
 
 			g->deleteVertices();
+
 			delete g;
 
-
-			cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
+			cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 		}
 
 		cout<<"\\end{tabular}"<<endl;
 		cout<<"\\end{table}"<<endl;
 }
 
-void full_union_dyck_experiment(){
+void full_union_dyck_of_d1d1_experiment(){
 	for(auto s : test_cases){
 		string s2 = "./spg/orig_bench/" + s + ".dot";
 
