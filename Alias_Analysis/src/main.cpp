@@ -59,24 +59,51 @@ set<pair<int, int>> getReachablePairs(graph& g){
 }
 
 void full_d1d1_experiment(){
-	for(string s : test_cases){
-		string s2 = "./spg/orig_bench/" + s + ".dot";
-
-		//initialize d1d1 graph
-		graph d1d1;
-		d1d1.constructFromDot(s2, true, true);
-		d1d1.dsu.init(d1d1.N);
-		d1d1.initWorklist();
+	
+		cout<<"\\begin{table}[]"<<endl;
+		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
+		cout<<"\\hline"<<endl;
+		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
+	
+		for(string s : test_cases){
+			
+			string s2 = "./spg/orig_bench/" + s + ".dot";
+			
+			//initialize graph
+			graph* g = new graph;
+			g->constructFromDot(s2, true, true);
+			g->dsu.init(g->N);
+			g->initWorklist();
 		
-		clock_t t = clock();
-		
-		d1d1.bidirectedInterleavedD1D1Reach();
 
-		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+			int n = g->N;
+			
+			graph g_copy = g->copy();
+			g_copy.initWorklist();
+			g_copy.bidirectedReach();
+			int d_sccs = g_copy.computeSCCs().size();
+			int d_reachable_pairs = g_copy.calcNumReachablePairs();
 
-		cout<<"Number of ID-SCCs for "<<s<<": "<<d1d1.computeSCCs().size()<<endl;
-		cout<<"Time: "<<time<<" seconds"<<endl;
-	}
+			
+			//timing logic
+			clock_t t = clock();
+			
+			g->bidirectedInterleavedD1D1Reach();
+
+			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+			int id_sccs = g->computeSCCs().size();
+			int id_reachable_pairs = g->calcNumReachablePairs();
+
+			g->deleteVertices();
+			delete g;
+
+
+			cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
+		}
+
+		cout<<"\\end{tabular}"<<endl;
+		cout<<"\\end{table}"<<endl;
 }
 
 void full_union_dyck_experiment(){
@@ -160,6 +187,83 @@ void full_d1dk_experiment(){
 	cout<<"\\end{table}"<<endl;
 }
 
+void full_early_stopping_experiment(){
+	for(string s : test_cases){
+		string flatten_on = "(";
+		
+		int height = 100;
+
+		
+		string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
+		s2 = "./spg/orig_bench/" + s + ".dot"; 
+		graph g;
+		g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
+		//g.flattenReachRemade(flatten_on);
+		
+		cout<<"flattening graph "<<s<<"_reduced up to height "<<height<<endl;
+
+		
+		graph h = g.flatten(flatten_on, height);
+		h.bidirectedReach();
+		
+		int low_rep = -1, high_rep = -1;
+
+		bool possible = false;
+				
+		for (int hb = 0; hb < height-2; hb++){
+			for(int hb2 = hb+1; hb2 < height-2; hb2++){
+				possible = true;
+				for(int i = 0; i < g.N; i++){
+					int x = g.vertices[i]->x;
+					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb, "")->id)];
+					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb2, "")->id)];
+					if(h1_root_vertex->x != h2_root_vertex->x){
+						possible = false;
+					}
+				}
+				if(possible){
+					cout<<"We found an example: "<<hb<<", "<<hb2<<endl;
+					low_rep = hb;
+					high_rep = hb2;
+					break;
+				}
+			}
+			if(possible) break;
+		}
+
+		for(int j = 1; j < 10; j++){
+			possible = true;
+			for(int i = 0; i < g.N; i++){
+				int x = g.vertices[i]->x;
+				Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x,  low_rep + 1, "")->id)];
+				Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, high_rep + 1, "")->id)];
+				if(h1_root_vertex->x != h2_root_vertex->x){
+					possible = false;
+				}
+			}
+			cout<<"Layer "<<low_rep + j<<" and layer "<<high_rep + j<<" match, too : "<<possible<<endl;
+			if(!possible){
+				cout<<"ERROR"<<endl;
+				return;
+			}
+		}
+
+
+		graph h2 = g.flatten(flatten_on, high_rep + 1);
+
+		h2.bidirectedReach();
+
+		int a = h.calcNumReachablePairs();
+		int b = h2.calcNumReachablePairs();
+		cout<<"number of pairs when flattening up to "<<height<<": "<<a<<endl;
+		cout<<"number of pairs when flattening up to "<<(high_rep + 1)<<": "<<b<<endl;
+		if(a == b){
+			break;
+		}
+
+	}
+}
+
 int main(int argc, const char * argv[]){
 	//if(argc!=2){
 	//	cerr<<"the argument should be path to file containing spg graph"<<endl;
@@ -174,182 +278,7 @@ int main(int argc, const char * argv[]){
 
 	//full_d1dk_experiment();
 
-
-
-	if(true){
-		//Procedure as of 28 june 2021, with print statements updated to export as tex file
-		string benchmarks[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		cout<<"\\begin{table}[]"<<endl;
-		cout<<"\\begin{tabular}{|l|l|l|l|l|l|l|}"<<endl;
-		cout<<"\\hline"<<endl;
-		cout<<"Benchmark & N & ID-SCCs & ID reachable pairs & D-SCCs & D reachable pairs & Time (s) \\\\ \\hline"<<endl;
-	
-		for(string s : benchmarks){
-			
-			string s2 = "./spg/orig_bench/" + s + ".dot";
-			
-			//initialize graph
-			graph* g = new graph;
-			g->constructFromDot(s2, true, true);
-			g->dsu.init(g->N);
-			g->initWorklist();
-		
-
-			int n = g->N;
-			
-			graph g_copy = g->copy();
-			g_copy.initWorklist();
-			g_copy.bidirectedReach();
-			int d_sccs = g_copy.computeSCCs().size();
-			int d_reachable_pairs = g_copy.calcNumReachablePairs();
-
-			
-			//timing logic
-			clock_t t = clock();
-			
-			g->bidirectedInterleavedD1D1Reach();
-
-			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
-			int id_sccs = g->computeSCCs().size();
-			int id_reachable_pairs = g->calcNumReachablePairs();
-
-			g->deleteVertices();
-			delete g;
-
-
-			cout<<s<<" & "<<n<<" & "<<id_sccs<<" & "<<id_reachable_pairs<<" & "<<d_sccs<<" & "<<d_reachable_pairs<<" & "<<time<<" \\\\ \\hline"<<endl;
-		}
-
-		cout<<"\\end{tabular}"<<endl;
-		cout<<"\\end{table}"<<endl;
-
-		return 0;
-	}
-
-
-
-
-	//TODO delete?
-	if(false){
-		//Procedure as of 28 june 2021
-		string benchmarks[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		//hyperparameters
-		bool using_reduced = false;
-		for(string s : benchmarks){
-			
-			string s2;
-			if(using_reduced){
-				s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			} else {
-				s2 = "./spg/orig_bench/" + s + ".dot";
-			}
-
-			//initialize graph
-			graph* g = new graph;
-			g->constructFromDot(s2, true, true);
-			g->dsu.init(g->N);
-			g->initWorklist();
-		
-
-			cout<<endl;
-			cout<<"-----------------"<<endl;
-			cout<<endl;
-			cout<<"Computing on '"<<s;
-			if (using_reduced) cout<<"_reduced";
-			cout<<"'"<<endl;
-			cout<<endl;
-			cout<<"Initial graph:"<<endl;
-			g->printSparsenessFacts();
-
-			{
-				graph copy_ignored = g->copy_ignoring("[");
-				copy_ignored.initWorklist();
-				copy_ignored.bidirectedReach();
-				cout<<endl;
-				cout<<"Number of reachable pairs when replacing edges on one counter with epsilon edges: "<<copy_ignored.calcNumReachablePairs()<<endl;
-				cout<<"Number of DSCCs when replacing edges on one counter with epsilon edges: "<<copy_ignored.computeSCCs().size()<<endl;
-				copy_ignored.deleteVertices();
-			}
-			
-			//timing logic
-			clock_t t = clock();
-			
-
-			//Reduce graph via bidirected reach, as it is a sound under-approximation
-			g->bidirectedReach();
-			cout<<endl;
-			cout<<"Number of reachable pairs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
-			cout<<"Number of DSCCs w.r.t. (non-interleaved) bidirected dyck reachability: "<<g->computeSCCs().size()<<endl;
-			cout<<"Number of disjoint components: "<<g->computeDisjointSets().size()<<endl;
-
-			graph g_working = g->makeCopyWithoutDuplicates(); //construct working copy of g without dublicate edges.
-			cout<<endl;
-			cout<<"Graph after reducing via (non-interleaved) bidirected dyck reachability: "<<endl;
-			g_working.printSparsenessFacts();
-			
-
-			//use various rules of trimming to reduce graph
-			g_working = g_working.trim_d1d1(g_working);
-			cout<<endl;
-			cout<<"Graph after trimming:"<<endl;
-			g_working.printSparsenessFacts();
-
-
-			//split graph into disjoint components
-			map<int,set<int>> disjoint_components = g_working.computeDisjointSets();
-			cout<<endl;
-			cout<<"Found "<<disjoint_components.size()<<" disjoint components w.r.t. plain reachability. ";
-			cout<<"Each is treated as its own graph."<<endl;
-			
-			//further split each component if possible, then flatten up to the bound and perform
-			//calculations directly.
-			for(auto s : disjoint_components){
-				graph g_part = g_working.buildSubgraph(s.second);
-				g_part.removeHubVertexIfExistsThenCalc(g_part, *g);
-			}
-			
-			g_working.deleteVertices();
-
-			cout<<"Number of reachable pairs in graph w.r.t. interleaved, bidirected dyck reachability: "<<g->calcNumReachablePairs()<<endl;
-			cout<<"Number of DSCCs in graph w.r.t. interleaved, bidirected dyck reachability: "<<g->computeSCCs().size()<<endl;
-
-			g->deleteVertices();
-			delete g;
-
-			cout<<"Total time: "<<((float)clock()-t)/CLOCKS_PER_SEC<<" s"<<endl;
-		}
-
-		return 0;
-	}
-
-
+	//full_early_stopping_experiment();
 
 
 	if(false){
@@ -1075,159 +1004,6 @@ int main(int argc, const char * argv[]){
 	if(true){
 		//tests early stopping by 'repeating scc patterns'
 
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		for(string s : data){
-			string flatten_on = "(";
-			
-			int height = 100;
-
-			
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			s2 = "./spg/orig_bench/" + s + ".dot"; 
-			graph g;
-			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
-			//g.flattenReachRemade(flatten_on);
-			
-			cout<<"flattening graph "<<s<<"_reduced up to height "<<height<<endl;
-
-			
-			graph h = g.flatten(flatten_on, height);
-			h.bidirectedReach();
-			
-			int low_rep = -1, high_rep = -1;
-
-			bool possible = false;
-					
-			for (int hb = 0; hb < height-2; hb++){
-				for(int hb2 = hb+1; hb2 < height-2; hb2++){
-					possible = true;
-					for(int i = 0; i < g.N; i++){
-						int x = g.vertices[i]->x;
-						Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb, "")->id)];
-						Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb2, "")->id)];
-						if(h1_root_vertex->x != h2_root_vertex->x){
-							possible = false;
-						}
-					}
-					if(possible){
-						cout<<"We found an example: "<<hb<<", "<<hb2<<endl;
-						low_rep = hb;
-						high_rep = hb2;
-						break;
-					}
-				}
-				if(possible) break;
-			}
-
-			for(int j = 1; j < 10; j++){
-				possible = true;
-				for(int i = 0; i < g.N; i++){
-					int x = g.vertices[i]->x;
-					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x,  low_rep + 1, "")->id)];
-					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, high_rep + 1, "")->id)];
-					if(h1_root_vertex->x != h2_root_vertex->x){
-						possible = false;
-					}
-				}
-				cout<<"Layer "<<low_rep + j<<" and layer "<<high_rep + j<<" match, too : "<<possible<<endl;
-				if(!possible){
-					cout<<"ERROR"<<endl;
-					return 0;
-				}
-			}
-
-
-			graph h2 = g.flatten(flatten_on, high_rep + 1);
-
-			h2.bidirectedReach();
-
-			int a = h.calcNumReachablePairs();
-			int b = h2.calcNumReachablePairs();
-			cout<<"number of pairs when flattening up to "<<height<<": "<<a<<endl;
-			cout<<"number of pairs when flattening up to "<<(high_rep + 1)<<": "<<b<<endl;
-			if(a != b){
-				return 0;
-			}
-
-		}
-
-		return 0;
-	}
-
-
-	if(true){
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-
-		for(string s : data){
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			graph g;
-			
-			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
-			long long n = g.N;
-			long long c = n*n*18 + 6*n;
-			cout<<"Nodes of graph "<<s<<"_reduced: "<<n<<". This yields "<<c<<" layers with a total of "<<c*n<<" nodes when flattened."<<endl;
-		}
-
-		return 0;
-	}
-
-	if(false){
-		string data[] = {
-			"antlr",
-			"bloat",
-			"chart",
-			"eclipse",
-			"fop",
-			"hsqldb",
-			"jython",
-			"luindex",
-			"lusearch",
-			"pmd",
-			"xalan"
-		};
-		string flatten_on = "[";
-		for(string s : data){
-			string s2 = "./spg/reduced_bench/" + s + "_reduced.dot";
-			graph g;
-			
-			g.constructFromDot(s2, true, true); //Parses files in the ".dot" format as D1 dot D1
-			//g.flattenReachRemade(flatten_on);
-			
-			int height = (int)(((long long) 1000*1000*5) / ((long long)g.N));
-
-			cout<<"flattening graph "<<s<<" up to height "<<height<<endl;
-
-			graph h = g.flatten(flatten_on, height);
-
-			h.bidirectedReach();
-
-			cout<<"D1 dot D1 reachability for "<<s<<"_reduced (when flattening on '"<<flatten_on<<"' up to height "<<height<<"): "<<h.calcNumReachablePairs()<<endl;
-		}
-		return 0;
+		
 	}
 }
