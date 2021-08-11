@@ -432,8 +432,12 @@ void graph::printAsDot(){
 	for(Vertex* v : vertices){
 		for(auto edge : v->edges){
 			for(auto u_id : edge.second){
-				if(!(u_id == v->id && edge.first.field_name == "eps"))
-					cout<<"	"<<vertices[u_id]->id<<" -> "<<v->id<<"[label = \"+1\" color="<<(edge.first.field_name == "[" ? "blue" : (edge.first.field_name == "(" ? "red" : "black"))<<"];"<<endl;
+				if(!(u_id == v->id && edge.first.field_name == "eps")){
+					cout<<"	"<<vertices[u_id]->id<<" -> "<<v->id;
+					cout<<"[label = \""<<edge.first.field_name<<"\" color=";
+					cout<<(edge.first.field_name.find("[") != std::string::npos ? "blue" : (edge.first.field_name.find("(") != std::string::npos ? "red" : "black"))<<"];"<<endl;
+
+				}
 				
 			}
 		}
