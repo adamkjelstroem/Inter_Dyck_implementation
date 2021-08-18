@@ -2,6 +2,8 @@
 #define DSU_H
 
 #include <vector>
+#include <set>
+#include <map>
 using namespace std;
 
 class DSU {

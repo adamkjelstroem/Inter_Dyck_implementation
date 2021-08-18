@@ -47,15 +47,8 @@ public:
 		fields.push_back(EPS);
 		str2field["eps"] = EPS;
 	}
-	~graph(){
-		for(Vertex* v : vertices){
-			//TODO might have to reactivate
-			//delete v;
-		}
-	}
 	void initWorklist();
 	void bidirectedReach();
-	void construct(string infile_name);
 
 	//void addedge(Vertex *u,Vertex *v, field &f);
 
@@ -73,19 +66,14 @@ public:
 	// gets the vertex with name, if not present creates it. name is arbitrary display value
 	Vertex* getVertex(int x, int y, const string &name);
 
-	void construct2(string infile_name, bool d1_parenthesis, bool d1_bracket);
-	void construct2flattenbracket(string infile_name);
+	void constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket);
+	
 	graph flatten(string field_name, int depth);
-	void flattenReach(string flatten_label);
+	
 	int calcNumReachablePairs();
 
 	void forceRootsToLayer(int layer);
-	void flattenReach2(string flatten_label);
-
-	void flattenReachRemade(string flatten_label);
 	
-	void heuristicReductionBeforeFlattenReach(string flatten_label);
-
 	//helper functions
 	void setFlattened(bool v){
 		isFlattened = isFlattened | v;
@@ -97,7 +85,7 @@ public:
 
 	map<int,set<int>> computeSCCs();
 
-	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height);
+	bool mergeNodesBasedOnSCCsInFlattened(graph h, int height); //TODO remove
 
 	graph copy_ignoring(string label);
 
@@ -121,9 +109,21 @@ public:
 	//variout techniques to reduce graph sizes
 	graph makeCopyWithoutDuplicates();
 
-	//removed provably unreachable nodes
-	graph trim(graph& g_working);
+	//removes provably unreachable nodes
 	//Based on techniques discovered 2 july 2021 and 3 july 2021
+	graph trim_d1d1(graph& g_working);
+
+	//removes provably unreachable nodes via the
+	//rules applicable in the D1Dk case.
+	graph trim_dkd1(graph& g_working);
+
+	void removeHubVertexIfExistsThenCalc(graph &g_working, graph &g);
+
+	graph buildSubgraph(set<int> &ids);
+
+	void bidirectedInterleavedD1D1Reach();
+
+	void bidirectedInterleavedDkD1Reach(string flatten_on);
 };
 
 #endif
