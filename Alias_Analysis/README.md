@@ -57,7 +57,7 @@ To run the tool on any general program you will need classpath of the program (c
 
 We have provided the SPG files of the benchmark in spg directory. You can directly execute the alias analysis by 
 ```
-./complile
+./compile
 build/main.out <path/to/SPG/file>
 ```
 
