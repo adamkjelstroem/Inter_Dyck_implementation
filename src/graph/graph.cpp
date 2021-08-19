@@ -143,7 +143,7 @@ void graph::transplantReachabilityInformationTo(graph& g){
 }
 
 
-//The D1D1 version of the process as fully implemented. 
+//Implementation of the D1 odot D1 algorithm.
 //PRECONDITION: this method is called on a graph of D1D1 form.
 void graph::bidirectedInterleavedD1D1Reach(){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
@@ -170,7 +170,7 @@ void graph::bidirectedInterleavedD1D1Reach(){
 	g_working.deleteVertices();
 }
 
-//The DkD1 version of the process. 
+//Implementation of the Dk odot D1 algorithm. 
 //PRECONDITION: this method is called on a graph of DkD1 form.
 void graph::bidirectedInterleavedDkD1Reach(string flatten_on){
 	//Reduce graph via bidirected reach, as it is a sound under-approximation
@@ -275,7 +275,7 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 	for(int j=0;j<N;j++){
 		auto vertex = vertices[j];
 		auto fit = vertex->edgesbegin();
-		j_root = dsu.root(j); //optimization so call to dsu.root() won't happen every loop
+		j_root = dsu.root(j); //optimization so calls to dsu.root() won't happen every loop
 		while(fit!=vertex->edgesend()){   // iterating over field
 			field fi = fit->first;
 			auto fedgeit = vertex->edgesbegin(fi);
@@ -636,7 +636,6 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 	g_flipped.deleteVertices();
 }
 
-
 //if a --> c <-- b and a --> d <-- b, then delete d.
 void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_delete){
 	graph g_flipped = buildFlipped(g_working);
@@ -747,7 +746,8 @@ map<int, set<int>> getDisjointSetsWhenRemoving(graph& g_working, Vertex* without
 }
 
 /*
-Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. Given this observation:
+Assume that u reaches v via some path P. Then without loss of generality, this path self-loops on u and then never enters u again. 
+Given this observation:
 
 1. Remove u from G
 2. Let G_1,G_2,... be the connected components after removing u
@@ -776,7 +776,6 @@ if u does not exist:
 	flatten to bound
 	compute all-pairs reachability
 	update G with this info
-
 
 */
 void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){

@@ -34,7 +34,7 @@ AE/
 
 ## Steps
 
-The overall workflow is pretty simple. Follow the steps below.
+The overall workflow is pretty simple. Run the below commands in a terminal from the root of this project.
 
 
 ```

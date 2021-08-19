@@ -157,9 +157,8 @@ void full_d1dk_experiment(){
 	
 	string flatten_label = "(";
 
-	cout<<"%Table when flattening on '"<<flatten_label<<"':"<<endl;
 	cout<<endl;
-
+	cout<<"%Table when flattening on '"<<flatten_label<<"':"<<endl;
 	cout<<"\\begin{table}[]"<<endl;
 	cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
 	cout<<"\\hline"<<endl;
