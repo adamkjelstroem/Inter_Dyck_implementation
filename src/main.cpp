@@ -251,17 +251,9 @@ void full_early_stopping_experiment(){
 }
 
 int main(int argc, const char * argv[]){
-	//if(argc!=2){
-	//	cerr<<"the argument should be path to file containing spg graph"<<endl;
-	//	return 1;
-	//}
 
 	full_d1d1_experiment();
 
 	full_d1dk_experiment();
-
-	//full_set_difference_experiment();
-	
-	//full_early_stopping_experiment();
 
 }
