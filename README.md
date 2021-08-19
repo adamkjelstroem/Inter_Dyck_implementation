@@ -37,8 +37,8 @@ The overall workflow is pretty simple. Follow the steps below.
 
 
 ```
-./Alias_Analysis/compile
+./Alias_Analysis/compile.sh
 Alias_Analysis/build/main.out 
 ```
 
-This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm, printing tables with the results in the terminal.
+This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm, printing tables with the results in the terminal. 
