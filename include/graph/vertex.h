@@ -59,7 +59,7 @@ public:
 	}
 
 	list<int>::iterator remove(field &f, list<int>::iterator pos){
-		edges[f].erase(pos);
+		return edges[f].erase(pos);
 	}
 
 	void clear(field &f){
