@@ -18,9 +18,13 @@ string test_cases[] = {
 	"xalan"
 };
 
+string getPathOf(string benchmark){
+	return "./benchmarks/" + benchmark + ".dot";
+}
+
 void d1dk_experiment(string s, string counterSymbol){
 	graph g;
-	g.constructFromDot("./spg/orig_bench/" + s + ".dot", counterSymbol == "[", counterSymbol == "("); 
+	g.constructFromDot(getPathOf(s), counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
 
 	int n = g.N;
@@ -60,48 +64,47 @@ set<pair<int, int>> getReachablePairs(graph& g){
 
 void full_d1d1_experiment(){
 	
-		cout<<"%Table for D1 odot D1 experiment:"<<endl;
-		cout<<"\\begin{table}[]"<<endl;
-		cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
-		cout<<"\\hline"<<endl;
-		cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
-	
-		for(string s : test_cases){
-			
-			string s2 = "./spg/orig_bench/" + s + ".dot";
-			
-			//initialize graph
-			graph* g = new graph;
-			g->constructFromDot(s2, true, true);
-			g->dsu.init(g->N);
-			g->initWorklist();
+	cout<<"%Table for D1 odot D1 experiment:"<<endl;
+	cout<<"\\begin{table}[]"<<endl;
+	cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
+	cout<<"\\hline"<<endl;
+	cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
+
+	for(string s : test_cases){
 		
-			int n = g->N;
-			
-			graph g_copy = g->copy();
-			g_copy.initWorklist();
-			g_copy.bidirectedReach();
-			int d_ccs = g_copy.computeSCCs().size();
+		
+		//initialize graph
+		graph* g = new graph;
+		g->constructFromDot(getPathOf(s), true, true);
+		g->dsu.init(g->N);
+		g->initWorklist();
+	
+		int n = g->N;
+		
+		graph g_copy = g->copy();
+		g_copy.initWorklist();
+		g_copy.bidirectedReach();
+		int d_ccs = g_copy.computeSCCs().size();
 
-			
-			//timing logic
-			clock_t t = clock();
-			
-			g->bidirectedInterleavedD1D1Reach();
+		
+		//timing logic
+		clock_t t = clock();
+		
+		g->bidirectedInterleavedD1D1Reach();
 
-			float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
-			int id_ccs = g->computeSCCs().size();
+		int id_ccs = g->computeSCCs().size();
 
-			g->deleteVertices();
+		g->deleteVertices();
 
-			delete g;
+		delete g;
 
-			cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
-		}
+		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
+	}
 
-		cout<<"\\end{tabular}"<<endl;
-		cout<<"\\end{table}"<<endl;
+	cout<<"\\end{tabular}"<<endl;
+	cout<<"\\end{table}"<<endl;
 }
 
 void full_set_difference_experiment(){

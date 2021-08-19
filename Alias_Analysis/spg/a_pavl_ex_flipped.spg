@@ -1,8 +1,0 @@
-1->0[label="op--43"]
-0->1[label="ob--43"]
-2->1[label="op--43"]
-2->3[label="op--43"]
-2->3[label="ob--43"]
-4->2[label="ob--43"]
-4->5[label="op--43"]
-5->4[label="ob--43"]
