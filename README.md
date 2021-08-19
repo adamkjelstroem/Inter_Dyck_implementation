@@ -19,8 +19,6 @@ Here we describe how to run the implementations and obtain the results found in 
 ## Requirements
 
 1. Machine with Unix based operating system, such as Ubuntu or MacOS. Our experiments were performed on a machine with about 8GB RAM. 
-2. Java 1.8 or higher
-3. apache ant
 
 ## Directory Structure
 
