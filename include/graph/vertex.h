@@ -42,7 +42,7 @@ public:
 	}
 
 	list<int>::iterator edgesbegin(field &f){
-		edges[f].begin();
+		return edges[f].begin();
 	}
 
 	list<int>::iterator edgesend(field &f){
