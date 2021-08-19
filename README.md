@@ -27,8 +27,11 @@ Here we describe how to run the implementations and obtain the results found in 
 ```
 AE/
 |--- README.md			This README 
-|--- Alias_Analysis/	Source code of the tool.
 |--- benchmarks/		The benchmark files in .dot format.
+|--- build/	            The output folder.
+|--- include/		    Header files for the C++ project.
+|--- src/		        Class files for the C++ project.
+
 ```
 
 ## Steps
@@ -37,8 +40,8 @@ The overall workflow is pretty simple. Follow the steps below.
 
 
 ```
-./Alias_Analysis/compile.sh
-Alias_Analysis/build/main.out 
+./compile.sh
+build/main.out 
 ```
 
 This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm, printing tables with the results in the terminal. 
