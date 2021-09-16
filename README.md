@@ -13,12 +13,13 @@ We have also implemented this algorithm along with pre-processing and simplifica
 
 We have implemented the algorithms in C++.
 
-Here we describe how to run the implementations and obtain the results found in the paper.
+Here we describe how to run the implementations and obtain the results found in table 2 of the paper.
 
 
 ## Requirements
 
 1. Machine with Unix based operating system, such as Ubuntu or MacOS. Our experiments were performed on a machine with about 8GB RAM. 
+2. The g++ command line tool.
 
 ## Directory Structure
 
