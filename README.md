@@ -23,7 +23,7 @@ Here we describe how to run the implementations and obtain the results found in 
 ## Directory Structure
 
 ```
-AE/
+root/
 |--- README.md			This README 
 |--- benchmarks/	        The benchmark files in .dot format.
 |--- build/	                The output folder.
@@ -42,4 +42,29 @@ The overall workflow is pretty simple. Run the below commands in a terminal from
 build/main.out 
 ```
 
-This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm, printing tables with the results in the terminal. 
+This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm, printing latex-formatted tables with the results in the terminal. 
+
+## Custom Benchmarks
+
+To run your own benchmarks, add your "\<benchmark\>.dot" files to this directory. then run 
+
+```
+build/main.out -b <space separated benchmark names>
+```
+
+### Benchmark file structure
+
+Each line in a ".dot" file corresponds to an edge. Example:
+
+a->b[label="X"]
+
+Here, an edge from 'a' to 'b' labeled 'X' is declared. There are four types of labels:
+
+ - "ob--i": opening bracket with id $i$, i.e. $[_i$
+ - "cb--i": closing bracket with id $i$, i.e. $]_i$
+ - "op--i": opening parenthesis with id $i$, i.e. $(_i$
+ - "cp--i": closing parenthesis with id $i$, i.e. $)_i$
+
+Brackets and parentheses correspond to the separate Dyck languages. 
+
+Any line without the "->" substring will be skipped.
