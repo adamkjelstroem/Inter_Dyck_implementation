@@ -3,20 +3,7 @@
 #include <iostream>
 #include <time.h>
 #include <sys/time.h>
-
-string test_cases[] = {
-	"antlr",
-	"bloat",
-	"chart",
-	"eclipse",
-	"fop",
-	"hsqldb",
-	"jython",
-	"luindex",
-	"lusearch",
-	"pmd",
-	"xalan"
-};
+#include <string.h>
 
 string getPathOf(string benchmark){
 	return "./benchmarks/" + benchmark + ".dot";
@@ -62,7 +49,7 @@ set<pair<int, int>> getReachablePairs(graph& g){
 	return pairs;
 }
 
-void full_d1d1_experiment(){
+void full_d1d1_experiment(string test_cases[], int n_cases){
 	
 	cout<<"%Table for D1 odot D1 experiment:"<<endl;
 	cout<<"\\begin{table}[]"<<endl;
@@ -70,8 +57,8 @@ void full_d1d1_experiment(){
 	cout<<"\\hline"<<endl;
 	cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 
-	for(string s : test_cases){
-		
+	for(int i = 0; i < n_cases; i++){
+		string s = test_cases[i];	
 		
 		//initialize graph
 		graph* g = new graph;
@@ -107,10 +94,11 @@ void full_d1d1_experiment(){
 	cout<<"\\end{table}"<<endl;
 }
 
-void full_set_difference_experiment(){
+void full_set_difference_experiment(string test_cases[], int n_cases){
 	string flatten_label = "(";
 	cout<<"Computing set differences between DkD1 and D1D1 when flattening DkD1 on "<<flatten_label<<endl;
-	for(string s : test_cases){
+	for(int i = 0; i < n_cases; i++){
+		string s = test_cases[i];
 		string s2 = "./spg/orig_bench/" + s + ".dot";
 
 		//initialize d1d1 graph
@@ -152,7 +140,7 @@ void full_set_difference_experiment(){
 	}
 }
 
-void full_d1dk_experiment(){
+void full_d1dk_experiment(string test_cases[], int n_cases){
 	//Test setup for D1 dot Dk flattened to a bound=n
 	
 	string flatten_label = "(";
@@ -164,16 +152,17 @@ void full_d1dk_experiment(){
 	cout<<"\\hline"<<endl;
 	cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 
-	for(string s : test_cases){
-		d1dk_experiment(s, flatten_label);
+	for(int i = 0; i < n_cases; i++){
+		d1dk_experiment(test_cases[i], flatten_label);
 	}
 
 	cout<<"\\end{tabular}"<<endl;
 	cout<<"\\end{table}"<<endl;
 }
 
-void full_early_stopping_experiment(){
-	for(string s : test_cases){
+void full_early_stopping_experiment(string test_cases[], int n_cases){
+	for(int i = 0; i < n_cases; i++){
+		string s = test_cases[i];
 		string flatten_on = "(";
 		
 		int height = 100;
@@ -250,9 +239,33 @@ void full_early_stopping_experiment(){
 }
 
 int main(int argc, const char * argv[]){
+	string *test_cases;
+	int n_cases;
+	
+	if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
+		test_cases = new string[argc-2];
+		n_cases = argc-2;
+		for(int i = 2; i < argc; i++){
+			test_cases[i-2] = argv[i];
+		}
+	}else{
+		n_cases = 11;
+		test_cases = new string[11];
+		test_cases[0] = "antlr";
+		test_cases[1] = "bloat";
+		test_cases[2] = "chart";
+		test_cases[3] = "eclipse";
+		test_cases[4] = "fop";
+		test_cases[5] = "hsqldb";
+		test_cases[6] = "jython";
+		test_cases[7] = "luindex";
+		test_cases[8] = "lusearch";
+		test_cases[9] = "pmd";
+		test_cases[10]= "xalan";
+	}
 
-	full_d1d1_experiment();
+	full_d1d1_experiment(test_cases, n_cases);
 
-	full_d1dk_experiment();
+	full_d1dk_experiment(test_cases, n_cases);
 
 }
