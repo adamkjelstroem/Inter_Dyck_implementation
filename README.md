@@ -42,16 +42,11 @@ Section 7 explains how to run the tool on custom benchmarks.
 
 ## 5. Source Code
 
-The main algorithms are found in *file XXX*.
-To obtain all reachability relationships with respect to $D_1 \odot D_1$ reachability, one must call
-```
-sample code
-```
-where xx is XX and yy is YY.
-Similarly, for $D_1 \odot D_1$ reachability one must call
-```
-sample code
-```
+The main algorithms are found in *src/graph/graph.cpp*. 
+
+The primary function for computing $D_1 \odot D_1$ reachability is called ```bidirectedInterleavedD1D1Reach()```.
+
+Similarly, the primary function for computing $D_1 \odot D_k$ reachability is called ```bidirectedInterleavedDkD1Reach()```.
 
 ## 6. Execution
 
@@ -60,22 +55,18 @@ The workflow for executing the artifact is pretty simple. Run the below commands
 
 ```
 ./compile.sh
-build/main.out 
+build/main.out > table.tex 
 ```
 
-This runs the D1 odot D1 algorithm followed by the D1 odot Dk algorithm.
-It also prints two latex tables with the respective results in the terminal, which correspond to the two parts of Table 2 in the paper.
-Finally it outputs the results in a file *table.tex* that corresponds to Table 2 in the paper.
+This runs the $D_1 \odot D_1$ algorithm followed by the $D_1 \odot D_k$ algorithm and outputs the results in a file *table.tex* that corresponds to Table 2 in the paper.
 The command runs within 10'-12' on our machine.
-
-**@Adam: Have the code produce table.tex at the end**
 
 ## 7. Custom Benchmarks
 
 To run your own benchmarks, add your "\<benchmark\>.dot" files to this directory, then run 
 
 ```
-build/main.out -b <space separated benchmark names>
+build/main.out -b *space separated benchmark names* > table.tex
 ```
 
 ### Benchmark file structure
