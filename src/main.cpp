@@ -16,24 +16,23 @@ tuple<int, int, int, float> dkd1_experiment(string s, string counterSymbol){
 
 	int n = g.N;
 
+	//Use a copy of the input graph to 
+	//compute number of sccs wrt the union Dyck language
 	graph g_copy = g.copy();
 	g_copy.initWorklist();
 	g_copy.bidirectedReach();
 	int d_ccs = g_copy.computeSCCs().size();
-	int d_reachable_pairs = g_copy.calcNumReachablePairs();
+
 
 	clock_t t = clock();	
 	
 	g.bidirectedInterleavedDkD1Reach(s);
 
 	int id_ccs = g.computeSCCs().size();
-	int id_reachable_pairs = g.calcNumReachablePairs();
 
 	g.deleteVertices();
 
 	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
-	cout<<" "<<n<<", "<<id_ccs<<", "<<d_ccs<<", "<<time<<endl;
 
 	return std::make_tuple(n, id_ccs, d_ccs, time);
 }
@@ -60,6 +59,8 @@ tuple<int, int, int, float> d1d1_experiment(string s){
 
 	int n = g->N;
 
+	//build a copy of the graph to compute reachability wrt 
+	//the union Dyck language.
 	graph g_copy = g->copy();
 	g_copy.initWorklist();
 	g_copy.bidirectedReach();
@@ -70,12 +71,12 @@ tuple<int, int, int, float> d1d1_experiment(string s){
 	clock_t t = clock();
 
 	g->bidirectedInterleavedD1D1Reach();
-
-	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
+	
 	int id_ccs = g->computeSCCs().size();
 
 	g->deleteVertices();
+
+	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
 	delete g;
 
@@ -155,7 +156,7 @@ void full_dkd1_experiment(string test_cases[], int n_cases){
 	string flatten_label = "[";
 
 	cout<<endl;
-	cout<<"%Table when flattening on '"<<flatten_label<<"':"<<endl;
+	cout<<"% D1Dk reachability:"<<endl;
 	cout<<"\\begin{table}[]"<<endl;
 	cout<<"\\begin{tabular}{|l|l|l|l|l|}"<<endl;
 	cout<<"\\hline"<<endl;
@@ -274,7 +275,7 @@ void full_both_experiment(string test_cases[], int n_cases){
 
 		tie(n, d1d1_id_ccs, d1d1_d_ccs, d1d1_time) = d1d1_experiment(s);
 
-		tie(n, dkd1_id_ccs, dkd1_d_ccs, dkd1_time) = dkd1_experiment(s, "(");
+		tie(n, dkd1_id_ccs, dkd1_d_ccs, dkd1_time) = dkd1_experiment(s, "[");
 
 
 		cout<<s<<" & "<<n<<" & "<<d1d1_id_ccs<<" & "<<d1d1_d_ccs<<" & "<<d1d1_time<<
