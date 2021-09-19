@@ -4,12 +4,13 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string.h>
+#include <tuple>
 
 string getPathOf(string benchmark){
 	return "./benchmarks/" + benchmark + ".dot";
 }
 
-void d1dk_experiment(string s, string counterSymbol){
+tuple<int, int, int, int> d1dk_experiment(string s, string counterSymbol){
 	graph g;
 	g.constructFromDot(getPathOf(s), counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
@@ -33,7 +34,7 @@ void d1dk_experiment(string s, string counterSymbol){
 
 	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
-	cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
+	return std::make_tuple(n, id_ccs, d_ccs, time);
 }
 
 set<pair<int, int>> getReachablePairs(graph& g){
@@ -49,6 +50,37 @@ set<pair<int, int>> getReachablePairs(graph& g){
 	return pairs;
 }
 
+tuple<int, int, int, int> d1d1_experiment(string s){
+	//initialize graph
+	graph* g = new graph;
+	g->constructFromDot(getPathOf(s), true, true);
+	g->dsu.init(g->N);
+	g->initWorklist();
+
+	int n = g->N;
+
+	graph g_copy = g->copy();
+	g_copy.initWorklist();
+	g_copy.bidirectedReach();
+	int d_ccs = g_copy.computeSCCs().size();
+
+
+	//timing logic
+	clock_t t = clock();
+
+	g->bidirectedInterleavedD1D1Reach();
+
+	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
+
+	int id_ccs = g->computeSCCs().size();
+
+	g->deleteVertices();
+
+	delete g;
+
+	return std::make_tuple(n, id_ccs, d_ccs, time);
+}
+
 void full_d1d1_experiment(string test_cases[], int n_cases){
 	
 	cout<<"%Table for D1 odot D1 experiment:"<<endl;
@@ -60,33 +92,9 @@ void full_d1d1_experiment(string test_cases[], int n_cases){
 	for(int i = 0; i < n_cases; i++){
 		string s = test_cases[i];	
 		
-		//initialize graph
-		graph* g = new graph;
-		g->constructFromDot(getPathOf(s), true, true);
-		g->dsu.init(g->N);
-		g->initWorklist();
-	
-		int n = g->N;
+		int n, id_ccs, d_ccs, time;
+		tie(n, id_ccs, d_ccs, time) = d1d1_experiment(s);
 		
-		graph g_copy = g->copy();
-		g_copy.initWorklist();
-		g_copy.bidirectedReach();
-		int d_ccs = g_copy.computeSCCs().size();
-
-		
-		//timing logic
-		clock_t t = clock();
-		
-		g->bidirectedInterleavedD1D1Reach();
-
-		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
-		int id_ccs = g->computeSCCs().size();
-
-		g->deleteVertices();
-
-		delete g;
-
 		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 	}
 
@@ -153,7 +161,10 @@ void full_d1dk_experiment(string test_cases[], int n_cases){
 	cout<<"Benchmark & N & ID-CCs & D-CCs & Time (s) \\\\ \\hline"<<endl;
 
 	for(int i = 0; i < n_cases; i++){
-		d1dk_experiment(test_cases[i], flatten_label);
+		string s = test_cases[i];
+		int n, id_ccs, d_ccs, time;
+		tie(n, id_ccs, d_ccs, time) = d1dk_experiment(s, flatten_label);
+		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 	}
 
 	cout<<"\\end{tabular}"<<endl;
