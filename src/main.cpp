@@ -10,7 +10,7 @@ string getPathOf(string benchmark){
 	return "./benchmarks/" + benchmark + ".dot";
 }
 
-tuple<int, int, int, int> d1dk_experiment(string s, string counterSymbol){
+tuple<int, int, int, float> dkd1_experiment(string s, string counterSymbol){
 	graph g;
 	g.constructFromDot(getPathOf(s), counterSymbol == "[", counterSymbol == "("); 
 	g.initWorklist();
@@ -34,6 +34,8 @@ tuple<int, int, int, int> d1dk_experiment(string s, string counterSymbol){
 
 	float time = ((float)clock()-t)/CLOCKS_PER_SEC;
 
+	cout<<" "<<n<<", "<<id_ccs<<", "<<d_ccs<<", "<<time<<endl;
+
 	return std::make_tuple(n, id_ccs, d_ccs, time);
 }
 
@@ -50,7 +52,7 @@ set<pair<int, int>> getReachablePairs(graph& g){
 	return pairs;
 }
 
-tuple<int, int, int, int> d1d1_experiment(string s){
+tuple<int, int, int, float> d1d1_experiment(string s){
 	//initialize graph
 	graph* g = new graph;
 	g->constructFromDot(getPathOf(s), true, true);
@@ -148,7 +150,7 @@ void full_set_difference_experiment(string test_cases[], int n_cases){
 	}
 }
 
-void full_d1dk_experiment(string test_cases[], int n_cases){
+void full_dkd1_experiment(string test_cases[], int n_cases){
 	//Test setup for D1 dot Dk flattened to a bound=n
 	
 	string flatten_label = "(";
@@ -163,7 +165,7 @@ void full_d1dk_experiment(string test_cases[], int n_cases){
 	for(int i = 0; i < n_cases; i++){
 		string s = test_cases[i];
 		int n, id_ccs, d_ccs, time;
-		tie(n, id_ccs, d_ccs, time) = d1dk_experiment(s, flatten_label);
+		tie(n, id_ccs, d_ccs, time) = dkd1_experiment(s, flatten_label);
 		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 	}
 
@@ -249,6 +251,41 @@ void full_early_stopping_experiment(string test_cases[], int n_cases){
 	}
 }
 
+void full_both_experiment(string test_cases[], int n_cases){
+	
+	cout<<"\\begin{table}[]"<<endl;
+	cout<<"\\label{tab:results_merged}"<<endl;
+	cout<<"\\caption{"<<endl;
+	cout<<"Experimental results on $\\Dyck_1\\odot \\Dyck_1$ and $\\Dyck_k\\odot \\Dyck_1$ reachability."<<endl;
+	cout<<"In each case, ID-CCs denotes the number of connected components wrt the interleaved Dyck language,"<<endl;
+	cout<<"while D-CCs denotes the number of connected components wrt the under-approximating Dyck language on the union alphabet."<<endl;
+	cout<<"%$n$ denotes the number of nodes in the input graph."<<endl;
+	cout<<"}"<<endl;
+	cout<<"\\begin{tabular}{| c | c || c | c | c || c | c | c |}"<<endl;
+	cout<<"\\hline"<<endl;
+	cout<<"\\textbf{Benchmark}  & \\textbf{$n$} & \\multicolumn{3}{c||}{$\\Dyck_1 \\odot \\Dyck_1$} & \\multicolumn{3}{c|}{$\\Dyck_k \\odot \\Dyck_1$} \\\\ \\hline"<<endl;
+	cout<<"& & \\textbf{ID-CCs} & \\textbf{D-CCs} & \\textbf{Time (s)} & \\textbf{ID-CCs} & \\textbf{D-CCs} & \\textbf{Time (s)} \\\\ \\hline \\hline"<<endl;
+	
+	for(int i = 0; i < n_cases; i++){
+		string s = test_cases[i];	
+		
+		int n, d1d1_id_ccs, d1d1_d_ccs, dkd1_id_ccs, dkd1_d_ccs;
+		float d1d1_time, dkd1_time;
+
+		tie(n, d1d1_id_ccs, d1d1_d_ccs, d1d1_time) = d1d1_experiment(s);
+
+		tie(n, dkd1_id_ccs, dkd1_d_ccs, dkd1_time) = dkd1_experiment(s, "(");
+
+
+		cout<<s<<" & "<<n<<" & "<<d1d1_id_ccs<<" & "<<d1d1_d_ccs<<" & "<<d1d1_time<<
+				 " & "<<dkd1_id_ccs<<" & "<<dkd1_d_ccs<<" & "<<dkd1_time<<"\\\\ \\hline"<<endl;		
+	}
+
+	cout<<"\\end{tabular}"<<endl;
+	cout<<"\\end{table}"<<endl;
+
+}
+
 int main(int argc, const char * argv[]){
 	string *test_cases;
 	int n_cases;
@@ -275,8 +312,10 @@ int main(int argc, const char * argv[]){
 		test_cases[10]= "xalan";
 	}
 
-	full_d1d1_experiment(test_cases, n_cases);
+	//full_d1d1_experiment(test_cases, n_cases);
 
-	full_d1dk_experiment(test_cases, n_cases);
+	full_dkd1_experiment(test_cases, n_cases);
+
+	//full_both_experiment(test_cases, n_cases);
 
 }
