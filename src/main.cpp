@@ -93,33 +93,9 @@ void full_d1d1_experiment(string test_cases[], int n_cases){
 	for(int i = 0; i < n_cases; i++){
 		string s = test_cases[i];	
 		
-		//initialize graph
-		graph* g = new graph;
-		g->constructFromDot(getPathOf(s), true, true);
-		g->dsu.init(g->N);
-		g->initWorklist();
-	
-		int n = g->N;
-		
-		graph g_copy = g->copy();
-		g_copy.initWorklist();
-		g_copy.bidirectedReach();
-		int d_ccs = g_copy.computeSCCs().size();
-
-		
-		//timing logic
-		clock_t t = clock();
-		
-		g->bidirectedInterleavedD1D1Reach();
-
-		float time = ((float)clock()-t)/CLOCKS_PER_SEC;
-
-		int id_ccs = g->computeSCCs().size();
-
-		g->deleteVertices();
-
-		delete g;
-
+		int n, id_ccs, d_ccs;
+		float time;
+		tie(n, id_ccs, d_ccs, time) = d1d1_experiment(s);
 		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 	}
 
@@ -176,7 +152,7 @@ void full_set_difference_experiment(string test_cases[], int n_cases){
 void full_dkd1_experiment(string test_cases[], int n_cases){
 	//Test setup for D1 dot Dk flattened to a bound=n
 	
-	string flatten_label = "(";
+	string flatten_label = "[";
 
 	cout<<endl;
 	cout<<"%Table when flattening on '"<<flatten_label<<"':"<<endl;
@@ -187,7 +163,8 @@ void full_dkd1_experiment(string test_cases[], int n_cases){
 
 	for(int i = 0; i < n_cases; i++){
 		string s = test_cases[i];
-		int n, id_ccs, d_ccs, time;
+		int n, id_ccs, d_ccs;
+		float time;
 		tie(n, id_ccs, d_ccs, time) = dkd1_experiment(s, flatten_label);
 		cout<<s<<" & "<<n<<" & "<<id_ccs<<" & "<<d_ccs<<" & "<<time<<" \\\\ \\hline"<<endl;
 	}
@@ -337,8 +314,8 @@ int main(int argc, const char * argv[]){
 
 	//full_d1d1_experiment(test_cases, n_cases);
 
-	full_dkd1_experiment(test_cases, n_cases);
+	//full_dkd1_experiment(test_cases, n_cases);
 
-	//full_both_experiment(test_cases, n_cases);
+	full_both_experiment(test_cases, n_cases);
 
 }
