@@ -58,10 +58,19 @@ The workflow for executing the artifact is pretty simple. Run the below commands
 build/main.out > table.tex 
 ```
 
-This runs the $D_1 \odot D_1$ algorithm followed by the $D_1 \odot D_k$ algorithm and outputs the results in a file *table.tex* that corresponds to Table 2 in the paper.
+This runs the $D_1 \odot D_1$ algorithm followed by the $D_1 \odot D_k$ algorithm and outputs the results in a file *table.tex*. 
 The command runs within 10'-12' on our machine.
 
-## 7. Custom Benchmarks
+## 7. List of Claims
+
+The experimental claims are made in Table 2 of the paper, which states
+1. The running times of the new algorithms for $D_1 \odot D_1$ reachability (Section 3) and $D_1 \odot D_k$ reachability (Section 4.3) for each benchmark.
+2. The number of Inter-Dyck Strongly Connected Components (ID-SCCs) and Dyck Strongly Connected Components (D-SCCs) in each benchmark.
+
+The file *table.tex* produced with the above command contains Table 2 in the paper.
+
+
+## 8. Custom Benchmarks
 
 To run your own benchmarks, add your "\<benchmark\>.dot" files to this directory, then run 
 
