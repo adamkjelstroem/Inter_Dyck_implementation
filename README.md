@@ -26,6 +26,7 @@ Here we describe how to run the implementations and obtain the results found in 
 ```
 root/
 |--- README.md				This README 
+|--- popl22-paper55.pdf     The associated paper.
 |--- benchmarks/	        The benchmark files in .dot format.
 |--- build/	                The output folder.
 |--- include/		        Header files for the C++ project.
