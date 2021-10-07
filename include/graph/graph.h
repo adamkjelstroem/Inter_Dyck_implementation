@@ -100,7 +100,7 @@ public:
 
 	//upper bound for flattening height as described by A. Pavlogiannis
 	int bound(){
-		return 12*N*N + 6*N;
+		return 18*N*N + 6*N;
 	}
 
 	void transplantReachabilityInformationTo(graph& other);
