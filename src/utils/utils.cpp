@@ -1,4 +1,6 @@
 #include "utils/utils.h"
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -35,4 +37,27 @@ void split(string s,string delim,std::vector<std::string> &tokens){
 		tokens.push_back(trim(substring));
 		last_pos = curr_pos+2;
 	}
+}
+
+string url_encode(const string &value) {
+    ostringstream escaped;
+    escaped.fill('0');
+    escaped << hex;
+
+    for (string::const_iterator i = value.begin(), n = value.end(); i != n; ++i) {
+        string::value_type c = (*i);
+
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+            continue;
+        }
+
+        // Any other characters are percent-encoded
+        escaped << uppercase;
+        escaped << '%' << setw(2) << int((unsigned char) c);
+        escaped << nouppercase;
+    }
+
+    return escaped.str();
 }
