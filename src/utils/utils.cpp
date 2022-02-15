@@ -1,4 +1,5 @@
 #include "utils/utils.h"
+#include "graph.h"
 #include <iomanip>
 #include <sstream>
 
@@ -60,4 +61,10 @@ string url_encode(const string &value) {
     }
 
     return escaped.str();
+}
+
+void openDotInBrowser(graph g){
+	ostringstream firstcmd;
+	firstcmd<<"open "<<"https://dreampuf.github.io/GraphvizOnline/#"<<url_encode(g.getAsDot());
+	system(firstcmd.str().c_str());
 }
