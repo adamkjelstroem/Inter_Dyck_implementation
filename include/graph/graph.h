@@ -79,7 +79,7 @@ public:
 		isFlattened = isFlattened | v;
 	}
 	void iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]);
-	void printGraphAsTikz();
+	void getGraphAsTikz();
 	void printAsDot();
 	graph copy();
 

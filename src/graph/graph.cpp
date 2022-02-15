@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <sstream>
 
 
 //construct graph using the ".dot" format. 
@@ -377,7 +378,9 @@ int graph::calcNumReachablePairs(){
 	return n;
 }
 
-void graph::printGraphAsTikz(){
+void graph::getGraphAsTikz(){
+	
+    
 	cout<<"\\begin{tikzpicture}"<<endl;
 
 	int d = 1;
