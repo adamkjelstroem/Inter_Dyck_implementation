@@ -620,6 +620,7 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 				//test if 'a' adheres to rules
 				if(countSelfLoops(a) != 0) continue;
 				if(countInEdges(a) != 0) continue;
+				if(countOutEdges(a, g_flipped) != 1) continue;
 
 				to_delete.insert(a->id);
 			}
