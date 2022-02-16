@@ -4,6 +4,9 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string.h>
+#include "utils/utils.h"
+#include <sstream>
+
 
 string getPathOf(string benchmark){
 	return "./benchmarks/" + benchmark + ".dot";
@@ -284,14 +287,51 @@ void full_both_experiment(string test_cases[], int n_cases){
 
 	cout<<"\\end{tabular}"<<endl;
 	cout<<"\\end{table}"<<endl;
+}
 
+//experiment for bachelor's project.
+void testEarlyStopping(){
+	graph* g = new graph;
+	g->constructFromDot(getPathOf("antlr"), true, true);
+	g->dsu.init(g->N);
+	g->initWorklist();
+
+	int n = g->N;
+
+
+	map<int,set<int>> disjoint_components = g->computeDisjointSets();
+	for(auto s : disjoint_components){
+		graph g_part = g->buildSubgraph(s.second);
+
+		g_part.initWorklist();
+		g_part.bidirectedReach();
+		if (g_part.N > 10 && g_part.N < 300){
+		
+			
+			//openDotInBrowser(g_part);
+
+			g_part = g_part.trim_d1d1(g_part);
+			if(g_part.vertices.size() == 0) continue;
+		
+			//openDotInBrowser(g_part);
+
+			
+			//openDotInBrowser(g_part);
+			if (getchar() == '.')return;
+		}
+	}
 }
 
 int main(int argc, const char * argv[]){
 	string *test_cases;
 	int n_cases;
 	
-	if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
+	if (argc == 2 && strcmp(argv[1], "e") == 0){
+		//do experiment here
+		
+		testEarlyStopping();
+		return 0;
+	}else if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
 		test_cases = new string[argc-2];
 		n_cases = argc-2;
 		for(int i = 2; i < argc; i++){
