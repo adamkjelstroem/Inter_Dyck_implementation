@@ -430,25 +430,25 @@ void graph::getGraphAsTikz(){
 
 }
 
-//prints the graph in the 'dot' format
+//returns the graph in the 'dot' format
 string graph::getAsDot(){
-	ostringstream cout;
-	cout<<"digraph example {"<<endl;
+	ostringstream builder;
+	builder<<"digraph example {"<<endl;
 	for(Vertex* v : vertices){
 		for(auto edge : v->edges){
 			for(auto u_id : edge.second){
 				if(!(u_id == v->id && edge.first.field_name == "eps")){
-					cout<<"	"<<vertices[u_id]->id<<" -> "<<v->id;
-					cout<<"[label = \""<<edge.first.field_name<<"\" color=";
-					cout<<(edge.first.field_name.find("[") != std::string::npos ? "blue" : (edge.first.field_name.find("(") != std::string::npos ? "red" : "black"))<<"];"<<endl;
-
+					builder<<"	"<<vertices[u_id]->id<<" -> "<<v->id;
+					builder<<"[label = \""<<edge.first.field_name<<"\" color=";
+					builder<<(edge.first.field_name.find("[") != std::string::npos ? "blue" : (edge.first.field_name.find("(") != std::string::npos ? "red" : "black"));
+					builder<<"];"<<endl;
 				}
 				
 			}
 		}
 	}
-	cout<<"}"<<endl;
-	return cout.str();
+	builder<<"}"<<endl;
+	return builder.str();
 }
 
 
