@@ -434,16 +434,26 @@ void graph::getGraphAsTikz(){
 string graph::getAsDot(){
 	ostringstream builder;
 	builder<<"digraph example {"<<endl;
-	for(Vertex* v : vertices){
-		for(auto edge : v->edges){
-			for(auto u_id : edge.second){
-				if(!(u_id == v->id && edge.first.field_name == "eps")){
-					builder<<"	"<<vertices[u_id]->id<<" -> "<<v->id;
-					builder<<"[label = \""<<edge.first.field_name<<"\" color=";
-					builder<<(edge.first.field_name.find("[") != std::string::npos ? "blue" : (edge.first.field_name.find("(") != std::string::npos ? "red" : "black"));
-					builder<<"];"<<endl;
-				}
+	for(Vertex* to : vertices){
+		for(auto edge : to->edges){
+			for(auto from_id : edge.second){
+				int to_id = to->id;
+				string field_name = edge.first.field_name;
+
+				//all vertices have an 'eps' self edge. 
+				//we don't want to append these.
+				if(from_id == to_id && field_name == "eps") continue;
 				
+				builder<<"	"<<from_id<<" -> "<<to_id;
+				builder<<"[label = \""<<field_name<<"\" color=";
+				if (field_name.find("[") != std::string::npos){
+					builder<<"blue";
+				}else if (field_name.find("(") != std::string::npos){
+					builder<<"red";
+				}else{
+					builder<<"black";
+				}
+				builder<<"];"<<endl;
 			}
 		}
 	}
