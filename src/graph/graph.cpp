@@ -437,27 +437,30 @@ string graph::getAsDot(){
 	for(Vertex* to : vertices){
 		for(auto edge : to->edges){
 			for(auto from_id : edge.second){
-				int to_id = to->id;
-				string field_name = edge.first.field_name;
-
-				//all vertices have an 'eps' self edge. 
-				//we don't want to append these.
-				if(from_id == to_id && field_name == "eps") continue;
-				
-				builder<<"	"<<from_id<<" -> "<<to_id;
-				builder<<"[label = \""<<field_name<<"\" color=";
-				if (field_name.find("[") != std::string::npos){
-					builder<<"blue";
-				}else if (field_name.find("(") != std::string::npos){
-					builder<<"red";
-				}else{
-					builder<<"black";
-				}
-				builder<<"];"<<endl;
+				builder<<getEdgeAsDot(from_id, to->id, edge.first.field_name);
 			}
 		}
 	}
 	builder<<"}"<<endl;
+	return builder.str();
+}
+
+string getEdgeAsDot(int from_id, int to_id, string field_name){
+	ostringstream builder;
+	//all vertices have an 'eps' self edge. 
+	//we don't want to append these.
+	if(from_id == to_id && field_name == "eps") return "";
+	
+	builder<<"	"<<from_id<<" -> "<<to_id;
+	builder<<"[label = \""<<field_name<<"\" color=";
+	if (field_name.find("[") != std::string::npos){
+		builder<<"blue";
+	}else if (field_name.find("(") != std::string::npos){
+		builder<<"red";
+	}else{
+		builder<<"black";
+	}
+	builder<<"];"<<endl;
 	return builder.str();
 }
 
