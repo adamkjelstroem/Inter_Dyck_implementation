@@ -63,8 +63,8 @@ string url_encode(const string &value) {
     return escaped.str();
 }
 
-void openDotInBrowser(graph g){
+void openDotInBrowser(string dot){
 	ostringstream firstcmd;
-	firstcmd<<"open "<<"https://dreampuf.github.io/GraphvizOnline/#"<<url_encode(g.getAsDot());
+	firstcmd<<"open "<<"https://dreampuf.github.io/GraphvizOnline/#"<<url_encode(dot);
 	system(firstcmd.str().c_str());
 }

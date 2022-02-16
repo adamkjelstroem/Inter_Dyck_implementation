@@ -128,6 +128,8 @@ public:
 	std::function<tuple<bool, int, int, field>()> getEdgeIterator();
 
 	graph buildFlipped(graph &g);
+
+	string getFlattenedAsDot(int orig_N, int height);
 };
 
 #endif

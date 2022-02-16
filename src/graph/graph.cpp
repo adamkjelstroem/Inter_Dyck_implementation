@@ -430,21 +430,7 @@ void graph::getGraphAsTikz(){
 
 }
 
-//returns the graph in the 'dot' format
-string graph::getAsDot(){
-	ostringstream builder;
-	builder<<"digraph example {"<<endl;
-	for(Vertex* to : vertices){
-		for(auto edge : to->edges){
-			for(auto from_id : edge.second){
-				builder<<getEdgeAsDot(from_id, to->id, edge.first.field_name);
-			}
-		}
-	}
-	builder<<"}"<<endl;
-	return builder.str();
-}
-
+//helper function to render edge in .dot format.
 string getEdgeAsDot(int from_id, int to_id, string field_name){
 	ostringstream builder;
 	//all vertices have an 'eps' self edge. 
@@ -464,6 +450,61 @@ string getEdgeAsDot(int from_id, int to_id, string field_name){
 	return builder.str();
 }
 
+//returns the graph in the 'dot' format
+string graph::getAsDot(){
+	ostringstream builder;
+	builder<<"digraph example {"<<endl;
+	for(Vertex* to : vertices){
+		for(auto edge : to->edges){
+			for(auto from_id : edge.second){
+				builder<<getEdgeAsDot(from_id, to->id, edge.first.field_name);
+			}
+		}
+	}
+	builder<<"}"<<endl;
+	return builder.str();
+}
+
+
+string graph::getFlattenedAsDot(int orig_N, int height){
+	ostringstream builder;
+	builder<<"graph example {"<<endl;
+
+
+
+	for (int h = 0; h < height; h++){
+		for (int n = 0; n < orig_N; n++){
+			Vertex* v = vertices[orig_N*h+n];
+			builder<<"n"<<v->id<<"_"<<h<<"[label=\""<<dsu.root(v->id)<<"\"]"<<endl;
+		}
+	}
+
+	builder<<"edge [weight=1000 style=dashed color=dimgrey]"<<endl;
+
+	
+	builder<<"edge [style=invis]"<<endl;// comment to hide the grid
+
+	for (int h = 0; h < height; h++){
+		for (int n = 0; n < orig_N-1; n++){
+			builder<<"n"<<vertices[orig_N*h+n]->id<<"_"<<h<<" -- ";
+		}
+		builder<<"n"<<vertices[orig_N*h+(orig_N-1)]->id<<"_"<<h<<endl;
+	}
+
+	for (int n = 0; n < orig_N; n++){
+		builder<<"rank=same {";
+		for (int h = 0; h < height-1; h++){
+			builder<<"n"<<vertices[orig_N*h+n]->id<<"_"<<h<<" -- ";
+		}
+		builder<<"n"<<vertices[orig_N*(height-1)+n]->id<<"_"<<(height-1)<<"}"<<endl;
+	}
+	
+	//A0 -- B1 -- C2 -- D3 -- E4 -- F5 -- G6 -- H7
+	//H0 -- G1 -- F2 -- E3 -- D4 -- C5 -- B6 -- A7
+
+	builder<<"}"<<endl;
+	return builder.str();
+}
 
 //counts 'true' self loops, meaning we ignore the mandatory eps edge
 int countSelfLoops(Vertex* v){
