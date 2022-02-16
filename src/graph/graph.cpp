@@ -499,8 +499,6 @@ string graph::getFlattenedAsDot(int orig_N, int height){
 		builder<<"n"<<vertices[orig_N*(height-1)+n]->id<<"_"<<(height-1)<<"}"<<endl;
 	}
 	
-	//A0 -- B1 -- C2 -- D3 -- E4 -- F5 -- G6 -- H7
-	//H0 -- G1 -- F2 -- E3 -- D4 -- C5 -- B6 -- A7
 
 	builder<<"}"<<endl;
 	return builder.str();
@@ -758,23 +756,27 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 	//build working copy of g without the deleted vertices
 	//basically, add an edge between 2 nodes if neither is to be deleted.
 	for (Vertex* u : g_working.vertices){
-		if(to_delete.find(u->id) == to_delete.end()){
-			//u is not a singleton
-			for (auto edge : u->edges){
-				for(auto v_id : edge.second){
-					if(to_delete.find(v_id) == to_delete.end()){
-						//if v is not a singleton, either
-						//then add an edge between them
 
-						//(actually add it between their respective roots)
-						auto v_root_w_2 = getVertexIn(g_working_2, u);
-						auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
+		//skip if vertex u is supposed to be deleted
+		if(to_delete.find(u->id) != to_delete.end()) continue;
+		//u is not a singleton
+		for (auto edge : u->edges){
+			for(auto v_id : edge.second){
 
-						v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+				//skip if vertex v is supposed to be deleted
+				if(to_delete.find(v_id) != to_delete.end()) continue;
+				
+				//also ignore the (elusive) hidden self-edges
+				if(u->id == v_id && edge.first.field_name=="eps") continue;
 
-						g_working.numedges++;
-					}
-				}
+
+				//(actually add it between their respective roots)
+				auto v_root_w_2 = getVertexIn(g_working_2, u);
+				auto u_root_w_2 = getVertexIn(g_working_2, g_working.vertices[v_id]);
+
+				v_root_w_2->addedge(g_working_2.getfield(edge.first.field_name), u_root_w_2->id);
+
+				g_working.numedges++;
 			}
 		}
 	}
