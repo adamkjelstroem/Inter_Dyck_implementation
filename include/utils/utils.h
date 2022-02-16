@@ -14,5 +14,5 @@ static inline std::string &rtrim(std::string &s);
 static inline std::string &trim(std::string &s);
 void split(std::string s,std::string delim,std::vector<std::string> &tokens);
 std::string url_encode(const std::string &value);
-void openDotInBrowser(graph g);
+void openDotInBrowser(string dot);
 #endif
