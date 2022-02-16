@@ -80,7 +80,7 @@ public:
 	}
 	void iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]);
 	void getGraphAsTikz();
-	void printAsDot();
+	string getAsDot();
 	graph copy();
 
 	map<int,set<int>> computeSCCs();
@@ -124,6 +124,10 @@ public:
 	void bidirectedInterleavedD1D1Reach();
 
 	void bidirectedInterleavedDkD1Reach(string flatten_on);
+
+	std::function<tuple<bool, int, int, field>()> getEdgeIterator();
+
+	graph buildFlipped(graph &g);
 };
 
 #endif

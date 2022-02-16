@@ -1,5 +1,5 @@
 #include "utils/utils.h"
-#include "graph.h"
+#include "graph/graph.h"
 #include <iomanip>
 #include <sstream>
 

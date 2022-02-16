@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include <sstream>
+#include <tuple>
 
 
 //construct graph using the ".dot" format. 
@@ -430,7 +431,8 @@ void graph::getGraphAsTikz(){
 }
 
 //prints the graph in the 'dot' format
-void graph::printAsDot(){
+string graph::getAsDot(){
+	ostringstream cout;
 	cout<<"digraph example {"<<endl;
 	for(Vertex* v : vertices){
 		for(auto edge : v->edges){
@@ -446,6 +448,7 @@ void graph::printAsDot(){
 		}
 	}
 	cout<<"}"<<endl;
+	return cout.str();
 }
 
 
@@ -477,7 +480,7 @@ int countOutEdges(Vertex* v, graph& g_flipped){
 }
 
 //builds flipped version of g, meaning edges go in the other direction.
-graph buildFlipped(graph &g){
+graph graph::buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
 	for(Vertex* v : g.vertices){
 		for(auto edge : v->edges){
@@ -504,6 +507,7 @@ void findRemovableVerticesViaFirstRule(graph &g_working, graph &g_flipped, set<i
 		if(countInEdges(b) != 1) continue;
 		if(countOutEdges(b, g_flipped) != 0) continue;
 		if(countSelfLoops(b) != 0) continue;
+		//cout<<b->id<<" is being deleted via 1st rule"<<endl;
 		to_delete.insert(b->id);
 	}	
 }
@@ -580,6 +584,7 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 				}
 			}
 			if(yes){
+				//cout<<b->id<<" is being deleted via 2nd rule case a"<<endl;
 				to_delete.insert(b->id);
 			}
 		}else if(edges_from_neighbor == 2){
@@ -594,6 +599,7 @@ void findRemovableVerticesViaSecondRule(graph &g_working, graph &g_flipped, set<
 			}
 			if(self_loops_on_neigbor == 3){ //all nodes have an eps self-edge, so this is how to ask for 2 'true' self-loops
 				//b has 2 incoming edges, and its neighbor has 2 self-loops. thus we are done
+				//cout<<b->id<<" is being deleted via 2nd rule case b"<<endl;
 				to_delete.insert(b->id);
 			}
 		}
@@ -622,6 +628,7 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 				if(countInEdges(a) != 0) continue;
 				//if(countOutEdges(a, g_flipped) != 1) continue; //TODO uncomment
 
+				//cout<<a->id<<" is being deleted via 3rd rule"<<endl;
 				to_delete.insert(a->id);
 			}
 		}
@@ -629,7 +636,7 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 }
 
 void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
-	graph g_flipped = buildFlipped(g_working);
+	graph g_flipped = g_working.buildFlipped(g_working);
 
 	findRemovableVerticesViaFirstRule(g_working, g_flipped, to_delete);
 
@@ -642,7 +649,7 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 
 //if a --> c <-- b and a --> d <-- b, then delete d.
 void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_delete){
-	graph g_flipped = buildFlipped(g_working);
+	graph g_flipped = g_working.buildFlipped(g_working);
 
 	for(Vertex* a : g_working.vertices){
 		Vertex* a_flipped = getVertexIn(g_flipped, a);
@@ -906,7 +913,6 @@ graph graph::trim_dkd1(graph& g_working){
 		//cout<<"Newly reduced g, without the removable edges:"<<endl;
 		//g_working.printSparsenessFacts();
 	}
-
 	return g_working;
 }
 

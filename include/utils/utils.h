@@ -7,6 +7,7 @@
 #include <locale>
 #include <vector>
 #include <algorithm>
+#include "graph/graph.h"
 
 static inline std::string &ltrim(std::string &s);
 static inline std::string &rtrim(std::string &s);
