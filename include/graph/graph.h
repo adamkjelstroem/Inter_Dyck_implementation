@@ -129,7 +129,7 @@ public:
 
 	graph buildFlipped(graph &g);
 
-	string getFlattenedAsDot(int orig_N, int height);
+	string getFlattenedAsDot(int height, graph original_graph);
 };
 
 #endif

@@ -466,16 +466,18 @@ string graph::getAsDot(){
 }
 
 
-string graph::getFlattenedAsDot(int orig_N, int height){
+string graph::getFlattenedAsDot(int height, graph original_graph){
+	int orig_N = original_graph.N;
 	ostringstream builder;
 	builder<<"graph example {"<<endl;
 
-
+	
 
 	for (int h = 0; h < height; h++){
 		for (int n = 0; n < orig_N; n++){
 			Vertex* v = vertices[orig_N*h+n];
-			builder<<"n"<<v->id<<"_"<<h<<"[label=\""<<dsu.root(v->id)<<"\"]"<<endl;
+			Vertex* root = vertices[dsu.root(v->id)];
+			builder<<"n"<<v->id<<"_"<<h<<"[label=\""<<root->id<<"\"]"<<endl;
 		}
 	}
 
@@ -768,7 +770,6 @@ graph buildCopyWithout(graph& g_working, set<int>& to_delete){
 				
 				//also ignore the (elusive) hidden self-edges
 				if(u->id == v_id && edge.first.field_name=="eps") continue;
-
 
 				//(actually add it between their respective roots)
 				auto v_root_w_2 = getVertexIn(g_working_2, u);
