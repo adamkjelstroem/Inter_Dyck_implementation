@@ -248,29 +248,24 @@ void graph::forceRootsToLayer(int layer){
 //returns true iff top layer of h and bottom layer of h contract.
 //height denotes height of top layer of h
 bool graph::mergeNodesBasedOnSCCsInFlattened(graph h, int height){
-	map<int,set<int>> scc = h.computeSCCs();
+	map<int,set<int>> sccs = h.computeSCCs();
 	bool stillCOnnectingToNewLayer = false;
 
 	//merge vertices in original graph
-	auto it = scc.begin();
-	while(it!=scc.end()){
-		//we only care about sccs where the root has y=0
-		if(h.vertices[it->first]->y == 0){
-			int root_id_in_this=dsu.root(getVertex(h.vertices[it->first]->x, 0, "")->id);
-			for(int elem : it->second){
-				if(h.vertices[elem]->y == 0){
-					dsu.merge(
-						root_id_in_this,
-						dsu.root(getVertex(h.vertices[elem]->x, 0, "")->id)
-						);
-				}else if(h.vertices[elem]->y == height-1){
-					stillCOnnectingToNewLayer = true;
-				}
-			}
+	for (auto scc : sccs){
+		auto root = scc.first;
+		Vertex* root_in_h = h.vertices[root];
+		if(root_in_h->layer != 0) continue; // we only care about roots that are in the bottom layer
+
+		int root_id_in_this = dsu.root(getVertex(root_in_h->orig_id, 0)->id);
+		for (int member_id_in_h : scc.second){
+			Vertex* member_in_h = h.vertices[member_id_in_h];
+			if (member_in_h->layer != 0) continue; // we only care about members that are in the bottom layer
+			int member_id_in_this = dsu.root(getVertex(member_in_h->orig_id, 0)->id);
+			dsu.merge(root_id_in_this, member_id_in_this);
 		}
-		it++;
 	}
-	return stillCOnnectingToNewLayer;
+	return true; //TODO broken!
 }
 
 void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* extra[]), void* extra[]){
