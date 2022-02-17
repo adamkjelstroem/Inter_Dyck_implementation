@@ -64,7 +64,7 @@ public:
 	int getRoot(Vertex* vtx,field& f,std::set<int>& roots,int &rootS);
 	field& getfield(const string &s);
 	// gets the vertex with name, if not present creates it. name is arbitrary display value
-	Vertex* getVertex(int x, int y, const string &name);
+	Vertex* getVertex(int x, int y); //, const string &name
 
 	void constructFromDot(string infile_name, bool d1_parenthesis, bool d1_bracket);
 	
