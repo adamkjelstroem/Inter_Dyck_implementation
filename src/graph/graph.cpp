@@ -288,13 +288,13 @@ void graph::iterateOverEdges(void (f)(Vertex start, Vertex end, field f, void* e
 	}
 }
 
-//Produces a copy of this. Note that IDs are not preserved, but x and y values are.
+//Produces a copy of this, preserving orig_id and layer
 graph graph::copy(){
 	graph g;
 
-	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+	auto cop = [](Vertex from, Vertex to, field f, void* extra[]) {
 		graph* g = (graph*)extra[0];
-		g->addEdge(a.x, a.y, b.x, b.y, f.field_name);
+		g->addEdge(from.orig_id, from.layer, to.orig_id, to.layer, f.field_name);
 	};
 	void* w[] = {&g};
 	iterateOverEdges(cop, w);
