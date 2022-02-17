@@ -531,13 +531,14 @@ int countOutEdges(Vertex* v, graph& g_flipped){
 }
 
 //builds flipped version of g, meaning edges go in the other direction.
+//PRECONDITION: g is not a flattened graph
 graph graph::buildFlipped(graph &g){
 	graph g_outgoing; //g_outgoing is g_working but with edges flipped
 	for(Vertex* v : g.vertices){
 		for(auto edge : v->edges){
 			for(int u_id : edge.second){
-				int u_x = g.vertices[u_id]->x;
-				g_outgoing.addEdge(v->x, 0, u_x, 0, edge.first.field_name);
+				int u_orig_id = g.vertices[u_id]->orig_id;
+				g_outgoing.addEdge(v->orig_id, 0, u_orig_id, 0, edge.first.field_name);
 			}
 		}
 	}
