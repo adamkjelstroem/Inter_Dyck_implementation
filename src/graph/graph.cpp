@@ -91,15 +91,16 @@ graph graph::flatten(string field_name, int height){
 	t = clock();
 	bool print = false;
 	
-	for (int i = 0; i < depth; i++){
+	for (int i = 0; i < height; i++){
 		if(print && clock() - t > 3*CLOCKS_PER_SEC){
-			cout<<"doing iteration "<<i<<" of "<<depth<<" (t="<<((float)clock()-t)/CLOCKS_PER_SEC<<") "<<(i * 100 / depth)<<"%"<<endl;
+			cout<<"doing iteration "<<i<<" of "<<height<<
+			" (t="<<((float)clock()-t)/CLOCKS_PER_SEC<<") "<<(i * 100 / height)<<"%"<<endl;
 			t = clock();
 		}
 		
 		//if(depth >= 10 && i % (depth / 10) == 0) cout<<"doing iteration "<<i<<" of "<<depth<<endl;
 		
-		void* w[] = {&g, &i, &depth, &field_name};
+		void* w[] = {&g, &i, &height, &field_name};
 		iterateOverEdges(cop, w);
 	}
 
