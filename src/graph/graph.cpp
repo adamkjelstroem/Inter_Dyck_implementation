@@ -364,7 +364,7 @@ int graph::calcNumReachablePairs(){
 	while(it!=scc.end()){
 		int zero_elems = 0;
 		for(int elem : it->second){
-			if(vertices[elem]->y == 0) zero_elems++;
+			if(vertices[elem]->layer == 0) zero_elems++;
 		}
 		n += zero_elems*(zero_elems - 1) / 2;
 		it++;
@@ -385,7 +385,9 @@ void graph::getGraphAsTikz(){
 		//graph is flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<v->x * d<<", "<<v->y*d<<") {("<<v->x<<","<<v->y<<")"<<""<<"};"<<endl;
+			cout<<"\\node ("<<v->orig_id<<") at ("
+			<<v->orig_id * d<<", "<<v->layer*d<<") {("
+			<<v->orig_id<<","<<v->layer<<")"<<""<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
@@ -402,7 +404,7 @@ void graph::getGraphAsTikz(){
 		//graph is not flattened
 
 		for (Vertex* v : vertices){
-			cout<<"\\node ("<<v->id<<") at ("<<v->x*d<<", 0) {"<<v->x<<"};"<<endl;
+			cout<<"\\node ("<<v->orig_id<<") at ("<<v->orig_id*d<<", 0) {"<<v->orig_id<<"};"<<endl;
 		}
 
 		auto print = [](Vertex a, Vertex b, field f, void* extra[]) {
