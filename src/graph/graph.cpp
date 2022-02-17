@@ -453,7 +453,8 @@ string graph::getAsDot(){
 	for(Vertex* to : vertices){
 		for(auto edge : to->edges){
 			for(auto from_id : edge.second){
-				builder<<getEdgeAsDot(from_id, to->id, edge.first.field_name);
+				Vertex* from = vertices[from_id];
+				builder<<getEdgeAsDot(from->orig_id, to->orig_id, edge.first.field_name);
 			}
 		}
 	}
@@ -473,7 +474,7 @@ string graph::getFlattenedAsDot(int height, graph original_graph){
 		for (int n = 0; n < orig_N; n++){
 			Vertex* v = vertices[orig_N*h+n];
 			Vertex* root = vertices[dsu.root(v->id)];
-			builder<<"n"<<v->id<<"_"<<h<<"[label=\""<<root->id<<"\"]"<<endl;
+			builder<<"n"<<v->orig_id<<"_"<<h<<"[label=\""<<root->orig_id<<"\"]"<<endl;
 		}
 	}
 
@@ -484,17 +485,17 @@ string graph::getFlattenedAsDot(int height, graph original_graph){
 
 	for (int h = 0; h < height; h++){
 		for (int n = 0; n < orig_N-1; n++){
-			builder<<"n"<<vertices[orig_N*h+n]->id<<"_"<<h<<" -- ";
+			builder<<"n"<<vertices[orig_N*h+n]->orig_id<<"_"<<h<<" -- ";
 		}
-		builder<<"n"<<vertices[orig_N*h+(orig_N-1)]->id<<"_"<<h<<endl;
+		builder<<"n"<<vertices[orig_N*h+(orig_N-1)]->orig_id<<"_"<<h<<endl;
 	}
 
 	for (int n = 0; n < orig_N; n++){
 		builder<<"rank=same {";
 		for (int h = 0; h < height-1; h++){
-			builder<<"n"<<vertices[orig_N*h+n]->id<<"_"<<h<<" -- ";
+			builder<<"n"<<vertices[orig_N*h+n]->orig_id<<"_"<<h<<" -- ";
 		}
-		builder<<"n"<<vertices[orig_N*(height-1)+n]->id<<"_"<<(height-1)<<"}"<<endl;
+		builder<<"n"<<vertices[orig_N*(height-1)+n]->orig_id<<"_"<<(height-1)<<"}"<<endl;
 	}
 	
 
