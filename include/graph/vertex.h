@@ -17,14 +17,16 @@ public:
 	std::map<field,list<int>> edges;
 
 /*public:*/
-	int id, x, y;
+	int id; // id in the current graph
+	int orig_id; //id in the original graph (if this is the original, then id=orig_id)
+	int layer; //layer that the vertex is in. (=0 in non-flattened graphs) 
 	//string name;
 	//int graph_num;
 	
-	Vertex(int id, int x, int y, string s){
+	Vertex(int id, int orig_id, int layer){
 		this->id = id;
-		this->x = x;
-		this->y = y;
+		this->orig_id = orig_id;
+		this->layer = layer;
 		//this->name = s;
 		//graph_num=id;
 	}
@@ -83,7 +85,7 @@ public:
 	}
 
 	string to_string(){
-		return "(" + std::to_string(x) + "," + std::to_string(y) + ")";
+		return "(" + std::to_string(orig_id) + "," + std::to_string(layer) + ")";
 	}
 
 	void printvtxid(){
