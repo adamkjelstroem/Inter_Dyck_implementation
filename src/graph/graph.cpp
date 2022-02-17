@@ -971,19 +971,24 @@ graph graph::trim_dkd1(graph& g_working){
 	return g_working;
 }
 
+//construct subgraph containing only the vertices in the given set.
+//These are current ids (not orig_ids) from the original graph
+//CALL THIS ON the original graph.
 graph graph::buildSubgraph(set<int> &ids){
 	graph g_part;
-	for (auto id_in_g_working : ids){
-		Vertex* v = vertices[id_in_g_working];
+	for (auto to_id_in_g_working : ids){
+		Vertex* to = vertices[to_id_in_g_working];
 		
-		for(auto edge : v->edges){
-			for(int u_id : edge.second){
+		for(auto edge : to->edges){
+			for(int from_id : edge.second){
 				//ignore vertices that are not in subgraph
 				//if(ids.find(u_id) == ids.end()) continue;
+				Vertex* from = vertices[from_id];
 
+				//copy edge to new graph
 				g_part.addEdge(
-					vertices[u_id]->x, 0,
-					v->x, 0,
+					from->orig_id, 0,
+					to->orig_id, 0,
 					edge.first.field_name
 				);
 			}
