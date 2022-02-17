@@ -110,9 +110,9 @@ graph graph::flatten(string field_name, int height){
 	return g;
 }
 
-//returns the vertex in g that corresponds to 'me'.
-Vertex* getVertexIn(graph& g, Vertex* me){
-	return g.getVertex(me->x, 0, "");
+//returns the vertex in the original, unflattened graph that corresponds to 'me'.
+Vertex* getVertexIn(graph& original, Vertex* to_find){
+	return original.getVertex(to_find->orig_id, 0);
 }
 
 void graph::transplantReachabilityInformationTo(graph& g){
