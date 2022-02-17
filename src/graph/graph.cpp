@@ -60,25 +60,25 @@ void graph::constructFromDot(string infile_name, bool d1_parenthesis, bool d1_br
 }
 
 //performs graph flattening on 'field_name' to depth 'depth'
-graph graph::flatten(string field_name, int depth){
+graph graph::flatten(string field_name, int height){
 	graph g;
-	auto cop = [](Vertex a, Vertex b, field f, void* extra[]) {
+	auto cop = [](Vertex start, Vertex end, field f, void* extra[]) {
 			graph* g = (graph*)extra[0];
-			int i = *((int*)extra[1]);
+			int h = *((int*)extra[1]);
 			int depth = *(int*)extra[2];
 			string field_name = *(string*)extra[3];
 			if(f.field_name == field_name){ //TODO cache id of "[" field and do comparison on
 				//flatten on this field
-				if(i+1!=depth)
+				if(h+1!=depth)
 					g->addEdge(
-						a.x, i, 
-						b.x, i+1, 
+						start.orig_id, h, 
+						end.orig_id, h+1, 
 						g->EPS.field_name
 					);
 			}else{
 				g->addEdge(
-					a.x, i,
-					b.x, i,
+					start.orig_id, h,
+					end.orig_id, h,
 					f.field_name
 				);
 					
