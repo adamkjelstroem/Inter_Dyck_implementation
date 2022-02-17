@@ -545,7 +545,7 @@ graph graph::buildFlipped(graph &g){
 }
 
 void printVertexInfo(Vertex* v, graph& g_flipped){
-	cout<<"looking at x = "<<v->x<<" with id "<<v->id<<endl;
+	cout<<"looking at orig_id = "<<v->orig_id<<" with current id "<<v->id<<endl;
 	cout<<"self-loops: "<<countSelfLoops(v)<<endl;
 	cout<<"out-edges: "<<countOutEdges(v, g_flipped)<<endl;
 	cout<<"in-edges: "<<countInEdges(v)<<endl;
@@ -883,7 +883,7 @@ void graph::removeHubVertexIfExistsThenCalc(graph &g_working, graph &g_orig){
 				
 				int count = 0;
 				for(int member : scc_with_u_in_h){
-					if(h.vertices[member]->y == 0){
+					if(h.vertices[member]->layer == 0){
 						count++;
 					} 
 				}
@@ -1172,7 +1172,7 @@ void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label
 	
 	end->addedge(getfield(label), start->id);
 
-	setFlattened(end_y != 0 | start_y != 0);
+	setFlattened(end_layer != 0 | start_layer != 0);
 	numedges++;
 }
 
@@ -1243,7 +1243,7 @@ void graph::printDetailReach(){
 	while(it!=scc.end()){
 		int zero_elems = 0;
 		for(int elem : it->second){
-			if(vertices[elem]->y == 0){
+			if(vertices[elem]->layer == 0){
 				zero_elems++;
 				if(zero_elems>=2) break;
 			}
@@ -1251,11 +1251,11 @@ void graph::printDetailReach(){
 		if(zero_elems>=1){
 			cout<<"scc: \\{";
 			for(int elem : it->second){
-				if(vertices[elem]->y == 0){ 
-					cout<<"("<<vertices[elem]->x<<"), ";
+				if(vertices[elem]->layer == 0){ 
+					cout<<"("<<vertices[elem]->orig_id<<"), ";
 					//cout<<tokens[0]<<"\n";
 				}else if(true){ //TODO disable this
-					cout<<"("<<vertices[elem]->x<<", "<<vertices[elem]->y<<"), ";
+					cout<<"("<<vertices[elem]->orig_id<<", "<<vertices[elem]->orig_id<<"), ";
 				}
 			}
 			cout<<"\\}\\\\"<<endl;
@@ -1269,7 +1269,7 @@ void graph::printGraph(){
 	cout<<"size of fields in graph is "<<fields.size()<<endl;
 	for(int i=0;i<vertices.size();i++){
 		Vertex *vtx = vertices[i];
-		cout<<"*****  "<<vtx->x<<"  *****\n";
+		cout<<"*****  "<<vtx->orig_id<<"  *****\n";
 		vtx->printvtxid();
 		printEdges(vtx);
 		cout<<endl;
@@ -1285,7 +1285,7 @@ void graph::printEdges(Vertex *vtx){
 		cout<<"** "<<f.field_name<<endl;
 		auto fedgeit = vtx->edgesbegin(f);
 		while(fedgeit != vtx->edgesend(f)){   // iterating over edges
-			cout<<"\t"<<vertices[*fedgeit]->x<<endl;
+			cout<<"\t"<<vertices[*fedgeit]->orig_id<<endl;
 			fedgeit++;
 		}
 		fit++;
