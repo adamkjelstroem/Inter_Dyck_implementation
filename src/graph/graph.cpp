@@ -124,13 +124,13 @@ void graph::transplantReachabilityInformationTo(graph& g){
 		auto root = vertices[s.first];
 
 		//we only care about roots at layer 0
-		if(root->y != 0) continue;
+		if(root->layer != 0) continue;
 		
 		for(auto b : s.second){
 			auto other = vertices[b];
 
 			//we only care about members of the scc which are also at layer 0
-			if(other->y != 0) continue;
+			if(other->layer != 0) continue;
 			
 			auto root_in_g_s_root_id = g.dsu.root(getVertexIn(g, root)->id);
 			auto other_in_g_s_root_id = g.dsu.root(getVertexIn(g, other)->id);
@@ -237,8 +237,8 @@ map<int,set<int>> graph::computeSCCs(){
 //forces roots of the sets in the DSU to be in layer 'layer'
 void graph::forceRootsToLayer(int layer){
 	for(int i = 0; i < N; i++){
-		if(vertices[i]->y == layer){
-			if(vertices[dsu.root(i)]->y != layer){
+		if(vertices[i]->layer == layer){
+			if(vertices[dsu.root(i)]->layer != layer){
 				dsu.exchange(i, dsu.root(i));
 			}
 		}
