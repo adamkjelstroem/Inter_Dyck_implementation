@@ -427,13 +427,13 @@ void graph::getGraphAsTikz(){
 }
 
 //helper function to render edge in .dot format.
-string getEdgeAsDot(int from_id, int to_id, string field_name){
+string getEdgeAsDot(int from_orig_id, int to_orig_id, string field_name){
 	ostringstream builder;
 	//all vertices have an 'eps' self edge. 
 	//we don't want to append these.
-	if(from_id == to_id && field_name == "eps") return "";
+	if(from_orig_id == to_orig_id && field_name == "eps") return "";
 	
-	builder<<"	"<<from_id<<" -> "<<to_id;
+	builder<<"	"<<from_orig_id<<" -> "<<to_orig_id;
 	builder<<"[label = \""<<field_name<<"\" color=";
 	if (field_name.find("[") != std::string::npos){
 		builder<<"blue";
