@@ -2,6 +2,7 @@
 #include "graph/graph.h"
 #include <iomanip>
 #include <sstream>
+#include <chrono>
 
 using namespace std;
 
@@ -63,8 +64,22 @@ string url_encode(const string &value) {
     return escaped.str();
 }
 
+//ISSUE: does not work for graphs too big to fit in url!
 void openDotInBrowser(string dot){
 	ostringstream firstcmd;
 	firstcmd<<"open "<<"https://dreampuf.github.io/GraphvizOnline/#"<<url_encode(dot);
 	system(firstcmd.str().c_str());
+}
+
+void generatePNG(string dot){
+	std::ofstream out("temp.dot");
+    out << dot;
+    out.close();
+	cout<<"output graph done!"<<endl;
+	ostringstream cmd;
+	cmd<<"sfdp -x -Tpng temp.dot > ";
+	cmd<<"pics/graph"<<time(nullptr);
+	cmd<<".png";
+	system(cmd.str().c_str());
+	cout<<"pic generation done"<<endl;
 }
