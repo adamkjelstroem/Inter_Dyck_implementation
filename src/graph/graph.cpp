@@ -1141,17 +1141,20 @@ bool graph::query(int uid,int vid){
 }
 
 
-
-Vertex* graph::getVertex(int x, int y, const string &name){
-	auto it = pos2vtx[x].find(y);
+//returns a pointer to the vertex in question. 
+//If the vertex does not exist, creates it.
+Vertex* graph::getVertex(int orig_id, int layer){ //, const string &name
+	auto it = pos2vtx[orig_id].find(layer);
 	//auto it = str2vtx.find("");
-	if(it==pos2vtx[x].end()){
-		Vertex* vtx = new Vertex(this->N, x, y,name);
+	if(it==pos2vtx[orig_id].end()){
+		Vertex* vtx = new Vertex(this->N, orig_id, layer); 
+		//TODO maybe re-implement that vertices have a name (just a display name)
+
 		//cout<<"adding new edge with id \""<<vtx->id<<"\" and name \""<<vtx->name<<"\""<<endl;
 		vertices.push_back(vtx);
 		vtx->addedge(EPS,vtx->id);
 		this->N++;
-		pos2vtx[x][y] = vtx;
+		pos2vtx[orig_id][layer] = vtx;
 		//str2vtx[s + ": " + to_string(layer)]=vtx;
 		return vtx;
 	}
