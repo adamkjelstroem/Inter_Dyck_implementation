@@ -1165,9 +1165,9 @@ field& graph::getfield(const string &s){
 }
 
 //adds edge from start to end with label l. example: l="(" means   a -- "(" --> b
-void graph::addEdge(int start_x, int start_y, int end_x, int end_y, string label){
-	Vertex* start = getVertex(start_x, start_y, "");
-	Vertex* end   = getVertex(end_x,   end_y, "");
+void graph::addEdge(int start_orig_id, int start_layer, int end_orig_id, int end_layer, string label){
+	Vertex* start = getVertex(start_orig_id, start_layer);
+	Vertex* end   = getVertex(end_orig_id,   end_layer);
 
 	//cout<<"addEdge from "<<start->to_string()<<" to "<<end->to_string()<<"\\\\"<<endl;
 	
