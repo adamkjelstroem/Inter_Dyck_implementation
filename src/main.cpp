@@ -205,10 +205,10 @@ void full_early_stopping_experiment(string test_cases[], int n_cases){
 			for(int hb2 = hb+1; hb2 < height-2; hb2++){
 				possible = true;
 				for(int i = 0; i < g.N; i++){
-					int x = g.vertices[i]->x;
-					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb, "")->id)];
-					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, hb2, "")->id)];
-					if(h1_root_vertex->x != h2_root_vertex->x){
+					int orig_id = g.vertices[i]->orig_id;
+					Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(orig_id, hb)->id)];
+					Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(orig_id, hb2)->id)];
+					if(h1_root_vertex->orig_id != h2_root_vertex->orig_id){
 						possible = false;
 					}
 				}
@@ -225,10 +225,10 @@ void full_early_stopping_experiment(string test_cases[], int n_cases){
 		for(int j = 1; j < 10; j++){
 			possible = true;
 			for(int i = 0; i < g.N; i++){
-				int x = g.vertices[i]->x;
-				Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(x,  low_rep + 1, "")->id)];
-				Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(x, high_rep + 1, "")->id)];
-				if(h1_root_vertex->x != h2_root_vertex->x){
+				int orig_id = g.vertices[i]->orig_id;
+				Vertex* h1_root_vertex = h.vertices[h.dsu.root(h.getVertex(orig_id,  low_rep + 1)->id)];
+				Vertex* h2_root_vertex = h.vertices[h.dsu.root(h.getVertex(orig_id, high_rep + 1)->id)];
+				if(h1_root_vertex->orig_id != h2_root_vertex->orig_id){
 					possible = false;
 				}
 			}
