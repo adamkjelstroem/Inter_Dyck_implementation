@@ -454,7 +454,7 @@ string graph::getAsDot(){
 		for(auto edge : to->edges){
 			for(auto from_id : edge.second){
 				Vertex* from = vertices[from_id];
-				builder<<getEdgeAsDot(from->orig_id, to->orig_id, edge.first.field_name);
+				builder<<getEdgeAsDot(getRoot(from)->orig_id, getRoot(to)->orig_id, edge.first.field_name);
 			}
 		}
 	}
@@ -1140,6 +1140,10 @@ bool graph::query(int uid,int vid){
 	return dsu.root(uid)==dsu.root(vid);
 }
 
+//  helper function to get root vertex of this
+Vertex* graph::getRoot(Vertex* me){
+	return vertices[dsu.root(me->id)];
+}
 
 //returns a pointer to the vertex in question. 
 //If the vertex does not exist, creates it.

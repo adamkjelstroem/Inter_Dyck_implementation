@@ -130,6 +130,8 @@ public:
 	graph buildFlipped(graph &g);
 
 	string getFlattenedAsDot(int height, graph original_graph);
+
+	Vertex* getRoot(Vertex* me);
 };
 
 #endif
