@@ -678,8 +678,10 @@ void findRemovableVerticesViaThirdRule(graph &g_working, graph &g_flipped, set<i
 				//test if 'a' adheres to rules
 				if(countSelfLoops(a) != 0) continue;
 				if(countInEdges(a) != 0) continue;
-				//if(countOutEdges(a, g_flipped) != 1) continue; //TODO uncomment
-
+				if(countOutEdges(a, g_flipped) != 1) {
+					//cout<<"found possible discrepancy"<<endl;
+					continue; //TODO uncomment this if
+				}
 				//cout<<a->id<<" is being deleted via 3rd rule"<<endl;
 				to_delete.insert(a->id);
 			}
@@ -700,6 +702,7 @@ void discoverDeletableVertices(graph &g_working, set<int> &to_delete){
 }
 
 //if a --> c <-- b and a --> d <-- b, then delete d.
+//TODO would need to consider edge labels which we're not!!!
 void findRemovableVerticesWhereAllWitnessSame(graph &g_working, set<int> &to_delete){
 	graph g_flipped = g_working.buildFlipped(g_working);
 
@@ -929,12 +932,13 @@ graph graph::trim_d1d1(graph& g_working){
 		g_working_2 = buildCopyWithout(g_working, to_delete);
 		g_working.deleteVertices();
 		g_working = g_working_2;
-
+ 
+		/* //TODO want to verify if I trust this
 		set<int> to_delete2;
 		findRemovableVerticesWhereAllWitnessSame(g_working, to_delete2);
 		g_working_2 = buildCopyWithout(g_working, to_delete2);
 		g_working.deleteVertices();
-		g_working = g_working_2;
+		g_working = g_working_2;*/
 
 		//cout<<"Newly reduced g, without the removable edges:"<<endl;
 		//g_working.printSparsenessFacts();
