@@ -287,9 +287,9 @@ void full_both_experiment(string test_cases[], int n_cases){
 
 }
 
-void exportSimplified(string testcase, bool trim){
+void exportSimplifiedD1D1(string testcase, bool trim){
 	graph* g = new graph;
-	g->constructFromDot(getPathOf(s), true, true);
+	g->constructFromDot(getPathOf(s), true, false);
 	g->dsu.init(g->N);
 	g->initWorklist();
 
@@ -311,7 +311,7 @@ int main(int argc, const char * argv[]){
 	string *test_cases;
 	int n_cases;
 
-	exportSimplified("antlr",false);
+	exportSimplifiedDkD1(argv[1],false);
 	return
 	
 	if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
