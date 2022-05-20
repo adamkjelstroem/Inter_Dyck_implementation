@@ -124,6 +124,8 @@ public:
 	void bidirectedInterleavedD1D1Reach();
 
 	void bidirectedInterleavedDkD1Reach(string flatten_on);
+
+	void printAsDot2();
 };
 
 #endif
