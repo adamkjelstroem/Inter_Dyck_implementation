@@ -445,6 +445,21 @@ void graph::printAsDot(){
 	cout<<"}"<<endl;
 }
 
+void graph::printAsDot2(){
+	for(Vertex* v : vertices){
+		for(auto edge : v->edges){
+			for(auto u_id : edge.second){
+				if(!(u_id == v->id && edge.first.field_name == "eps")){
+					cout<<vertices[u_id]->id<<" -> "<<v->id;
+					cout<<"[label = \""<<edge.first.field_name<<"\"];"<<endl;
+				}
+			}
+		}
+	}
+}
+
+
+
 
 //counts 'true' self loops, meaning we ignore the mandatory eps edge
 int countSelfLoops(Vertex* v){

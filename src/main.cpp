@@ -287,9 +287,32 @@ void full_both_experiment(string test_cases[], int n_cases){
 
 }
 
+void exportSimplified(string testcase){
+	graph* g = new graph;
+	g->constructFromDot(getPathOf(s), true, true);
+	g->dsu.init(g->N);
+	g->initWorklist();
+
+	//Reduce graph via bidirected reach, as it is a sound under-approximation
+	g->bidirectedReach();
+
+	//construct working copy of g without dublicate edges.
+	graph g_working = g->makeCopyWithoutDuplicates();
+	
+	//use various rules of trimming to reduce graph. 
+	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
+	g_working = g_working.trim_d1d1(g_working);
+
+
+	g_working.printAsDot2()
+}
+
 int main(int argc, const char * argv[]){
 	string *test_cases;
 	int n_cases;
+
+	exportSimplified("antlr");
+	return
 	
 	if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
 		test_cases = new string[argc-2];
