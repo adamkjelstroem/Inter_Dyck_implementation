@@ -287,7 +287,7 @@ void full_both_experiment(string test_cases[], int n_cases){
 
 }
 
-void exportSimplified(string testcase){
+void exportSimplified(string testcase, bool trim){
 	graph* g = new graph;
 	g->constructFromDot(getPathOf(s), true, true);
 	g->dsu.init(g->N);
@@ -301,7 +301,7 @@ void exportSimplified(string testcase){
 	
 	//use various rules of trimming to reduce graph. 
 	//Precondition: bidirectedReach(), then makeCopyWhoutoutDublicates() have been called
-	g_working = g_working.trim_d1d1(g_working);
+	if (trim) g_working = g_working.trim_d1d1(g_working);
 
 
 	g_working.printAsDot2()
@@ -311,7 +311,7 @@ int main(int argc, const char * argv[]){
 	string *test_cases;
 	int n_cases;
 
-	exportSimplified("antlr");
+	exportSimplified("antlr",false);
 	return
 	
 	if (argc >= 3 && strcmp(argv[1], "-b") == 0) {
